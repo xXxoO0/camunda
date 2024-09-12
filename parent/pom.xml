@@ -810,6 +810,12 @@
 
       <dependency>
         <groupId>io.camunda</groupId>
+        <artifactId>camunda-service-domain</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.camunda</groupId>
         <artifactId>camunda-service</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -817,6 +823,12 @@
       <dependency>
         <groupId>io.camunda</groupId>
         <artifactId>camunda-search-client</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.camunda</groupId>
+        <artifactId>search-client-query-transformer</artifactId>
         <version>${project.version}</version>
       </dependency>
 

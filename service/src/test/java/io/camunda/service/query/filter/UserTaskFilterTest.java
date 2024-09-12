@@ -14,7 +14,6 @@ import io.camunda.search.clients.query.SearchBoolQuery;
 import io.camunda.search.clients.query.SearchQueryOption;
 import io.camunda.search.clients.query.SearchRangeQuery;
 import io.camunda.search.clients.query.SearchTermQuery;
-import io.camunda.search.clients.sort.SortOrder;
 import io.camunda.service.UserTaskServices;
 import io.camunda.service.entities.UserTaskEntity;
 import io.camunda.service.search.filter.ComparableValueFilter;
@@ -23,6 +22,7 @@ import io.camunda.service.search.filter.UserTaskFilter;
 import io.camunda.service.search.filter.UserTaskFilter.Builder;
 import io.camunda.service.search.query.SearchQueryBuilders;
 import io.camunda.service.search.query.SearchQueryResult;
+import io.camunda.service.search.sort.SortOrder;
 import io.camunda.service.util.StubbedBrokerClient;
 import io.camunda.service.util.StubbedCamundaSearchClient;
 import java.util.stream.Stream;
@@ -43,7 +43,7 @@ public class UserTaskFilterTest {
   public void before() {
     client = new StubbedCamundaSearchClient();
     new UserTaskSearchQueryStub().registerWith(client);
-    services = new UserTaskServices(brokerClient, client);
+    services = new UserTaskServices(brokerClient, client, null);
   }
 
   @Test

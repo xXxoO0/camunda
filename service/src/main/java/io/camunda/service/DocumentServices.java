@@ -9,7 +9,6 @@ package io.camunda.service;
 
 import io.camunda.search.clients.CamundaSearchClient;
 import io.camunda.service.security.auth.Authentication;
-import io.camunda.service.transformers.ServiceTransformers;
 import io.camunda.zeebe.broker.client.api.BrokerClient;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -26,32 +25,26 @@ public class DocumentServices extends ApiServices<DocumentServices> {
   private static final String STORE_ID = "default";
   private final Map<String, byte[]> documents;
 
-  public DocumentServices(final BrokerClient brokerClient, final CamundaSearchClient searchClient) {
-    this(brokerClient, searchClient, null, null, new HashMap<>());
-  }
-
   public DocumentServices(
       final BrokerClient brokerClient,
       final CamundaSearchClient searchClient,
-      final ServiceTransformers transformers,
       final Authentication authentication,
       final Map<String, byte[]> documents) {
-    super(brokerClient, searchClient, transformers, authentication);
+    super(brokerClient, searchClient, authentication);
     this.documents = documents;
   }
 
   public DocumentServices(
       final BrokerClient brokerClient,
       final CamundaSearchClient searchClient,
-      final ServiceTransformers transformers,
       final Authentication authentication) {
-    this(brokerClient, searchClient, transformers, authentication, new HashMap<>());
+    this(brokerClient, searchClient, authentication, new HashMap<>());
   }
 
   @Override
   public DocumentServices withAuthentication(final Authentication authentication) {
     return new DocumentServices(
-        brokerClient, searchClient, transformers, authentication, documents);
+        brokerClient, searchClient, authentication, documents);
   }
 
   public CompletableFuture<DocumentReferenceResponse> createDocument(
