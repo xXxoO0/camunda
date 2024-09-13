@@ -9,11 +9,10 @@ package io.camunda.application.commons.service;
 
 import io.camunda.application.commons.service.SearchClientDatabaseConfiguration.SearchClientProperties;
 import io.camunda.search.clients.CamundaSearchClient;
+import io.camunda.search.clients.ProcessSearchClient;
 import io.camunda.search.connect.SearchClientProvider;
-import io.camunda.search.connect.SearchClientProvider.SearchClientProviders;
 import io.camunda.search.connect.configuration.ConnectConfiguration;
 import io.camunda.zeebe.gateway.rest.ConditionalOnRestGatewayEnabled;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -25,34 +24,36 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(SearchClientProperties.class)
 public class SearchClientDatabaseConfiguration {
 
-  private final ConnectConfiguration configuration;
-
-  @Autowired
-  public SearchClientDatabaseConfiguration(final SearchClientProperties configuration) {
-    this.configuration = configuration;
+  @Bean
+  @ConditionalOnProperty(
+      prefix = "camunda.database",
+      name = "type",
+      havingValue = "opensearch")
+  public CamundaSearchClient opensearchClient(final SearchClientProperties configuration) {
+    return SearchClientProvider.createOpensearchProvider(configuration);
   }
 
-  @Bean
+  @ConfigurationProperties("camunda.database")
+  public static final class SearchClientProperties extends ConnectConfiguration {
+
+  }
+
+  @Configuration
   @ConditionalOnProperty(
       prefix = "camunda.database",
       name = "type",
       havingValue = "elasticsearch",
       matchIfMissing = true)
-  public SearchClientProvider elasticsearchClientProvider() {
-    return SearchClientProviders::createElasticsearchProvider;
-  }
+  private static class ESConfiguration {
 
-  @Bean
-  @ConditionalOnProperty(prefix = "camunda.database", name = "type", havingValue = "opensearch")
-  public SearchClientProvider opensearchClientProvider() {
-    return SearchClientProviders::createOpensearchProvider;
-  }
+    @Bean
+    public CamundaSearchClient elasticsearchClient(final SearchClientProperties configuration) {
+      return SearchClientProvider.createElasticsearchProvider(configuration);
+    }
 
-  @Bean
-  public CamundaSearchClient camundaSearchClient(final SearchClientProvider searchClientProvider) {
-    return searchClientProvider.apply(configuration);
+    @Bean
+    public ProcessSearchClient processSearchClient(final SearchClientProperties configuration) {
+      return SearchClientProvider.createElasticsearchProcessInstanceSearchClient(configuration);
+    }
   }
-
-  @ConfigurationProperties("camunda.database")
-  public static final class SearchClientProperties extends ConnectConfiguration {}
 }

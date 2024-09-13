@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-public final class JobServices<T> extends ApiServices<JobServices<T>> {
+public final class JobServices<T> extends AbstractBrokerApi {
 
   private final ActivateJobsHandler<T> activateJobsHandler;
 
@@ -100,7 +100,11 @@ public final class JobServices<T> extends ApiServices<JobServices<T>> {
       long timeout,
       String worker,
       List<String> fetchVariable,
-      long requestTimeout) {}
+      long requestTimeout) {
 
-  public record UpdateJobChangeset(Integer retries, Long timeout) {}
+  }
+
+  public record UpdateJobChangeset(Integer retries, Long timeout) {
+
+  }
 }

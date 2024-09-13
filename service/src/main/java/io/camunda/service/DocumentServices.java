@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class DocumentServices extends ApiServices<DocumentServices> {
+public class DocumentServices extends AbstractBrokerApi {
 
   // TODO: This is an in-memory implementation, replace it with a real document store
   private static final String STORE_ID = "default";
@@ -48,7 +48,7 @@ public class DocumentServices extends ApiServices<DocumentServices> {
   }
 
   public CompletableFuture<DocumentReferenceResponse> createDocument(
-      DocumentCreateRequest request) {
+      final DocumentCreateRequest request) {
     validateStoreId(request.storeId);
     final String id =
         request.documentId != null ? request.documentId : UUID.randomUUID().toString();
@@ -60,7 +60,7 @@ public class DocumentServices extends ApiServices<DocumentServices> {
     try {
       content = contentInputStream.readAllBytes();
       contentInputStream.close();
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new CamundaServiceException("Failed to read document content", e);
     }
     documents.put(id, content);
@@ -68,7 +68,7 @@ public class DocumentServices extends ApiServices<DocumentServices> {
         new DocumentReferenceResponse(id, STORE_ID, request.metadata));
   }
 
-  public InputStream getDocumentContent(String documentId, String storeId) {
+  public InputStream getDocumentContent(final String documentId, final String storeId) {
     validateStoreId(storeId);
     final var content = documents.get(documentId);
     if (content == null) {
@@ -77,7 +77,7 @@ public class DocumentServices extends ApiServices<DocumentServices> {
     return new ByteArrayInputStream(content);
   }
 
-  public CompletableFuture<Void> deleteDocument(String documentId, String storeId) {
+  public CompletableFuture<Void> deleteDocument(final String documentId, final String storeId) {
     validateStoreId(storeId);
     final var content = documents.remove(documentId);
     if (content == null) {
@@ -86,7 +86,7 @@ public class DocumentServices extends ApiServices<DocumentServices> {
     return CompletableFuture.completedFuture(null);
   }
 
-  private void validateStoreId(String storeId) {
+  private void validateStoreId(final String storeId) {
     if (storeId != null && !storeId.equals(STORE_ID)) {
       throw new CamundaServiceException(
           "Unsupported store id: " + storeId + ", expected: " + STORE_ID);
@@ -97,14 +97,20 @@ public class DocumentServices extends ApiServices<DocumentServices> {
       String documentId,
       String storeId,
       InputStream contentInputStream,
-      DocumentMetadataModel metadata) {}
+      DocumentMetadataModel metadata) {
+
+  }
 
   public record DocumentMetadataModel(
       String contentType,
       String fileName,
       ZonedDateTime expiresAt,
-      Map<String, Object> additionalProperties) {}
+      Map<String, Object> additionalProperties) {
+
+  }
 
   public record DocumentReferenceResponse(
-      String documentId, String storeId, DocumentMetadataModel metadata) {}
+      String documentId, String storeId, DocumentMetadataModel metadata) {
+
+  }
 }

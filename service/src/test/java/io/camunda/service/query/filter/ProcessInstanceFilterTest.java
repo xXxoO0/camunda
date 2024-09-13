@@ -9,9 +9,15 @@ package io.camunda.service.query.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.camunda.search.clients.query.*;
-import io.camunda.service.ProcessInstanceServices;
+import io.camunda.search.clients.query.SearchBoolQuery;
+import io.camunda.search.clients.query.SearchExistsQuery;
+import io.camunda.search.clients.query.SearchHasChildQuery;
+import io.camunda.search.clients.query.SearchMatchNoneQuery;
+import io.camunda.search.clients.query.SearchMatchQuery;
+import io.camunda.search.clients.query.SearchRangeQuery;
+import io.camunda.search.clients.query.SearchTermQuery;
 import io.camunda.service.entities.ProcessInstanceEntity;
+import io.camunda.service.query.ProcessInstanceQueryServices;
 import io.camunda.service.search.filter.FilterBuilders;
 import io.camunda.service.search.filter.ProcessInstanceFilter.Builder;
 import io.camunda.service.search.filter.ProcessInstanceVariableFilter;
@@ -26,14 +32,14 @@ import org.junit.jupiter.api.Test;
 
 public final class ProcessInstanceFilterTest {
 
-  private ProcessInstanceServices services;
+  private ProcessInstanceQueryServices services;
   private StubbedCamundaSearchClient client;
 
   @BeforeEach
   public void before() {
     client = new StubbedCamundaSearchClient();
     new ProcessInstanceSearchQueryStub().registerWith(client);
-    services = new ProcessInstanceServices(null, client, null);
+    services = new ProcessInstanceQueryServices(null, client, null);
   }
 
   @Test
@@ -191,7 +197,8 @@ public final class ProcessInstanceFilterTest {
             });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(1).queryOption())
-        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {});
+        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {
+        });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(2).queryOption())
         .isInstanceOfSatisfying(
@@ -235,7 +242,8 @@ public final class ProcessInstanceFilterTest {
             });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(1).queryOption())
-        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {});
+        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {
+        });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(2).queryOption())
         .isInstanceOfSatisfying(
@@ -469,7 +477,8 @@ public final class ProcessInstanceFilterTest {
             });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(1).queryOption())
-        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {});
+        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {
+        });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(2).queryOption())
         .isInstanceOfSatisfying(
@@ -519,7 +528,8 @@ public final class ProcessInstanceFilterTest {
             });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(1).queryOption())
-        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {});
+        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {
+        });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(2).queryOption())
         .isInstanceOfSatisfying(
@@ -557,7 +567,8 @@ public final class ProcessInstanceFilterTest {
             });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(1).queryOption())
-        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {});
+        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {
+        });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(2).queryOption())
         .isInstanceOfSatisfying(
@@ -597,7 +608,8 @@ public final class ProcessInstanceFilterTest {
             });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(1).queryOption())
-        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {});
+        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {
+        });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(2).queryOption())
         .isInstanceOfSatisfying(
@@ -654,7 +666,8 @@ public final class ProcessInstanceFilterTest {
             });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(1).queryOption())
-        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {});
+        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {
+        });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(2).queryOption())
         .isInstanceOfSatisfying(
@@ -692,7 +705,8 @@ public final class ProcessInstanceFilterTest {
             });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(1).queryOption())
-        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {});
+        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {
+        });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(2).queryOption())
         .isInstanceOfSatisfying(
@@ -729,7 +743,8 @@ public final class ProcessInstanceFilterTest {
             });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(1).queryOption())
-        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {});
+        .isInstanceOfSatisfying(SearchMatchNoneQuery.class, searchMatchNoneQuery -> {
+        });
 
     assertThat(((SearchBoolQuery) queryVariant).must().get(2).queryOption())
         .isInstanceOfSatisfying(

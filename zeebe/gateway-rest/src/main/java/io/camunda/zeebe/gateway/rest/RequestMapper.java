@@ -36,13 +36,13 @@ import io.camunda.service.JobServices.ActivateJobsRequest;
 import io.camunda.service.JobServices.UpdateJobChangeset;
 import io.camunda.service.MessageServices.CorrelateMessageRequest;
 import io.camunda.service.MessageServices.PublicationMessageRequest;
-import io.camunda.service.ProcessInstanceServices.ProcessInstanceCancelRequest;
-import io.camunda.service.ProcessInstanceServices.ProcessInstanceCreateRequest;
-import io.camunda.service.ProcessInstanceServices.ProcessInstanceMigrateRequest;
-import io.camunda.service.ProcessInstanceServices.ProcessInstanceModifyRequest;
 import io.camunda.service.ResourceServices.DeployResourcesRequest;
 import io.camunda.service.ResourceServices.ResourceDeletionRequest;
 import io.camunda.service.UserServices.CreateUserRequest;
+import io.camunda.service.query.ProcessInstanceQueryServices.ProcessInstanceCancelRequest;
+import io.camunda.service.query.ProcessInstanceQueryServices.ProcessInstanceCreateRequest;
+import io.camunda.service.query.ProcessInstanceQueryServices.ProcessInstanceMigrateRequest;
+import io.camunda.service.query.ProcessInstanceQueryServices.ProcessInstanceModifyRequest;
 import io.camunda.service.security.auth.Authentication;
 import io.camunda.service.security.auth.Authentication.Builder;
 import io.camunda.zeebe.auth.api.JwtAuthorizationBuilder;
@@ -296,8 +296,8 @@ public class RequestMapper {
   }
 
   public static <BrokerResponseT>
-      CompletableFuture<ResponseEntity<Object>> executeServiceMethodWithNoContentResult(
-          final Supplier<CompletableFuture<BrokerResponseT>> method) {
+  CompletableFuture<ResponseEntity<Object>> executeServiceMethodWithNoContentResult(
+      final Supplier<CompletableFuture<BrokerResponseT>> method) {
     return RequestMapper.executeServiceMethod(
         method, ignored -> ResponseEntity.noContent().build());
   }
@@ -357,6 +357,7 @@ public class RequestMapper {
                 request.getSignalName(), request.getVariables(), request.getTenantId()));
   }
 
+  // TODO Move to own AuthenticationHolder?
   public static Authentication getAuthentication() {
     final List<String> authorizedTenants = TenantAttributeHolder.tenantIds();
 
@@ -458,7 +459,7 @@ public class RequestMapper {
                     .map(
                         instruction ->
                             new io.camunda.zeebe.protocol.impl.record.value.processinstance
-                                    .ProcessInstanceCreationStartInstruction()
+                                .ProcessInstanceCreationStartInstruction()
                                 .setElementId(instruction.getElementId()))
                     .toList()));
   }
@@ -509,8 +510,8 @@ public class RequestMapper {
   }
 
   private static List<ProcessInstanceModificationActivateInstruction>
-      mapProcessInstanceModificationActivateInstruction(
-          final List<ModifyProcessInstanceActivateInstruction> instructions) {
+  mapProcessInstanceModificationActivateInstruction(
+      final List<ModifyProcessInstanceActivateInstruction> instructions) {
     return instructions.stream()
         .map(
             instruction -> {
@@ -570,27 +571,43 @@ public class RequestMapper {
   }
 
   public record CompleteUserTaskRequest(
-      long userTaskKey, Map<String, Object> variables, String action) {}
+      long userTaskKey, Map<String, Object> variables, String action) {
 
-  public record UpdateUserTaskRequest(long userTaskKey, UserTaskRecord changeset, String action) {}
+  }
+
+  public record UpdateUserTaskRequest(long userTaskKey, UserTaskRecord changeset, String action) {
+
+  }
 
   public record AssignUserTaskRequest(
-      long userTaskKey, String assignee, String action, boolean allowOverride) {}
+      long userTaskKey, String assignee, String action, boolean allowOverride) {
+
+  }
 
   public record FailJobRequest(
       long jobKey,
       int retries,
       String errorMessage,
       Long retryBackoff,
-      Map<String, Object> variables) {}
+      Map<String, Object> variables) {
+
+  }
 
   public record ErrorJobRequest(
-      long jobKey, String errorCode, String errorMessage, Map<String, Object> variables) {}
+      long jobKey, String errorCode, String errorMessage, Map<String, Object> variables) {
 
-  public record CompleteJobRequest(long jobKey, Map<String, Object> variables) {}
+  }
 
-  public record UpdateJobRequest(long jobKey, UpdateJobChangeset changeset) {}
+  public record CompleteJobRequest(long jobKey, Map<String, Object> variables) {
+
+  }
+
+  public record UpdateJobRequest(long jobKey, UpdateJobChangeset changeset) {
+
+  }
 
   public record BroadcastSignalRequest(
-      String signalName, Map<String, Object> variables, String tenantId) {}
+      String signalName, Map<String, Object> variables, String tenantId) {
+
+  }
 }

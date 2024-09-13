@@ -15,7 +15,6 @@ import io.camunda.service.entities.DecisionDefinitionEntity;
 import io.camunda.service.entities.DecisionRequirementsEntity;
 import io.camunda.service.exception.NotFoundException;
 import io.camunda.service.exception.SearchQueryExecutionException;
-import io.camunda.service.search.core.SearchQueryService;
 import io.camunda.service.search.query.DecisionDefinitionQuery;
 import io.camunda.service.search.query.SearchQueryResult;
 import io.camunda.service.security.auth.Authentication;
@@ -25,7 +24,7 @@ import java.util.function.Function;
 
 public final class DecisionDefinitionServices
     extends SearchQueryService<
-        DecisionDefinitionServices, DecisionDefinitionQuery, DecisionDefinitionEntity> {
+    DecisionDefinitionQuery, DecisionDefinitionEntity> {
 
   public DecisionDefinitionServices(
       final BrokerClient brokerClient,

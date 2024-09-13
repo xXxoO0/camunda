@@ -7,9 +7,7 @@
  */
 package io.camunda.service;
 
-import io.camunda.search.clients.CamundaSearchClient;
 import io.camunda.service.security.auth.Authentication;
-import io.camunda.util.ObjectBuilder;
 import io.camunda.zeebe.broker.client.api.BrokerClient;
 import io.camunda.zeebe.broker.client.api.dto.BrokerRequest;
 import io.camunda.zeebe.broker.client.api.dto.BrokerResponse;
@@ -17,38 +15,30 @@ import io.camunda.zeebe.msgpack.value.DocumentValue;
 import io.camunda.zeebe.protocol.impl.encoding.MsgPackConverter;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import org.agrona.DirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 
-public abstract class ApiServices<T extends ApiServices<T>> {
+public abstract class AbstractBrokerApi {
 
   protected final BrokerClient brokerClient;
-  protected final CamundaSearchClient searchClient;
-  protected final Authentication authentication;
 
-  protected ApiServices(
-      final BrokerClient brokerClient,
-      final CamundaSearchClient searchClient,
-      final Authentication authentication) {
+  protected AbstractBrokerApi(final BrokerClient brokerClient) {
     this.brokerClient = brokerClient;
-    this.searchClient = searchClient;
-    this.authentication = authentication;
-  }
-
-  public abstract T withAuthentication(final Authentication authentication);
-
-  public T withAuthentication(
-      final Function<Authentication.Builder, ObjectBuilder<Authentication>> fn) {
-    return withAuthentication(fn.apply(new Authentication.Builder()).build());
   }
 
   protected <R> CompletableFuture<R> sendBrokerRequest(final BrokerRequest<R> brokerRequest) {
-    return sendBrokerRequestWithFullResponse(brokerRequest).thenApply(BrokerResponse::getResponse);
+    return sendBrokerRequest(brokerRequest, null);
+  }
+
+  protected <R> CompletableFuture<R> sendBrokerRequest(final BrokerRequest<R> brokerRequest,
+      final Authentication authentication) {
+    return sendBrokerRequestWithFullResponse(brokerRequest, authentication).thenApply(
+        BrokerResponse::getResponse);
   }
 
   protected <R> CompletableFuture<BrokerResponse<R>> sendBrokerRequestWithFullResponse(
-      final BrokerRequest<R> brokerRequest) {
+      final BrokerRequest<R> brokerRequest,
+      final Authentication authentication) {
     brokerRequest.setAuthorization(authentication.token());
     return brokerClient
         .sendRequest(brokerRequest)

@@ -5,17 +5,10 @@
  * Licensed under the Camunda License 1.0. You may not use this file
  * except in compliance with the Camunda License 1.0.
  */
-package io.camunda.service;
+package io.camunda.service.command;
 
-import io.camunda.search.clients.CamundaSearchClient;
-import io.camunda.service.entities.ProcessInstanceEntity;
-import io.camunda.service.exception.SearchQueryExecutionException;
-import io.camunda.service.search.core.SearchQueryService;
-import io.camunda.service.search.query.ProcessInstanceQuery;
-import io.camunda.service.search.query.SearchQueryBuilders;
-import io.camunda.service.search.query.SearchQueryResult;
+import io.camunda.service.AbstractBrokerApi;
 import io.camunda.service.security.auth.Authentication;
-import io.camunda.util.ObjectBuilder;
 import io.camunda.zeebe.broker.client.api.BrokerClient;
 import io.camunda.zeebe.gateway.impl.broker.request.BrokerCancelProcessInstanceRequest;
 import io.camunda.zeebe.gateway.impl.broker.request.BrokerCreateProcessInstanceRequest;
@@ -34,42 +27,18 @@ import io.camunda.zeebe.protocol.impl.record.value.processinstance.ProcessInstan
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
-public final class ProcessInstanceServices
-    extends SearchQueryService<
-        ProcessInstanceServices, ProcessInstanceQuery, ProcessInstanceEntity> {
+// Separation of concerns ... Broker and SearchQuery do different thinks, therefore should not depend on each other
+public final class ProcessInstanceCommandServices
+    extends AbstractBrokerApi {
 
-  public ProcessInstanceServices(
-      final BrokerClient brokerClient,
-      final CamundaSearchClient searchClient,
-      final Authentication authentication) {
-    super(brokerClient, searchClient, authentication);
-  }
-
-  @Override
-  public ProcessInstanceServices withAuthentication(final Authentication authentication) {
-    return new ProcessInstanceServices(brokerClient, searchClient, authentication);
-  }
-
-  @Override
-  public SearchQueryResult<ProcessInstanceEntity> search(final ProcessInstanceQuery query) {
-    return searchClient
-        .searchProcessInstances(query, authentication)
-        .fold(
-            (e) -> {
-              throw new SearchQueryExecutionException("Failed to execute search query", e);
-            },
-            (r) -> r);
-  }
-
-  public SearchQueryResult<ProcessInstanceEntity> search(
-      final Function<ProcessInstanceQuery.Builder, ObjectBuilder<ProcessInstanceQuery>> fn) {
-    return search(SearchQueryBuilders.processInstanceSearchQuery(fn));
+  public ProcessInstanceCommandServices(
+      final BrokerClient brokerClient) {
+    super(brokerClient);
   }
 
   public CompletableFuture<ProcessInstanceCreationRecord> createProcessInstance(
-      final ProcessInstanceCreateRequest request) {
+      final ProcessInstanceCreateRequest request, final Authentication authentication) {
     final var brokerRequest =
         new BrokerCreateProcessInstanceRequest()
             .setBpmnProcessId(request.bpmnProcessId())
@@ -82,11 +51,11 @@ public final class ProcessInstanceServices
     if (request.operationReference() != null) {
       brokerRequest.setOperationReference(request.operationReference());
     }
-    return sendBrokerRequest(brokerRequest);
+    return sendBrokerRequest(brokerRequest, authentication);
   }
 
   public CompletableFuture<ProcessInstanceResultRecord> createProcessInstanceWithResult(
-      final ProcessInstanceCreateRequest request) {
+      final ProcessInstanceCreateRequest request, final Authentication authentication) {
     final var brokerRequest =
         new BrokerCreateProcessInstanceWithResultRequest()
             .setBpmnProcessId(request.bpmnProcessId())
@@ -99,7 +68,7 @@ public final class ProcessInstanceServices
     if (request.operationReference() != null) {
       brokerRequest.setOperationReference(request.operationReference());
     }
-    return sendBrokerRequest(brokerRequest);
+    return sendBrokerRequest(brokerRequest, authentication);
   }
 
   public CompletableFuture<ProcessInstanceRecord> cancelProcessInstance(
@@ -151,19 +120,27 @@ public final class ProcessInstanceServices
       Boolean awaitCompletion,
       Long requestTimeout,
       Long operationReference,
-      List<ProcessInstanceCreationStartInstruction> startInstructions) {}
+      List<ProcessInstanceCreationStartInstruction> startInstructions) {
 
-  public record ProcessInstanceCancelRequest(Long processInstanceKey, Long operationReference) {}
+  }
+
+  public record ProcessInstanceCancelRequest(Long processInstanceKey, Long operationReference) {
+
+  }
 
   public record ProcessInstanceMigrateRequest(
       Long processInstanceKey,
       Long targetProcessDefinitionKey,
       List<ProcessInstanceMigrationMappingInstruction> mappingInstructions,
-      Long operationReference) {}
+      Long operationReference) {
+
+  }
 
   public record ProcessInstanceModifyRequest(
       Long processInstanceKey,
       List<ProcessInstanceModificationActivateInstruction> activateInstructions,
       List<ProcessInstanceModificationTerminateInstruction> terminateInstructions,
-      Long operationReference) {}
+      Long operationReference) {
+
+  }
 }

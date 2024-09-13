@@ -10,7 +10,7 @@ package io.camunda.service.query.result;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.camunda.search.clients.core.SearchQueryRequest;
-import io.camunda.service.ProcessInstanceServices;
+import io.camunda.service.query.ProcessInstanceQueryServices;
 import io.camunda.service.query.filter.ProcessInstanceSearchQueryStub;
 import io.camunda.service.search.query.SearchQueryBuilders;
 import io.camunda.service.util.StubbedCamundaSearchClient;
@@ -18,14 +18,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ProcessInstanceResultConfigTest {
-  private ProcessInstanceServices services;
+
+  private ProcessInstanceQueryServices services;
   private StubbedCamundaSearchClient client;
 
   @BeforeEach
   public void before() {
     client = new StubbedCamundaSearchClient();
     new ProcessInstanceSearchQueryStub().registerWith(client);
-    services = new ProcessInstanceServices(null, client, null);
+    services = new ProcessInstanceQueryServices(null, client, null);
   }
 
   @Test

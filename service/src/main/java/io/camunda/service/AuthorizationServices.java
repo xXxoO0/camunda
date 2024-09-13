@@ -10,7 +10,6 @@ package io.camunda.service;
 import io.camunda.search.clients.CamundaSearchClient;
 import io.camunda.service.entities.AuthorizationEntity;
 import io.camunda.service.exception.SearchQueryExecutionException;
-import io.camunda.service.search.core.SearchQueryService;
 import io.camunda.service.search.query.AuthorizationQuery;
 import io.camunda.service.search.query.SearchQueryResult;
 import io.camunda.service.security.auth.Authentication;
@@ -25,7 +24,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class AuthorizationServices<T>
-    extends SearchQueryService<AuthorizationServices<T>, AuthorizationQuery, AuthorizationEntity> {
+    extends SearchQueryService<AuthorizationQuery, AuthorizationEntity> {
 
   public AuthorizationServices(
       final BrokerClient brokerClient,
@@ -65,5 +64,7 @@ public class AuthorizationServices<T>
       long ownerKey,
       PermissionAction action,
       AuthorizationResourceType resourceType,
-      Map<PermissionType, List<String>> permissions) {}
+      Map<PermissionType, List<String>> permissions) {
+
+  }
 }

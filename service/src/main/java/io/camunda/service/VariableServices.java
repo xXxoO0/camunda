@@ -10,7 +10,6 @@ package io.camunda.service;
 import io.camunda.search.clients.CamundaSearchClient;
 import io.camunda.service.entities.VariableEntity;
 import io.camunda.service.exception.SearchQueryExecutionException;
-import io.camunda.service.search.core.SearchQueryService;
 import io.camunda.service.search.query.SearchQueryBuilders;
 import io.camunda.service.search.query.SearchQueryResult;
 import io.camunda.service.search.query.VariableQuery;
@@ -21,7 +20,7 @@ import io.camunda.zeebe.broker.client.api.BrokerClient;
 import java.util.function.Function;
 
 public final class VariableServices
-    extends SearchQueryService<VariableServices, VariableQuery, VariableEntity> {
+    extends SearchQueryService<VariableQuery, VariableEntity> {
 
   public VariableServices(
       final BrokerClient brokerClient,

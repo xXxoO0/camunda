@@ -11,7 +11,6 @@ import io.camunda.service.entities.AuthorizationEntity;
 import io.camunda.service.entities.DecisionDefinitionEntity;
 import io.camunda.service.entities.DecisionRequirementsEntity;
 import io.camunda.service.entities.IncidentEntity;
-import io.camunda.service.entities.ProcessInstanceEntity;
 import io.camunda.service.entities.UserEntity;
 import io.camunda.service.entities.UserTaskEntity;
 import io.camunda.service.entities.VariableEntity;
@@ -19,7 +18,6 @@ import io.camunda.service.search.query.AuthorizationQuery;
 import io.camunda.service.search.query.DecisionDefinitionQuery;
 import io.camunda.service.search.query.DecisionRequirementsQuery;
 import io.camunda.service.search.query.IncidentQuery;
-import io.camunda.service.search.query.ProcessInstanceQuery;
 import io.camunda.service.search.query.SearchQueryResult;
 import io.camunda.service.search.query.UserQuery;
 import io.camunda.service.search.query.UserTaskQuery;
@@ -40,9 +38,6 @@ public interface CamundaSearchClient extends AutoCloseable {
 
   Either<Exception, SearchQueryResult<IncidentEntity>> searchIncidents(
       IncidentQuery filter, Authentication authentication);
-
-  Either<Exception, SearchQueryResult<ProcessInstanceEntity>> searchProcessInstances(
-      ProcessInstanceQuery filter, Authentication authentication);
 
   Either<Exception, SearchQueryResult<UserEntity>> searchUsers(
       UserQuery filter, Authentication authentication);

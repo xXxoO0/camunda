@@ -15,7 +15,7 @@ import io.camunda.zeebe.protocol.impl.record.value.variable.VariableDocumentReco
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-public class ElementInstanceServices extends ApiServices<ElementInstanceServices> {
+public class ElementInstanceServices extends AbstractBrokerApi {
 
   public ElementInstanceServices(
       final BrokerClient brokerClient,
@@ -46,5 +46,7 @@ public class ElementInstanceServices extends ApiServices<ElementInstanceServices
       long elementInstanceKey,
       Map<String, Object> variables,
       Boolean local,
-      Long operationReference) {}
+      Long operationReference) {
+
+  }
 }

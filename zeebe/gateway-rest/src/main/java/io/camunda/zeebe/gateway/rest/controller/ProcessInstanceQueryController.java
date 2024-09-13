@@ -7,7 +7,7 @@
  */
 package io.camunda.zeebe.gateway.rest.controller;
 
-import io.camunda.service.ProcessInstanceServices;
+import io.camunda.service.query.ProcessInstanceQueryServices;
 import io.camunda.service.search.query.ProcessInstanceQuery;
 import io.camunda.zeebe.gateway.protocol.rest.ProcessInstanceSearchQueryRequest;
 import io.camunda.zeebe.gateway.protocol.rest.ProcessInstanceSearchQueryResponse;
@@ -15,7 +15,6 @@ import io.camunda.zeebe.gateway.rest.RequestMapper;
 import io.camunda.zeebe.gateway.rest.RestErrorMapper;
 import io.camunda.zeebe.gateway.rest.SearchQueryRequestMapper;
 import io.camunda.zeebe.gateway.rest.SearchQueryResponseMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +26,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/v2/process-instances")
 public class ProcessInstanceQueryController {
 
-  @Autowired private ProcessInstanceServices processInstanceServices;
+  private final ProcessInstanceQueryServices processInstanceServices;
+
+  public ProcessInstanceQueryController(
+      final ProcessInstanceQueryServices processInstanceQueryServices) {
+    this.processInstanceServices = processInstanceQueryServices;
+  }
 
   @PostMapping(
       path = "/search",
@@ -42,10 +46,9 @@ public class ProcessInstanceQueryController {
   private ResponseEntity<ProcessInstanceSearchQueryResponse> search(
       final ProcessInstanceQuery query) {
     try {
-      final var result =
-          processInstanceServices
-              .withAuthentication(RequestMapper.getAuthentication())
-              .search(query);
+      // Auth always in signature of method ... so we don't have to create a new client always.
+      // Alternative could be to create a AuthHolder Bean (Like Spring does it)
+      final var result = processInstanceServices.search(query, RequestMapper.getAuthentication());
       return ResponseEntity.ok(
           SearchQueryResponseMapper.toProcessInstanceSearchQueryResponse(result));
     } catch (final Throwable e) {

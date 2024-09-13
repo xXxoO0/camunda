@@ -8,11 +8,12 @@
 package io.camunda.service;
 
 import io.camunda.search.clients.CamundaSearchClient;
+import io.camunda.service.query.ProcessInstanceQueryServices;
 import io.camunda.service.security.auth.Authentication;
 import io.camunda.zeebe.broker.client.api.BrokerClient;
 import io.camunda.zeebe.gateway.impl.job.ActivateJobsHandler;
 
-public final class CamundaServices extends ApiServices<CamundaServices> {
+public final class CamundaServices extends AbstractBrokerApi {
 
   public CamundaServices(final BrokerClient brokerClient, final CamundaSearchClient searchClient) {
     this(brokerClient, searchClient, null);
@@ -30,8 +31,8 @@ public final class CamundaServices extends ApiServices<CamundaServices> {
         brokerClient, activateJobsHandler, searchClient, authentication);
   }
 
-  public ProcessInstanceServices processInstanceServices() {
-    return new ProcessInstanceServices(brokerClient, searchClient, authentication);
+  public ProcessInstanceQueryServices processInstanceServices() {
+    return new ProcessInstanceQueryServices(brokerClient, searchClient, authentication);
   }
 
   public UserTaskServices userTaskServices() {

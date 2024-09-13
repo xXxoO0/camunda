@@ -11,8 +11,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import io.camunda.service.ProcessInstanceServices;
 import io.camunda.service.entities.ProcessInstanceEntity;
+import io.camunda.service.query.ProcessInstanceQueryServices;
 import io.camunda.service.search.query.ProcessInstanceQuery;
 import io.camunda.service.search.query.SearchQueryResult.Builder;
 import io.camunda.service.security.auth.Authentication;
@@ -28,9 +28,12 @@ abstract class RestApiConfigurationTest extends RestControllerTest {
   static final String PROCESS_INSTANCES_SEARCH_URL = "/v2/process-instances/search";
   static final String TOPOLOGY_URL = "/v2/topology";
 
-  @MockBean ProcessInstanceServices processInstanceServices;
-  @MockBean BrokerClient brokerClient;
-  @MockBean BrokerTopologyManager topologyManager;
+  @MockBean
+  ProcessInstanceQueryServices processInstanceServices;
+  @MockBean
+  BrokerClient brokerClient;
+  @MockBean
+  BrokerTopologyManager topologyManager;
 
   @BeforeEach
   void setupServices() {

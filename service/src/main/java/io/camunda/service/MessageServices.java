@@ -18,7 +18,7 @@ import io.camunda.zeebe.protocol.impl.record.value.message.MessageRecord;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-public final class MessageServices extends ApiServices<MessageServices> {
+public final class MessageServices extends AbstractBrokerApi {
 
   public MessageServices(
       final BrokerClient brokerClient,
@@ -36,7 +36,7 @@ public final class MessageServices extends ApiServices<MessageServices> {
       final CorrelateMessageRequest correlationRequest) {
     final var brokerRequest =
         new BrokerCorrelateMessageRequest(
-                correlationRequest.name, correlationRequest.correlationKey)
+            correlationRequest.name, correlationRequest.correlationKey)
             .setVariables(getDocumentOrEmpty(correlationRequest.variables))
             .setTenantId(correlationRequest.tenantId);
     return sendBrokerRequest(brokerRequest);
@@ -54,7 +54,9 @@ public final class MessageServices extends ApiServices<MessageServices> {
   }
 
   public record CorrelateMessageRequest(
-      String name, String correlationKey, Map<String, Object> variables, String tenantId) {}
+      String name, String correlationKey, Map<String, Object> variables, String tenantId) {
+
+  }
 
   public record PublicationMessageRequest(
       String name,
@@ -62,5 +64,7 @@ public final class MessageServices extends ApiServices<MessageServices> {
       Long timeToLive,
       String messageId,
       Map<String, Object> variables,
-      String tenantId) {}
+      String tenantId) {
+
+  }
 }

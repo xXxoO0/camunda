@@ -10,7 +10,6 @@ package io.camunda.service;
 import io.camunda.search.clients.CamundaSearchClient;
 import io.camunda.service.entities.UserTaskEntity;
 import io.camunda.service.exception.SearchQueryExecutionException;
-import io.camunda.service.search.core.SearchQueryService;
 import io.camunda.service.search.query.SearchQueryBuilders;
 import io.camunda.service.search.query.SearchQueryResult;
 import io.camunda.service.search.query.UserTaskQuery;
@@ -28,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public final class UserTaskServices
-    extends SearchQueryService<UserTaskServices, UserTaskQuery, UserTaskEntity> {
+    extends SearchQueryService<UserTaskQuery, UserTaskEntity> {
 
   public UserTaskServices(
       final BrokerClient brokerClient,

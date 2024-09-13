@@ -9,6 +9,8 @@ package io.camunda.application.commons.service;
 
 import io.camunda.search.clients.CamundaSearchClient;
 import io.camunda.service.AuthorizationServices;
+import io.camunda.service.CamundaCommandServicesConfiguration;
+import io.camunda.service.CamundaQueryServicesConfiguration;
 import io.camunda.service.CamundaServices;
 import io.camunda.service.ClockServices;
 import io.camunda.service.DecisionDefinitionServices;
@@ -18,7 +20,6 @@ import io.camunda.service.ElementInstanceServices;
 import io.camunda.service.IncidentServices;
 import io.camunda.service.JobServices;
 import io.camunda.service.MessageServices;
-import io.camunda.service.ProcessInstanceServices;
 import io.camunda.service.ResourceServices;
 import io.camunda.service.SignalServices;
 import io.camunda.service.UserServices;
@@ -30,9 +31,14 @@ import io.camunda.zeebe.gateway.rest.ConditionalOnRestGatewayEnabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnRestGatewayEnabled
+@Import({
+    CamundaCommandServicesConfiguration.class,
+    CamundaQueryServicesConfiguration.class
+})
 public class CamundaServicesConfiguration {
 
   private final BrokerClient brokerClient;
@@ -48,11 +54,6 @@ public class CamundaServicesConfiguration {
   @Bean
   public CamundaServices camundaServices() {
     return new CamundaServices(brokerClient, camundaSearchClient);
-  }
-
-  @Bean
-  public ProcessInstanceServices processInstanceServices(final CamundaServices camundaServices) {
-    return camundaServices.processInstanceServices();
   }
 
   @Bean

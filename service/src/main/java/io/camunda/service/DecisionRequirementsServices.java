@@ -10,7 +10,6 @@ package io.camunda.service;
 import io.camunda.search.clients.CamundaSearchClient;
 import io.camunda.service.entities.DecisionRequirementsEntity;
 import io.camunda.service.exception.SearchQueryExecutionException;
-import io.camunda.service.search.core.SearchQueryService;
 import io.camunda.service.search.query.DecisionRequirementsQuery;
 import io.camunda.service.search.query.SearchQueryBuilders;
 import io.camunda.service.search.query.SearchQueryResult;
@@ -21,7 +20,7 @@ import java.util.function.Function;
 
 public final class DecisionRequirementsServices
     extends SearchQueryService<
-        DecisionRequirementsServices, DecisionRequirementsQuery, DecisionRequirementsEntity> {
+    DecisionRequirementsQuery, DecisionRequirementsEntity> {
 
   public DecisionRequirementsServices(
       final BrokerClient brokerClient,

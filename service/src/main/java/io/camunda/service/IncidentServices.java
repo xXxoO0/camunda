@@ -10,7 +10,6 @@ package io.camunda.service;
 import io.camunda.search.clients.CamundaSearchClient;
 import io.camunda.service.entities.IncidentEntity;
 import io.camunda.service.exception.SearchQueryExecutionException;
-import io.camunda.service.search.core.SearchQueryService;
 import io.camunda.service.search.query.IncidentQuery;
 import io.camunda.service.search.query.SearchQueryBuilders;
 import io.camunda.service.search.query.SearchQueryResult;
@@ -23,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public class IncidentServices
-    extends SearchQueryService<IncidentServices, IncidentQuery, IncidentEntity> {
+    extends SearchQueryService<IncidentQuery, IncidentEntity> {
 
   public IncidentServices(
       final BrokerClient brokerClient,

@@ -15,7 +15,7 @@ import io.camunda.zeebe.gateway.impl.broker.request.BrokerClockResetRequest;
 import io.camunda.zeebe.protocol.impl.record.value.clock.ClockRecord;
 import java.util.concurrent.CompletableFuture;
 
-public final class ClockServices extends ApiServices<ClockServices> {
+public final class ClockServices extends AbstractBrokerApi {
 
   public ClockServices(
       final BrokerClient brokerClient,

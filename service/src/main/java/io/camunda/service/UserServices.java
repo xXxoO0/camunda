@@ -10,7 +10,6 @@ package io.camunda.service;
 import io.camunda.search.clients.CamundaSearchClient;
 import io.camunda.service.entities.UserEntity;
 import io.camunda.service.exception.SearchQueryExecutionException;
-import io.camunda.service.search.core.SearchQueryService;
 import io.camunda.service.search.query.SearchQueryResult;
 import io.camunda.service.search.query.UserQuery;
 import io.camunda.service.security.auth.Authentication;
@@ -19,7 +18,7 @@ import io.camunda.zeebe.gateway.impl.broker.request.BrokerUserCreateRequest;
 import io.camunda.zeebe.protocol.impl.record.value.user.UserRecord;
 import java.util.concurrent.CompletableFuture;
 
-public class UserServices extends SearchQueryService<UserServices, UserQuery, UserEntity> {
+public class UserServices extends SearchQueryService<UserQuery, UserEntity> {
 
   public UserServices(final BrokerClient brokerClient, final CamundaSearchClient dataStoreClient) {
     this(brokerClient, dataStoreClient, null);
@@ -57,5 +56,7 @@ public class UserServices extends SearchQueryService<UserServices, UserQuery, Us
             .setPassword(request.password()));
   }
 
-  public record CreateUserRequest(String username, String name, String email, String password) {}
+  public record CreateUserRequest(String username, String name, String email, String password) {
+
+  }
 }

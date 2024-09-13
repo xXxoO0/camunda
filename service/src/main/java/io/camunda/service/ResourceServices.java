@@ -17,7 +17,7 @@ import io.camunda.zeebe.protocol.impl.record.value.resource.ResourceDeletionReco
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-public final class ResourceServices extends ApiServices<ResourceServices> {
+public final class ResourceServices extends AbstractBrokerApi {
 
   public ResourceServices(
       final BrokerClient brokerClient,
@@ -49,7 +49,11 @@ public final class ResourceServices extends ApiServices<ResourceServices> {
     return sendBrokerRequest(brokerRequest);
   }
 
-  public record DeployResourcesRequest(Map<String, byte[]> resources, String tenantId) {}
+  public record DeployResourcesRequest(Map<String, byte[]> resources, String tenantId) {
 
-  public record ResourceDeletionRequest(long resourceKey, Long operationReference) {}
+  }
+
+  public record ResourceDeletionRequest(long resourceKey, Long operationReference) {
+
+  }
 }

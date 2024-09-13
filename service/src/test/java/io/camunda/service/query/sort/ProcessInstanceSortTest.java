@@ -10,7 +10,7 @@ package io.camunda.service.query.sort;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.camunda.search.clients.core.SearchQueryRequest;
-import io.camunda.service.ProcessInstanceServices;
+import io.camunda.service.query.ProcessInstanceQueryServices;
 import io.camunda.service.query.filter.ProcessInstanceSearchQueryStub;
 import io.camunda.service.search.query.SearchQueryBuilders;
 import io.camunda.service.search.sort.ProcessInstanceSort;
@@ -26,14 +26,15 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 public class ProcessInstanceSortTest {
-  private ProcessInstanceServices services;
+
+  private ProcessInstanceQueryServices services;
   private StubbedCamundaSearchClient client;
 
   @BeforeEach
   public void before() {
     client = new StubbedCamundaSearchClient();
     new ProcessInstanceSearchQueryStub().registerWith(client);
-    services = new ProcessInstanceServices(null, client, null);
+    services = new ProcessInstanceQueryServices(null, client, null);
   }
 
   private static Stream<Arguments> provideSortParameters() {
@@ -102,7 +103,7 @@ public class ProcessInstanceSortTest {
 
     @Override
     public Object[] get() {
-      return new Object[] {field, sortOrder, fn};
+      return new Object[]{field, sortOrder, fn};
     }
   }
 }

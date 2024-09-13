@@ -7,11 +7,11 @@
  */
 package io.camunda.zeebe.gateway.rest.controller;
 
-import io.camunda.service.ProcessInstanceServices;
-import io.camunda.service.ProcessInstanceServices.ProcessInstanceCancelRequest;
-import io.camunda.service.ProcessInstanceServices.ProcessInstanceCreateRequest;
-import io.camunda.service.ProcessInstanceServices.ProcessInstanceMigrateRequest;
-import io.camunda.service.ProcessInstanceServices.ProcessInstanceModifyRequest;
+import io.camunda.service.command.ProcessInstanceCommandServices;
+import io.camunda.service.command.ProcessInstanceCommandServices.ProcessInstanceCancelRequest;
+import io.camunda.service.command.ProcessInstanceCommandServices.ProcessInstanceCreateRequest;
+import io.camunda.service.command.ProcessInstanceCommandServices.ProcessInstanceMigrateRequest;
+import io.camunda.service.command.ProcessInstanceCommandServices.ProcessInstanceModifyRequest;
 import io.camunda.zeebe.gateway.protocol.rest.CancelProcessInstanceRequest;
 import io.camunda.zeebe.gateway.protocol.rest.CreateProcessInstanceRequest;
 import io.camunda.zeebe.gateway.protocol.rest.MigrateProcessInstanceRequest;
@@ -20,7 +20,6 @@ import io.camunda.zeebe.gateway.rest.RequestMapper;
 import io.camunda.zeebe.gateway.rest.ResponseMapper;
 import io.camunda.zeebe.gateway.rest.RestErrorMapper;
 import java.util.concurrent.CompletableFuture;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,11 +31,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/v2/process-instances")
 public class ProcessInstanceController {
 
-  private final ProcessInstanceServices processInstanceServices;
+  private final ProcessInstanceCommandServices processInstanceCommandServices;
 
-  @Autowired
-  public ProcessInstanceController(final ProcessInstanceServices processInstanceServices) {
-    this.processInstanceServices = processInstanceServices;
+  public ProcessInstanceController(
+      final ProcessInstanceCommandServices processInstanceCommandServices) {
+    this.processInstanceCommandServices = processInstanceCommandServices;
   }
 
   @PostMapping(
@@ -86,16 +85,14 @@ public class ProcessInstanceController {
     if (request.awaitCompletion()) {
       return RequestMapper.executeServiceMethod(
           () ->
-              processInstanceServices
-                  .withAuthentication(RequestMapper.getAuthentication())
-                  .createProcessInstanceWithResult(request),
+              processInstanceCommandServices
+                  .createProcessInstanceWithResult(request, RequestMapper.getAuthentication()),
           ResponseMapper::toCreateProcessInstanceWithResultResponse);
     }
     return RequestMapper.executeServiceMethod(
         () ->
-            processInstanceServices
-                .withAuthentication(RequestMapper.getAuthentication())
-                .createProcessInstance(request),
+            processInstanceCommandServices
+                .createProcessInstance(request, RequestMapper.getAuthentication()),
         ResponseMapper::toCreateProcessInstanceResponse);
   }
 
@@ -103,7 +100,7 @@ public class ProcessInstanceController {
       final ProcessInstanceCancelRequest request) {
     return RequestMapper.executeServiceMethodWithNoContentResult(
         () ->
-            processInstanceServices
+            processInstanceCommandServices
                 .withAuthentication(RequestMapper.getAuthentication())
                 .cancelProcessInstance(request));
   }
@@ -112,7 +109,7 @@ public class ProcessInstanceController {
       final ProcessInstanceMigrateRequest request) {
     return RequestMapper.executeServiceMethodWithNoContentResult(
         () ->
-            processInstanceServices
+            processInstanceCommandServices
                 .withAuthentication(RequestMapper.getAuthentication())
                 .migrateProcessInstance(request));
   }
@@ -121,7 +118,7 @@ public class ProcessInstanceController {
       final ProcessInstanceModifyRequest request) {
     return RequestMapper.executeServiceMethodWithNoContentResult(
         () ->
-            processInstanceServices
+            processInstanceCommandServices
                 .withAuthentication(RequestMapper.getAuthentication())
                 .modifyProcessInstance(request));
   }
