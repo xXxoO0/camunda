@@ -41,6 +41,8 @@ import org.agrona.LangUtil;
  *   <li>If running in Kubernetes, SYS_PTRACE is added to the container's security context
  *       capabilities
  * </ul>
+ *
+ * @see io.camunda.zeebe.test.util.junit.StraceTest
  */
 public final class STracer implements AutoCloseable {
   private final Process process;
