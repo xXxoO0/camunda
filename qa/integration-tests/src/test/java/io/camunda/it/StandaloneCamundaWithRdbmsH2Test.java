@@ -7,17 +7,25 @@
  */
 package io.camunda.it;
 
-import io.camunda.qa.util.cluster.TestClient;
 import io.camunda.qa.util.cluster.TestRestV2ApiClient;
 import io.camunda.qa.util.cluster.TestStandaloneCamunda;
 import io.camunda.zeebe.qa.util.junit.ZeebeIntegration;
 import io.camunda.zeebe.qa.util.junit.ZeebeIntegration.TestZeebe;
-import org.junit.jupiter.api.Test;
 
 @ZeebeIntegration
-public class StandaloneCamundaTest extends AbstractStandaloneCamundaTest {
+public class StandaloneCamundaWithRdbmsH2Test extends AbstractStandaloneCamundaTest {
 
-  @TestZeebe final TestStandaloneCamunda testStandaloneCamunda = new TestStandaloneCamunda();
+  @TestZeebe
+  final TestStandaloneCamunda testStandaloneCamunda =
+      TestStandaloneCamunda.withRdbms()
+          .withProperty("camunda.database.type", "rdbms")
+          .withProperty("spring.datasource.url", "jdbc:h2:mem:;MODE=PostgreSQL")
+          .withProperty("spring.datasource.username", "sa")
+          .withProperty("spring.datasource.password", null)
+          .withProperty("spring.datasource.driverClassName", "org.h2.Driver")
+          .withProperty("spring.liquibase.enabled", "false")
+          .withProperty("mybatis.mapper-locations", "classpath:mapper/**/*-mapper.xml")
+          .withExporter("rdbms", cfg -> cfg.setClassName("RdbmsExporter"));
 
   @Override
   TestStandaloneCamunda getTestStandaloneCamunda() {

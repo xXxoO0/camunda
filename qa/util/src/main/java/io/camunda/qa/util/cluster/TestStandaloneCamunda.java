@@ -14,12 +14,14 @@ import io.camunda.application.commons.configuration.BrokerBasedConfiguration.Bro
 import io.camunda.application.commons.configuration.WorkingDirectoryConfiguration.WorkingDirectory;
 import io.camunda.application.initializers.WebappsConfigurationInitializer;
 import io.camunda.application.sources.DefaultObjectMapperConfiguration;
+import io.camunda.db.rdbms.RdbmsConfiguration;
 import io.camunda.operate.OperateModuleConfiguration;
 import io.camunda.operate.property.OperateProperties;
 import io.camunda.tasklist.TasklistModuleConfiguration;
 import io.camunda.tasklist.property.TasklistProperties;
 import io.camunda.webapps.WebappsModuleConfiguration;
 import io.camunda.zeebe.broker.BrokerModuleConfiguration;
+import io.camunda.zeebe.broker.RdbmsExporterConfiguration;
 import io.camunda.zeebe.broker.system.configuration.ExporterCfg;
 import io.camunda.zeebe.client.ZeebeClientBuilder;
 import io.camunda.zeebe.gateway.impl.configuration.GatewayCfg;
@@ -36,6 +38,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Map;
 import java.util.function.Consumer;
+import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.client.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +58,22 @@ public final class TestStandaloneCamunda extends TestSpringApplication<TestStand
       DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch")
           .withTag(RestClient.class.getPackage().getImplementationVersion());
   private static final String RECORDING_EXPORTER_ID = "recordingExporter";
+  private static final Class<?>[] DEFAULT_CLASSES = {
+      CommonsModuleConfiguration.class,
+      OperateModuleConfiguration.class,
+      TasklistModuleConfiguration.class,
+      WebappsModuleConfiguration.class,
+      BrokerModuleConfiguration.class,
+      DefaultObjectMapperConfiguration.class,
+      // test overrides - to control data clean up; (and some components are not installed on
+      // Tests)
+      TestOperateElasticsearchSchemaManager.class,
+      TestTasklistElasticsearchSchemaManager.class,
+      TestOperateSchemaStartup.class,
+      TestTasklistSchemaStartup.class,
+      IndexTemplateDescriptorsConfigurator.class
+  };
+
   private final ElasticsearchContainer esContainer =
       new ElasticsearchContainer(ELASTIC_IMAGE)
           // use JVM option files to avoid overwriting default options set by the ES container class
@@ -69,25 +88,19 @@ public final class TestStandaloneCamunda extends TestSpringApplication<TestStand
           .withEnv("xpack.watcher.enabled", "false")
           .withEnv("xpack.ml.enabled", "false")
           .withEnv("action.destructive_requires_name", "false");
+
   private final BrokerBasedProperties brokerProperties;
   private final OperateProperties operateProperties;
   private final TasklistProperties tasklistProperties;
 
+  private boolean rdbmsEnabled = true;
+
   public TestStandaloneCamunda() {
-    super(
-        CommonsModuleConfiguration.class,
-        OperateModuleConfiguration.class,
-        TasklistModuleConfiguration.class,
-        WebappsModuleConfiguration.class,
-        BrokerModuleConfiguration.class,
-        DefaultObjectMapperConfiguration.class,
-        // test overrides - to control data clean up; (and some components are not installed on
-        // Tests)
-        TestOperateElasticsearchSchemaManager.class,
-        TestTasklistElasticsearchSchemaManager.class,
-        TestOperateSchemaStartup.class,
-        TestTasklistSchemaStartup.class,
-        IndexTemplateDescriptorsConfigurator.class);
+    this(DEFAULT_CLASSES);
+  }
+
+  public TestStandaloneCamunda(final Class<?>... additionalBeans) {
+    super(ArrayUtils.addAll(DEFAULT_CLASSES, additionalBeans));
 
     brokerProperties = new BrokerBasedProperties();
 
@@ -115,6 +128,10 @@ public final class TestStandaloneCamunda extends TestSpringApplication<TestStand
         .withAdditionalProfile(Profile.OPERATE)
         .withAdditionalProfile(Profile.TASKLIST)
         .withAdditionalInitializer(new WebappsConfigurationInitializer());
+  }
+
+  public static TestStandaloneCamunda withRdbms() {
+    return new TestStandaloneCamunda(RdbmsExporterConfiguration.class).setRdbmsEnabled(true);
   }
 
   @Override
@@ -168,6 +185,10 @@ public final class TestStandaloneCamunda extends TestSpringApplication<TestStand
 
   public TestRestOperateClient newOperateClient() {
     return new TestRestOperateClient(restAddress());
+  }
+
+  public TestRestV2ApiClient newRestV2ApiClient() {
+    return new TestRestV2ApiClient(restAddress());
   }
 
   @Override
@@ -289,5 +310,14 @@ public final class TestStandaloneCamunda extends TestSpringApplication<TestStand
   public TestStandaloneCamunda withWorkingDirectory(final Path directory) {
     return withBean(
         "workingDirectory", new WorkingDirectory(directory, false), WorkingDirectory.class);
+  }
+
+  public boolean isRdbmsEnabled() {
+    return rdbmsEnabled;
+  }
+
+  public TestStandaloneCamunda setRdbmsEnabled(final boolean rdbmsEnabled) {
+    this.rdbmsEnabled = rdbmsEnabled;
+    return this;
   }
 }
