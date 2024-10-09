@@ -40,8 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An extension which will manage all static and instance level fields of type {@link
- * TestApplication} and {@link TestCluster}, iff they are annotated by {@link TestZeebe}.
+ * An extension which will manage all static and instance level fields of type
+ * {@link TestApplication} and {@link TestCluster}, iff they are annotated by {@link TestZeebe}.
  *
  * <p>The lifecycle of these thus depends on the field being static. If it's static, then it's
  * started once before all tests, and stopped after all tests; if it's instance, then it's started
@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>See {@link TestZeebe} for annotation parameters.
  */
-final class ZeebeIntegrationExtension
+final public class ZeebeIntegrationExtension
     implements BeforeAllCallback, BeforeEachCallback, TestWatcher {
 
   private static final Logger LOG = LoggerFactory.getLogger(ZeebeIntegrationExtension.class);
@@ -367,6 +367,7 @@ final class ZeebeIntegrationExtension
   }
 
   private interface TestZeebeResource {
+
     TestZeebe annotation();
 
     void start();

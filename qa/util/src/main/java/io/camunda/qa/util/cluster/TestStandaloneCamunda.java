@@ -14,7 +14,6 @@ import io.camunda.application.commons.configuration.BrokerBasedConfiguration.Bro
 import io.camunda.application.commons.configuration.WorkingDirectoryConfiguration.WorkingDirectory;
 import io.camunda.application.initializers.WebappsConfigurationInitializer;
 import io.camunda.application.sources.DefaultObjectMapperConfiguration;
-import io.camunda.db.rdbms.RdbmsConfiguration;
 import io.camunda.operate.OperateModuleConfiguration;
 import io.camunda.operate.property.OperateProperties;
 import io.camunda.tasklist.TasklistModuleConfiguration;
@@ -23,6 +22,7 @@ import io.camunda.webapps.WebappsModuleConfiguration;
 import io.camunda.zeebe.broker.BrokerModuleConfiguration;
 import io.camunda.zeebe.broker.RdbmsExporterConfiguration;
 import io.camunda.zeebe.broker.system.configuration.ExporterCfg;
+import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.client.ZeebeClientBuilder;
 import io.camunda.zeebe.gateway.impl.configuration.GatewayCfg;
 import io.camunda.zeebe.qa.util.actuator.BrokerHealthActuator;
@@ -45,10 +45,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.util.unit.DataSize;
 import org.testcontainers.containers.BindMode;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.utility.DockerImageName;
 
-/** Represents an instance of the {@link BrokerModuleConfiguration} Spring application. */
+/**
+ * Represents an instance of the {@link BrokerModuleConfiguration} Spring application.
+ */
 @SuppressWarnings("UnusedReturnValue")
 public final class TestStandaloneCamunda extends TestSpringApplication<TestStandaloneCamunda>
     implements TestGateway<TestStandaloneCamunda> {
@@ -74,6 +77,8 @@ public final class TestStandaloneCamunda extends TestSpringApplication<TestStand
       IndexTemplateDescriptorsConfigurator.class
   };
 
+  private GenericContainer<?> databaseContainer;
+
   private final ElasticsearchContainer esContainer =
       new ElasticsearchContainer(ELASTIC_IMAGE)
           // use JVM option files to avoid overwriting default options set by the ES container class
@@ -94,6 +99,8 @@ public final class TestStandaloneCamunda extends TestSpringApplication<TestStand
   private final TasklistProperties tasklistProperties;
 
   private boolean rdbmsEnabled = true;
+
+  private ZeebeClient zeebeClient;
 
   public TestStandaloneCamunda() {
     this(DEFAULT_CLASSES);
@@ -131,7 +138,11 @@ public final class TestStandaloneCamunda extends TestSpringApplication<TestStand
   }
 
   public static TestStandaloneCamunda withRdbms() {
-    return new TestStandaloneCamunda(RdbmsExporterConfiguration.class).setRdbmsEnabled(true);
+    return new TestStandaloneCamunda(RdbmsExporterConfiguration.class)
+        .withProperty("camunda.database.type", "rdbms")
+        .withProperty("mybatis.mapper-locations", "classpath:mapper/**/*-mapper.xml")
+        .withExporter("rdbms", cfg -> cfg.setClassName("doesntMatter"))
+        .setRdbmsEnabled(true);
   }
 
   @Override
@@ -157,6 +168,9 @@ public final class TestStandaloneCamunda extends TestSpringApplication<TestStand
     // clean up ES/OS indices
     LOGGER.info("Stopping standalone camunda test...");
     esContainer.stop();
+    if (databaseContainer != null) {
+      databaseContainer.stop();
+    }
     return super.stop();
   }
 
@@ -252,7 +266,16 @@ public final class TestStandaloneCamunda extends TestSpringApplication<TestStand
     return TestGateway.super.newClientBuilder();
   }
 
-  /** Returns the broker configuration */
+  public ZeebeClient zeebeClient() {
+    if (zeebeClient == null) {
+      zeebeClient = newClientBuilder().build();
+    }
+    return zeebeClient;
+  }
+
+  /**
+   * Returns the broker configuration
+   */
   public BrokerBasedProperties brokerConfig() {
     return brokerProperties;
   }
@@ -271,7 +294,7 @@ public final class TestStandaloneCamunda extends TestSpringApplication<TestStand
    * unique ID.
    *
    * @param useRecordingExporter if true, will enable the exporter; if false, will remove it from
-   *     the config
+   * the config
    * @return itself for chaining
    */
   public TestStandaloneCamunda withRecordingExporter(final boolean useRecordingExporter) {
@@ -298,6 +321,16 @@ public final class TestStandaloneCamunda extends TestSpringApplication<TestStand
     modifier.accept(exporterConfig);
 
     return this;
+  }
+
+  public TestStandaloneCamunda withDatabaseContainer(final GenericContainer<?> container) {
+    databaseContainer = container;
+
+    return this;
+  }
+
+  public GenericContainer<?> databaseContainer() {
+    return databaseContainer;
   }
 
   /**

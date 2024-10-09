@@ -44,7 +44,7 @@ public class TestRestV2ApiClient implements AutoCloseable {
               .POST(
                   HttpRequest.BodyPublishers.ofString(
                       String.format(
-                          "{\"filter\":{\"key\":%d},\"sort\":[{\"field\":\"endDate\",\"order\":\"ASC\"}],\"size\":20}",
+                          "{\"filter\":{\"processInstanceKey\":%d},\"sort\":[{\"field\":\"endDate\",\"order\":\"ASC\"}],\"size\":20}",
                           key)))
               .build();
     } catch (final URISyntaxException e) {
@@ -73,13 +73,15 @@ public class TestRestV2ApiClient implements AutoCloseable {
     }
 
     try {
-      return Either.right(OBJECT_MAPPER.readValue(response.body(), ProcessInstanceSearchQueryResponse.class));
+      return Either.right(
+          OBJECT_MAPPER.readValue(response.body(), ProcessInstanceSearchQueryResponse.class));
     } catch (final JsonProcessingException e) {
       return Either.left(e);
     }
   }
 
-  public Either<Exception, ProcessInstanceSearchQueryResponse> getProcessInstanceWith(final long key) {
+  public Either<Exception, ProcessInstanceSearchQueryResponse> getProcessInstanceWith(
+      final long key) {
     return createProcessInstanceRequest(key)
         .flatMap(this::sendProcessInstanceQuery)
         .flatMap(this::mapProcessInstanceResult);
