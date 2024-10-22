@@ -16,7 +16,6 @@ import io.camunda.zeebe.protocol.record.ValueType;
 import io.camunda.zeebe.protocol.record.intent.Intent;
 import io.camunda.zeebe.protocol.record.intent.ProcessInstanceIntent;
 import io.camunda.zeebe.protocol.record.value.ProcessInstanceRecordValue;
-import java.time.Instant;
 import java.util.Set;
 
 public class FlowNodeExportHandler implements RdbmsExportHandler<ProcessInstanceRecordValue> {
@@ -52,7 +51,7 @@ public class FlowNodeExportHandler implements RdbmsExportHandler<ProcessInstance
               .processDefinitionId(value.getBpmnProcessId())
               .tenantId(value.getTenantId())
               .state(FlowNodeState.ACTIVE)
-              .startDate(DateUtil.toOffsetDateTime(Instant.ofEpochMilli(record.getTimestamp())))
+              .startDate(DateUtil.toOffsetDateTime(record.getTimestamp()))
               .type(mapFlowNodeType(value))
               .build();
       flowNodeInstanceWriter.create(flowNode);
@@ -60,12 +59,12 @@ public class FlowNodeExportHandler implements RdbmsExportHandler<ProcessInstance
       flowNodeInstanceWriter.end(
           record.getKey(),
           FlowNodeState.COMPLETED,
-          DateUtil.toOffsetDateTime(Instant.ofEpochMilli(record.getTimestamp())));
+          DateUtil.toOffsetDateTime(record.getTimestamp()));
     } else if (record.getIntent() == ProcessInstanceIntent.ELEMENT_TERMINATED) {
       flowNodeInstanceWriter.end(
           record.getKey(),
           FlowNodeState.TERMINATED,
-          DateUtil.toOffsetDateTime(Instant.ofEpochMilli(record.getTimestamp())));
+          DateUtil.toOffsetDateTime(record.getTimestamp()));
     }
   }
 
