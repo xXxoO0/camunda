@@ -9,6 +9,8 @@
 import {shallow} from 'enzyme';
 import {Tag} from '@carbon/react';
 
+import {EntityListEntity} from 'types';
+
 import CollectionHeader from './CollectionHeader';
 
 const collection = {
@@ -20,7 +22,7 @@ const collection = {
   created: '2021-01-01T00:00:00.000',
   currentUserRole: 'manager',
   data: {},
-};
+} as EntityListEntity;
 
 const props = {
   collection,
