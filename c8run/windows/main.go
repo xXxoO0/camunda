@@ -5,18 +5,15 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
+        "runtime"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
+        "c8run/internal/windows"
+        "c8run/internal/unix"
 )
 
-type c8runSettings struct {
-	config   string
-	detached bool
-}
 
 func printHelp() {
 	optionsHelp := `Options:
@@ -28,7 +25,7 @@ func printHelp() {
 }
 
 func printStatus() {
-	endpoints, _ := os.ReadFile(".\\endpoints.txt")
+	endpoints, _ := os.ReadFile("endpoints.txt")
 	fmt.Println(string(endpoints))
 }
 
@@ -53,7 +50,7 @@ func queryElasticsearchHealth(name string, url string) {
 	fmt.Println(name + " has successfully been started.")
 }
 
-func queryCamundaHealth(name string, url string) {
+func queryCamundaHealth(c8 C8Run, name string, url string) {
 	healthy := false
 	for retries := 24; retries >= 0; retries-- {
 		fmt.Println("Waiting for " + name + " to start. " + strconv.Itoa(retries) + " retries left")
@@ -71,24 +68,18 @@ func queryCamundaHealth(name string, url string) {
 		fmt.Println("Error: " + name + " did not start!")
 		os.Exit(1)
 	}
-	operateUrl := "http://localhost:8080/operate/login"
-	openBrowserCmdString := "start " + operateUrl
-	openBrowserCmd := exec.Command("cmd", "/C", openBrowserCmdString)
-	openBrowserCmd.SysProcAttr = &syscall.SysProcAttr{
-		// CreationFlags: 0x08000000 | 0x00000200, // CREATE_NO_WINDOW, CREATE_NEW_PROCESS_GROUP : https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
-	}
-	fmt.Println(name + " has successfully been started.")
-	openBrowserCmd.Run()
+        c8.OpenBrowser(name)
 	printStatus()
 }
 
-func stopProcess(pidfile string) {
+
+func stopProcess(c8 C8Run, pidfile string) {
 	if _, err := os.Stat(pidfile); err == nil {
 		commandPidText, _ := os.ReadFile(pidfile)
 		commandPidStripped := strings.TrimSpace(string(commandPidText))
 		commandPid, _ := strconv.Atoi(string(commandPidStripped))
 
-		for _, process := range process_tree(int(commandPid)) {
+		for _, process := range c8.GetProcessTree(int(commandPid)) {
 			process.Kill()
 		}
 		os.Remove(pidfile)
@@ -105,7 +96,7 @@ func stopProcess(pidfile string) {
 
 }
 
-func parseCommandLineOptions(args []string, settings *c8runSettings) *c8runSettings {
+func parseCommandLineOptions(args []string, settings *C8RunSettings) *C8RunSettings {
 	if len(args) == 0 {
 		return settings
 	}
@@ -131,7 +122,17 @@ func parseCommandLineOptions(args []string, settings *c8runSettings) *c8runSetti
 
 }
 
+func getC8RunPlatform() C8Run {
+        if runtime.GOOS == "windows" {
+                return &windows.WindowsC8Run{}
+        } else if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+                return &unix.UnixC8Run{}
+        }
+        panic("Unsupported operating system")
+}
+
 func main() {
+        c8 := getC8RunPlatform()
 	baseDir, _ := os.Getwd()
 	// parentDir, _ := filepath.Dir(baseDir)
 	parentDir := baseDir
@@ -164,7 +165,7 @@ func main() {
 	}
 	fmt.Print("Command: " + baseCommand + "\n")
 
-	var settings c8runSettings
+	var settings C8RunSettings
 	if len(os.Args) > 2 {
 		parseCommandLineOptions(os.Args[2:], &settings)
 	}
@@ -178,7 +179,7 @@ func main() {
 	if baseCommand == "start" {
 		javaVersion := os.Getenv("JAVA_VERSION")
 		if javaVersion == "" {
-			javaVersionCmd := exec.Command("cmd", "/C", javaBinary + " --version")
+			javaVersionCmd := c8.GetVersionCmd(javaBinary)
 			var out strings.Builder
                         var stderr strings.Builder
 			javaVersionCmd.Stdout = &out
@@ -226,14 +227,8 @@ func main() {
 			os.Exit(1)
 		}
 
-		elasticsearchCmdString := filepath.Join(parentDir, "elasticsearch-"+elasticsearchVersion, "bin", "elasticsearch.bat") + " -E xpack.ml.enabled=false -E xpack.security.enabled=false"
-		elasticsearchCmd := exec.Command("cmd", "/C", elasticsearchCmdString)
+		elasticsearchCmd := c8.GetElasticsearchCmd(elasticsearchVersion, parentDir)
 
-		elasticsearchCmd.SysProcAttr = &syscall.SysProcAttr{
-			CreationFlags: 0x08000000 | 0x00000200, // CREATE_NO_WINDOW, CREATE_NEW_PROCESS_GROUP : https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
-			// CreationFlags: 0x00000008 | 0x00000200, // DETACHED_PROCESS, CREATE_NEW_PROCESS_GROUP : https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
-			// CreationFlags: 0x00000010, // CREATE_NEW_CONSOLE : https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
-		}
 		elasticsearchCmd.Stdout = elasticsearchLogFile
 		elasticsearchCmd.Stderr = elasticsearchLogFile
 		elasticsearchCmd.Start()
@@ -247,18 +242,12 @@ func main() {
 		elasticsearchPidFile.Write([]byte(strconv.Itoa(elasticsearchCmd.Process.Pid)))
 		queryElasticsearchHealth("Elasticsearch", "http://localhost:9200/_cluster/health?wait_for_status=green&wait_for_active_shards=all&wait_for_no_initializing_shards=true&timeout=120s")
 
-		connectorsCmdString := javaBinary + " -classpath " + parentDir + "\\*;" + parentDir + "\\custom_connectors\\*;" + parentDir + "\\camunda-zeebe-" + camundaVersion + "\\lib\\* io.camunda.connector.runtime.app.ConnectorRuntimeApplication --spring.config.location=" + parentDir + "\\connectors-application.properties"
-		connectorsCmd := exec.Command("cmd", "/C", connectorsCmdString)
+		connectorsCmd := c8.GetConnectorsCmd(javaBinary, parentDir, camundaVersion)
 		connectorsLogPath := filepath.Join(parentDir, "log", "connectors.log")
 		connectorsLogFile, err := os.OpenFile(connectorsLogPath, os.O_RDWR|os.O_CREATE, 0644)
 		if err != nil {
 			fmt.Print("Failed to open file: " + connectorsLogPath)
 			os.Exit(1)
-		}
-		connectorsCmd.SysProcAttr = &syscall.SysProcAttr{
-			CreationFlags: 0x08000000 | 0x00000200, // CREATE_NO_WINDOW, CREATE_NEW_PROCESS_GROUP : https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
-			// CreationFlags: 0x00000008 | 0x00000200, // DETACHED_PROCESS, CREATE_NEW_PROCESS_GROUP : https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
-			// CreationFlags: 0x00000010, // CREATE_NEW_CONSOLE : https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
 		}
 		connectorsCmd.Stdout = connectorsLogFile
 		connectorsCmd.Stderr = connectorsLogFile
@@ -276,19 +265,12 @@ func main() {
 		} else {
 			extraArgs = "--spring.config.location=" + filepath.Join(parentDir, "configuration")
 		}
-		camundaCmdString := parentDir + "\\camunda-zeebe-" + camundaVersion + "\\bin\\camunda " + extraArgs
-		fmt.Println(camundaCmdString)
-		camundaCmd := exec.Command("cmd", "/C", camundaCmdString)
+		camundaCmd := c8.GetCamundaCmd(camundaVersion, parentDir, extraArgs)
 		camundaLogPath := filepath.Join(parentDir, "log", "camunda.log")
 		camundaLogFile, err := os.OpenFile(camundaLogPath, os.O_RDWR|os.O_CREATE, 0644)
 		if err != nil {
 			fmt.Print("Failed to open file: " + camundaLogPath)
 			os.Exit(1)
-		}
-		camundaCmd.SysProcAttr = &syscall.SysProcAttr{
-			CreationFlags: 0x08000000 | 0x00000200, // CREATE_NO_WINDOW, CREATE_NEW_PROCESS_GROUP : https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
-			// CreationFlags: 0x00000008 | 0x00000200, // DETACHED_PROCESS, CREATE_NEW_PROCESS_GROUP : https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
-			// CreationFlags: 0x00000010, // CREATE_NEW_CONSOLE : https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
 		}
 		camundaCmd.Stdout = camundaLogFile
 		camundaCmd.Stderr = camundaLogFile
@@ -299,15 +281,15 @@ func main() {
 			os.Exit(1)
 		}
 		camundaPidFile.Write([]byte(strconv.Itoa(camundaCmd.Process.Pid)))
-		queryCamundaHealth("Camunda", "http://localhost:8080/operate/login")
+		queryCamundaHealth(c8, "Camunda", "http://localhost:8080/operate/login")
 	}
 
 	if baseCommand == "stop" {
-		stopProcess(elasticsearchPidPath)
+		stopProcess(c8, elasticsearchPidPath)
 		fmt.Println("Elasticsearch is stopped.")
-		stopProcess(connectorsPidPath)
+		stopProcess(c8, connectorsPidPath)
 		fmt.Println("Connectors is stopped.")
-		stopProcess(camundaPidPath)
+		stopProcess(c8, camundaPidPath)
 		fmt.Println("Camunda is stopped.")
 	}
 
