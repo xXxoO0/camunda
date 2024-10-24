@@ -22,8 +22,8 @@ import io.camunda.webapps.schema.descriptors.operate.template.ListViewTemplate;
 import io.camunda.webapps.schema.descriptors.operate.template.MessageTemplate;
 import io.camunda.webapps.schema.descriptors.operate.template.PostImporterQueueTemplate;
 import io.camunda.webapps.schema.descriptors.operate.template.SequenceFlowTemplate;
-import io.camunda.webapps.schema.descriptors.operate.template.UserTaskTemplate;
 import io.camunda.webapps.schema.descriptors.operate.template.VariableTemplate;
+import io.camunda.webapps.schema.descriptors.tasklist.template.TaskTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -129,11 +129,8 @@ public class IndexTemplateDescriptorsConfigurator {
   }
 
   @Bean
-  public UserTaskTemplate getUserTaskTemplate(
-      final OperateProperties operateProperties, final DatabaseInfo databaseInfo) {
-    return new UserTaskTemplate(
-        operateProperties.getIndexPrefix(databaseInfo.getCurrent()),
-        databaseInfo.isElasticsearchDb());
+  public TaskTemplate getUserTaskTemplate(final DatabaseInfo databaseInfo) {
+    return new TaskTemplate("tasklist", databaseInfo.isElasticsearchDb());
   }
 
   @Bean
