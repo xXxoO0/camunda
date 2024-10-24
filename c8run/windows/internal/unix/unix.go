@@ -16,13 +16,13 @@ func (w *UnixC8Run) OpenBrowser(name string) {
 	operateUrl := "http://localhost:8080/operate/login"
         var openBrowserCmdString string
         if runtime.GOOS == "darwin" {
-	        openBrowserCmdString = "open " + operateUrl
+	        openBrowserCmdString = "open"
         } else if runtime.GOOS == "linux" {
-	        openBrowserCmdString = "xdg-open " + operateUrl
+	        openBrowserCmdString = "xdg-open"
         } else {
                 panic("platform " + runtime.GOOS + "is not supported")
         }
-	openBrowserCmd := exec.Command(openBrowserCmdString)
+	openBrowserCmd := exec.Command(openBrowserCmdString, operateUrl)
 	fmt.Println(name + " has successfully been started.")
 	openBrowserCmd.Run()
 }
@@ -40,23 +40,25 @@ func (w *UnixC8Run) GetVersionCmd(javaBinaryPath string) *exec.Cmd {
 }
 
 func (w *UnixC8Run) GetElasticsearchCmd(elasticsearchVersion string, parentDir string) *exec.Cmd {
-        elasticsearchCmdString := filepath.Join(parentDir, "elasticsearch-"+elasticsearchVersion, "bin", "elasticsearch") + " -E xpack.ml.enabled=false -E xpack.security.enabled=false"
-        elasticsearchCmd := exec.Command(elasticsearchCmdString)
+        elasticsearchCmdString := filepath.Join(parentDir, "elasticsearch-"+elasticsearchVersion, "bin", "elasticsearch")
+        elasticsearchCmd := exec.Command(elasticsearchCmdString, "-E", "xpack.ml.enabled=false", "-E", "xpack.security.enabled=false")
         elasticsearchCmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
         return elasticsearchCmd
 }
 
 func (w *UnixC8Run) GetConnectorsCmd(javaBinary string, parentDir string, camundaVersion string) *exec.Cmd {
-        connectorsCmdString := javaBinary + " -classpath " + parentDir + "/*:" + parentDir + "/custom_connectors/*:" + parentDir + "/camunda-zeebe-" + camundaVersion + "/lib/* io.camunda.connector.runtime.app.ConnectorRuntimeApplication --spring.config.location=" + parentDir + "/connectors-application.properties"
-        connectorsCmd := exec.Command(connectorsCmdString)
+        classPath := parentDir + "/*:" + parentDir + "/custom_connectors/*:" + parentDir + "/camunda-zeebe-" + camundaVersion + "/lib/*"
+        mainClass := "io.camunda.connector.runtime.app.ConnectorRuntimeApplication"
+        springConfigLocation := "--spring.config.location=" + parentDir + "/connectors-application.properties"
+        connectorsCmd := exec.Command(javaBinary, "-cp", classPath, mainClass, springConfigLocation)
         connectorsCmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
         return connectorsCmd
 }
 
 func (w *UnixC8Run) GetCamundaCmd(camundaVersion string, parentDir string, extraArgs string) *exec.Cmd {
-        camundaCmdString := parentDir + "/camunda-zeebe-" + camundaVersion + "/bin/camunda " + extraArgs
+        camundaCmdString := parentDir + "/camunda-zeebe-" + camundaVersion + "/bin/camunda"
         fmt.Println(camundaCmdString)
-        camundaCmd := exec.Command(camundaCmdString)
+        camundaCmd := exec.Command(camundaCmdString, extraArgs)
         camundaCmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
         return camundaCmd
 }

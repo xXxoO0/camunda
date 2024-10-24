@@ -139,6 +139,9 @@ func main() {
 	// deploymentDir := filepath.Join(parentDir, "configuration", "resources")
 	elasticsearchVersion := "8.13.4"
 	camundaVersion := "8.6.2"
+        if os.Getenv("CAMUNDA_VERSION") != "" {
+                camundaVersion = os.Getenv("CAMUNDA_VERSION")
+        }
 	expectedJavaVersion := 21
 
 	elasticsearchPidPath := filepath.Join(baseDir, "elasticsearch.pid")
@@ -231,7 +234,10 @@ func main() {
 
 		elasticsearchCmd.Stdout = elasticsearchLogFile
 		elasticsearchCmd.Stderr = elasticsearchLogFile
-		elasticsearchCmd.Start()
+		err = elasticsearchCmd.Start()
+                if err != nil {
+                        panic(err)
+                }
 		fmt.Print("Process id ", elasticsearchCmd.Process.Pid, "\n")
 
 		elasticsearchPidFile, err := os.OpenFile(elasticsearchPidPath, os.O_RDWR|os.O_CREATE, 0644)
@@ -251,7 +257,10 @@ func main() {
 		}
 		connectorsCmd.Stdout = connectorsLogFile
 		connectorsCmd.Stderr = connectorsLogFile
-		connectorsCmd.Start()
+		err = connectorsCmd.Start()
+                if err != nil {
+                        panic(err)
+                }
 
 		connectorsPidFile, err := os.OpenFile(connectorsPidPath, os.O_RDWR|os.O_CREATE, 0644)
 		if err != nil {
@@ -274,7 +283,10 @@ func main() {
 		}
 		camundaCmd.Stdout = camundaLogFile
 		camundaCmd.Stderr = camundaLogFile
-		camundaCmd.Start()
+		err = camundaCmd.Start()
+                if err != nil {
+                        panic(err)
+                }
 		camundaPidFile, err := os.OpenFile(camundaPidPath, os.O_RDWR|os.O_CREATE, 0644)
 		if err != nil {
 			fmt.Print("Failed to open file: " + camundaPidPath)
