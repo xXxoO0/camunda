@@ -35,7 +35,7 @@ func (w *UnixC8Run) GetProcessTree(commandPid int) []*os.Process {
 }
 
 func (w *UnixC8Run) GetVersionCmd(javaBinaryPath string) *exec.Cmd {
-	return exec.Command(javaBinaryPath + " --version")
+	return exec.Command(javaBinaryPath, "--version")
 }
 
 func (w *UnixC8Run) GetElasticsearchCmd(elasticsearchVersion string, parentDir string) *exec.Cmd {
