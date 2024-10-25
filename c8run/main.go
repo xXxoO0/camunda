@@ -165,9 +165,9 @@ func main() {
 		baseCommand = "stop"
 	} else if os.Args[1] == "package" {
 		baseCommand = "package"
-        } else {
-                panic("Unsupported operation")
-        }
+	} else {
+		panic("Unsupported operation")
+	}
 	fmt.Print("Command: " + baseCommand + "\n")
 
 	var settings C8RunSettings
@@ -308,13 +308,13 @@ func main() {
 	}
 
 	if baseCommand == "package" {
-                if runtime.GOOS == "windows" {
-		        PackageWindows(camundaVersion, elasticsearchVersion)
-                } else if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-		        PackageUnix(camundaVersion, elasticsearchVersion)
-                } else {
-                        panic("Unsupported system")
-                }
+		if runtime.GOOS == "windows" {
+			PackageWindows(camundaVersion, elasticsearchVersion)
+		} else if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+			PackageUnix(camundaVersion, elasticsearchVersion)
+		} else {
+			panic("Unsupported system")
+		}
 	}
 
 }

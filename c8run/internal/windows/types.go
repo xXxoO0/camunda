@@ -1,3 +1,3 @@
 package windows
 
-type WindowsC8Run struct {}
+type WindowsC8Run struct{}

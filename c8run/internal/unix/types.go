@@ -1,3 +1,3 @@
 package unix
 
-type UnixC8Run struct {}
+type UnixC8Run struct{}

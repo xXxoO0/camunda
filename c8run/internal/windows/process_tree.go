@@ -1,5 +1,7 @@
-// process_tree.go
 //go:build windows
+
+// process_tree.go
+//
 package windows
 
 import (
