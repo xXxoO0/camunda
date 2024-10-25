@@ -42,21 +42,28 @@ jobs:
         run: ./c8run package
         working-directory: ./c8run
 
+      - name: ls
+        run: ls
+        working-directory: ./c8run
+
       - if: ${{ matrix.os == 'macos-13' }}
         name: Set env
         run: echo "JAVA_HOME=$(echo $JAVA_HOME_21_X64)" >> $GITHUB_ENV
 
       - if: ${{ matrix.os == 'ubuntu-latest' }}
         name: Linux - Run c8run
-        run: nohup ./start.sh --detached &
+        run: ./c8run start
         working-directory: ./c8run
         env:
           JAVA_HOME: /usr/lib/jvm/temurin-21-jdk-amd64
+          JAVA_VERSION: 21.0.3
 
       - if: ${{ startsWith(matrix.os, 'macos') }}
         name: Mac - Run c8run
-        run: nohup ./start.sh --detached &
+        run: ./c8run start
         working-directory: ./c8run
+        env:
+          JAVA_VERSION: 21.0.3
 
       - uses: actions/setup-node@v4
         with:
