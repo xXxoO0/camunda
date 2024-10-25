@@ -306,7 +306,7 @@ func PackageWindows(camundaVersion string, elasticsearchVersion string) {
         elasticsearchExtractedDir := "elasticsearch-" + elasticsearchVersion
         _, err = os.Stat(elasticsearchExtractedDir)
         if errors.Is(err, os.ErrNotExist) {
-                err = unzipSource(elasticsearchFilePath, elasticsearchExtractedDir)
+                err = unzipSource(elasticsearchFilePath, ".")
                 if err != nil {
                         panic(err)
                 }
@@ -327,7 +327,7 @@ func PackageWindows(camundaVersion string, elasticsearchVersion string) {
         camundaExtractedDir := "camunda-zeebe-" + camundaVersion
         _, err = os.Stat(camundaExtractedDir)
         if errors.Is(err, os.ErrNotExist) {
-                err = unzipSource(camundaFilePath, camundaExtractedDir)
+                err = unzipSource(camundaFilePath, ".")
                 if err != nil {
                         panic(err)
                 }
