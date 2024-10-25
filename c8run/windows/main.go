@@ -1,19 +1,18 @@
 package main
 
 import (
+	"c8run/internal/unix"
+	"c8run/internal/windows"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
-        "runtime"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
-        "c8run/internal/windows"
-        "c8run/internal/unix"
 )
-
 
 func printHelp() {
 	optionsHelp := `Options:
@@ -68,10 +67,9 @@ func queryCamundaHealth(c8 C8Run, name string, url string) {
 		fmt.Println("Error: " + name + " did not start!")
 		os.Exit(1)
 	}
-        c8.OpenBrowser(name)
+	c8.OpenBrowser(name)
 	printStatus()
 }
-
 
 func stopProcess(c8 C8Run, pidfile string) {
 	if _, err := os.Stat(pidfile); err == nil {
@@ -123,25 +121,25 @@ func parseCommandLineOptions(args []string, settings *C8RunSettings) *C8RunSetti
 }
 
 func getC8RunPlatform() C8Run {
-        if runtime.GOOS == "windows" {
-                return &windows.WindowsC8Run{}
-        } else if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-                return &unix.UnixC8Run{}
-        }
-        panic("Unsupported operating system")
+	if runtime.GOOS == "windows" {
+		return &windows.WindowsC8Run{}
+	} else if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+		return &unix.UnixC8Run{}
+	}
+	panic("Unsupported operating system")
 }
 
 func main() {
-        c8 := getC8RunPlatform()
+	c8 := getC8RunPlatform()
 	baseDir, _ := os.Getwd()
 	// parentDir, _ := filepath.Dir(baseDir)
 	parentDir := baseDir
 	// deploymentDir := filepath.Join(parentDir, "configuration", "resources")
 	elasticsearchVersion := "8.13.4"
 	camundaVersion := "8.6.2"
-        if os.Getenv("CAMUNDA_VERSION") != "" {
-                camundaVersion = os.Getenv("CAMUNDA_VERSION")
-        }
+	if os.Getenv("CAMUNDA_VERSION") != "" {
+		camundaVersion = os.Getenv("CAMUNDA_VERSION")
+	}
 	expectedJavaVersion := 21
 
 	elasticsearchPidPath := filepath.Join(baseDir, "elasticsearch.pid")
@@ -163,9 +161,13 @@ func main() {
 
 	if os.Args[1] == "start" {
 		baseCommand = "start"
-	} else {
+	} else if os.Args[1] == "stop" {
 		baseCommand = "stop"
-	}
+	} else if os.Args[1] == "package" {
+		baseCommand = "package"
+        } else {
+                panic("Unsupported operation")
+        }
 	fmt.Print("Command: " + baseCommand + "\n")
 
 	var settings C8RunSettings
@@ -173,22 +175,22 @@ func main() {
 		parseCommandLineOptions(os.Args[2:], &settings)
 	}
 
-        javaHome := os.Getenv("JAVA_HOME")
+	javaHome := os.Getenv("JAVA_HOME")
 	javaBinary := "java"
-        if javaHome != "" {
-	        javaBinary = filepath.Join(javaHome, "bin", "java")
-        }
+	if javaHome != "" {
+		javaBinary = filepath.Join(javaHome, "bin", "java")
+	}
 
 	if baseCommand == "start" {
 		javaVersion := os.Getenv("JAVA_VERSION")
 		if javaVersion == "" {
 			javaVersionCmd := c8.GetVersionCmd(javaBinary)
 			var out strings.Builder
-                        var stderr strings.Builder
+			var stderr strings.Builder
 			javaVersionCmd.Stdout = &out
 			javaVersionCmd.Stderr = &stderr
 			javaVersionCmd.Run()
-                        javaVersionOutput := out.String()
+			javaVersionOutput := out.String()
 			javaVersionOutputSplit := strings.Split(javaVersionOutput, " ")
 			if len(javaVersionOutputSplit) < 2 {
 				fmt.Println("Java needs to be installed. Please install JDK " + strconv.Itoa(expectedJavaVersion) + " or newer.")
@@ -235,9 +237,9 @@ func main() {
 		elasticsearchCmd.Stdout = elasticsearchLogFile
 		elasticsearchCmd.Stderr = elasticsearchLogFile
 		err = elasticsearchCmd.Start()
-                if err != nil {
-                        panic(err)
-                }
+		if err != nil {
+			panic(err)
+		}
 		fmt.Print("Process id ", elasticsearchCmd.Process.Pid, "\n")
 
 		elasticsearchPidFile, err := os.OpenFile(elasticsearchPidPath, os.O_RDWR|os.O_CREATE, 0644)
@@ -258,9 +260,9 @@ func main() {
 		connectorsCmd.Stdout = connectorsLogFile
 		connectorsCmd.Stderr = connectorsLogFile
 		err = connectorsCmd.Start()
-                if err != nil {
-                        panic(err)
-                }
+		if err != nil {
+			panic(err)
+		}
 
 		connectorsPidFile, err := os.OpenFile(connectorsPidPath, os.O_RDWR|os.O_CREATE, 0644)
 		if err != nil {
@@ -284,9 +286,9 @@ func main() {
 		camundaCmd.Stdout = camundaLogFile
 		camundaCmd.Stderr = camundaLogFile
 		err = camundaCmd.Start()
-                if err != nil {
-                        panic(err)
-                }
+		if err != nil {
+			panic(err)
+		}
 		camundaPidFile, err := os.OpenFile(camundaPidPath, os.O_RDWR|os.O_CREATE, 0644)
 		if err != nil {
 			fmt.Print("Failed to open file: " + camundaPidPath)
@@ -303,6 +305,16 @@ func main() {
 		fmt.Println("Connectors is stopped.")
 		stopProcess(c8, camundaPidPath)
 		fmt.Println("Camunda is stopped.")
+	}
+
+	if baseCommand == "package" {
+                if runtime.GOOS == "windows" {
+		        PackageWindows(camundaVersion, elasticsearchVersion)
+                } else if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+		        PackageUnix(camundaVersion, elasticsearchVersion)
+                } else {
+                        panic("Unsupported system")
+                }
 	}
 
 }
