@@ -127,6 +127,13 @@ jobs:
         run: .\c8run.exe package
         working-directory: .\c8run
 
+      - name: ls
+        run: ls
+        working-directory: .\c8run
+
+      - name: ls
+        run: ls
+        working-directory: .\c8run\elasticsearch-8.13.4
 
       - uses: actions/setup-java@v4
         with:
