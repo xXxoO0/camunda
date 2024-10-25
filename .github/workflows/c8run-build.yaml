@@ -30,6 +30,10 @@ jobs:
       - name: print architecture
         run: arch
 
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.23.1'
+
       - name: Build c8run
         run: go build
         working-directory: ./c8run
@@ -103,6 +107,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.23.1'
 
       - name: Build c8run
         run: go build
