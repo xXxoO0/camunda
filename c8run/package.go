@@ -81,7 +81,7 @@ func PackageUnix(camundaVersion string, elasticsearchVersion string) {
 		architecture = "aarch64"
 	}
 
-	elasticsearchUrl := "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-" + elasticsearchVersion + "-" + architecture + "-" + architecture + ".tar.gz"
+	elasticsearchUrl := "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-" + elasticsearchVersion + "-" + runtime.GOOS + "-" + architecture + ".tar.gz"
 	elasticsearchFilePath := "elasticsearch-" + elasticsearchVersion + ".tar.gz"
 	camundaFilePath := "camunda-zeebe-" + camundaVersion + ".tar.gz"
 	camundaUrl := "https://github.com/camunda/camunda/releases/download/" + camundaVersion + "/" + camundaFilePath
