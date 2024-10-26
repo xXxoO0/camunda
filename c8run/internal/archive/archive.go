@@ -45,7 +45,26 @@ func CreateTarGzArchive(files []string, buf io.Writer) error {
 	defer tw.Close()
 
 	for _, file := range files {
-		err := addToArchive(tw, file)
+		err := filepath.Walk(file, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if !info.IsDir() {
+				return addToArchive(tw, path)
+			} else {
+				// Add directory to the archive
+				header, err := tar.FileInfoHeader(info, path)
+				if err != nil {
+					return err
+				}
+				header.Name = path + "/"
+				if err := tw.WriteHeader(header); err != nil {
+					return err
+				}
+				return nil
+
+			}
+		})
 		if err != nil {
 			return err
 		}
@@ -156,7 +175,7 @@ func addToArchive(tw *tar.Writer, filename string) error {
 	return nil
 }
 
-func ZipSource(source, target string) error {
+func ZipSource(sources []string, target string) error {
 	f, err := os.Create(target)
 	if err != nil {
 		return err
@@ -166,44 +185,50 @@ func ZipSource(source, target string) error {
 	writer := zip.NewWriter(f)
 	defer writer.Close()
 
-	return filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+	for _, source := range sources {
+		err = filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+
+			header, err := zip.FileInfoHeader(info)
+			if err != nil {
+				return err
+			}
+
+			header.Method = zip.Deflate
+
+			header.Name, err = filepath.Rel(filepath.Dir(source), path)
+			if err != nil {
+				return err
+			}
+			if info.IsDir() {
+				header.Name += "/"
+			}
+
+			headerWriter, err := writer.CreateHeader(header)
+			if err != nil {
+				return err
+			}
+
+			if info.IsDir() {
+				return nil
+			}
+
+			f, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+
+			_, err = io.Copy(headerWriter, f)
+			return err
+		})
 		if err != nil {
 			return err
 		}
-
-		header, err := zip.FileInfoHeader(info)
-		if err != nil {
-			return err
-		}
-
-		header.Method = zip.Deflate
-
-		header.Name, err = filepath.Rel(filepath.Dir(source), path)
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			header.Name += "/"
-		}
-
-		headerWriter, err := writer.CreateHeader(header)
-		if err != nil {
-			return err
-		}
-
-		if info.IsDir() {
-			return nil
-		}
-
-		f, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-
-		_, err = io.Copy(headerWriter, f)
-		return err
-	})
+	}
+	return nil
 }
 
 func UnzipSource(source, destination string) error {
