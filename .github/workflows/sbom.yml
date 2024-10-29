@@ -1,20 +1,15 @@
-# Workflow: Generate SBOM
-# This workflow generates a Software Bill of Materials (SBOM) using the CycloneDX Maven plugin.
-# The SBOM provides a list of dependencies and helps track potential security risks.
-# The workflow runs on a schedule for testing purposes and can be manually triggered.
-# The generated SBOM is uploaded as an artifact for further analysis or distribution.
-
-name: Generate SBOM
+name: Generate and Attach SBOM
 
 on:
   workflow_dispatch:
+  release:
+    types: [published]
   schedule:
     - cron: "0 9 * * MON"
 
 jobs:
-  frontend_sbom:
+  generate_frontend_sbom:
     runs-on: ubuntu-latest
-    name: Generate frontend SBOM
     strategy:
       matrix:
         include:
@@ -34,30 +29,34 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+
       - name: Setup NodeJS
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - uses: camunda/infra-global-github-actions/setup-yarn-cache@main
+
+      - name: Setup Yarn Cache
+        uses: camunda/infra-global-github-actions/setup-yarn-cache@main
         with:
           directory: ${{ matrix.component }}/client
-      - name: Install node dependencies
+
+      - name: Install Node Dependencies
         run: yarn
+
       - name: Extract SBOM
         run: |
           yarn run extract-sbom
-      - name: Upload SBOM as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.component }}-fe-sbom
-          path: ${{ matrix.component }}/client/${{ matrix.folder }}/cyclonedx/bom.json
 
-  backend_sbom:
+      - name: Verify SBOM file exists
+        run: |
+          ls -alh ${{ matrix.component }}/client/${{ matrix.folder }}/cyclonedx/
+
+  generate_backend_sbom:
     runs-on: ubuntu-latest
-    name: Generate backend SBOM
+    needs: generate_frontend_sbom
 
     steps:
-      - name: Checkout code
+      - name: Check out repository code
         uses: actions/checkout@v4
 
       - name: Set up JDK 21
@@ -77,12 +76,49 @@ jobs:
         with:
           maven-cache-key-modifier: sbom
 
-      - name: Generate SBOM (CycloneDX)
-        run: |
-          ./mvnw org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom
+      - name: Generate Backend SBOM (CycloneDX)
+        run: ./mvnw org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom
 
-      - name: Upload SBOM as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-sbom
-          path: target/bom.json
+      - name: Verify Backend SBOM file exists
+        run: |
+          ls -alh target/
+
+  attach_artifacts_to_release:
+    runs-on: ubuntu-latest
+    needs: [generate_frontend_sbom, generate_backend_sbom]
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Determine Release Tag
+        id: get_release_tag
+        run: |
+          if [ "${{ github.event_name }}" == "release" ]; then
+            echo "RELEASE_TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+          else
+            latest_release=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r .tag_name)
+            echo "RELEASE_TAG=$latest_release" >> $GITHUB_ENV
+          fi
+
+      - name: Attach Frontend SBOMs to Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for component in tasklist operate identity optimize; do
+            asset_path="./${component}/client/${component == 'identity' ? 'dist' : 'build'}/cyclonedx/bom.json"
+            gh release upload "$RELEASE_TAG" "$asset_path" \
+              --repo "${{ github.repository }}" \
+              --name "${component}-fe-sbom.json" \
+              --clobber
+          done
+
+      - name: Attach Backend SBOM to Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "$RELEASE_TAG" "target/bom.json" \
+            --repo "${{ github.repository }}" \
+            --name "backend-sbom.json" \
+            --clobber
