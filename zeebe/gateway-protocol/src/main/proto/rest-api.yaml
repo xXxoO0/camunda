@@ -2584,6 +2584,7 @@ components:
       type: object
       properties:
         items:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/UserTaskItem"
@@ -2635,6 +2636,7 @@ components:
           description: The ID of the process definition.
         variables:
           type: array
+          description: sjh
           items:
             $ref: "#/components/schemas/UserTaskVariableFilterRequest"
     UserTaskVariableFilterRequest:
@@ -2650,8 +2652,8 @@ components:
       type: object
       properties:
         userTaskKey:
+          description: sjh
           type: integer
-          description: The key for this user task.
           format: int64
         state:
           type: string
@@ -2662,8 +2664,8 @@ components:
             - CANCELED
             - FAILED
         assignee:
+          description: sjh
           type: string
-          description: The assignee of the user task.
         elementId:
           type: string
           description: The element ID of the user task.
@@ -2776,6 +2778,7 @@ components:
       type: object
       properties:
         items:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/VariableItem"
@@ -2816,6 +2819,7 @@ components:
       type: object
       properties:
         filter:
+          description: sjh
           allOf:
             - $ref: "#/components/schemas/ProcessDefinitionFilterRequest"
     ProcessDefinitionFilterRequest:
@@ -2850,6 +2854,7 @@ components:
       type: object
       properties:
         items:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/ProcessDefinitionItem"
@@ -2886,6 +2891,7 @@ components:
       type: object
       properties:
         filter:
+          description: sjh
           allOf:
             - $ref: "#/components/schemas/ProcessInstanceFilterRequest"
     AdvancedIntegerFilter:
@@ -3060,6 +3066,7 @@ components:
       type: object
       properties:
         items:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/ProcessInstanceItem"
@@ -3132,7 +3139,6 @@ components:
           type: integer
           format: int64
           minimum: 1
-
     FlowNodeInstanceSearchQueryRequest:
       description: Flow node instance search request
       allOf:
@@ -3140,6 +3146,7 @@ components:
       type: object
       properties:
         filter:
+          description: sjh
           allOf:
             - $ref: "#/components/schemas/FlowNodeInstanceFilterRequest"
     FlowNodeInstanceFilterRequest:
@@ -3221,6 +3228,7 @@ components:
       type: object
       properties:
         items:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/FlowNodeInstanceItem"
@@ -3308,6 +3316,7 @@ components:
       type: object
       properties:
         filter:
+          description: sjh
           allOf:
             - $ref: "#/components/schemas/DecisionDefinitionFilterRequest"
     DecisionDefinitionFilterRequest:
@@ -3343,6 +3352,7 @@ components:
       type: object
       properties:
         filter:
+          description: sjh
           allOf:
             - $ref: "#/components/schemas/IncidentFilterRequest"
     IncidentFilterRequest:
@@ -3417,6 +3427,7 @@ components:
       type: object
       properties:
         items:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/IncidentItem"
@@ -3486,55 +3497,13 @@ components:
         tenantId:
           description: The tenant ID of the incident.
           type: string
-    OperationItem:
-      description: " Operation"
-      type: object
-      properties:
-        id:
-          type: string
-        batchOperationId:
-          type: string
-        type:
-          type: string
-          enum:
-            - RESOLVE_INCIDENT
-            - CANCEL_PROCESS_INSTANCE
-            - DELETE_PROCESS_INSTANCE
-            - ADD_VARIABLE
-            - UPDATE_VARIABLE
-            - MODIFY_PROCESS_INSTANCE
-            - DELETE_DECISION_DEFINITION
-            - DELETE_PROCESS_DEFINITION
-            - MIGRATE_PROCESS_INSTANCE
-        state:
-          type: string
-          enum:
-            - SCHEDULED
-            - LOCKED
-            - SENT
-            - FAILED
-            - COMPLETED
-        errorMessage:
-          type: string
-        completedDate:
-          type: string
-          format: date-time
-    ProcessInstanceReferenceItem:
-      description: "Process instance reference description"
-      type: object
-      properties:
-        instanceId:
-          type: string
-        processDefinitionId:
-          type: string
-        processDefinitionName:
-          type: string
     DecisionDefinitionSearchQueryResponse:
       allOf:
         - $ref: "#/components/schemas/SearchQueryResponse"
       type: object
       properties:
         items:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/DecisionDefinitionItem"
@@ -3641,6 +3610,7 @@ components:
       type: object
       properties:
         filter:
+          description: sjh
           allOf:
             - $ref: "#/components/schemas/AuthorizationFilterRequest"
     AuthorizationFilterRequest:
@@ -3683,6 +3653,7 @@ components:
         - $ref: "#/components/schemas/SearchQueryResponse"
       properties:
         items:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/AuthorizationResponse"
@@ -3690,12 +3661,16 @@ components:
       type: "object"
       properties:
         password:
+          description: sjh
           type: "string"
         username:
+          description: sjh
           type: "string"
         name:
+          description: sjh
           type: "string"
         email:
+          description: sjh
           type: "string"
     UserCreateResponse:
       type: "object"
@@ -3710,31 +3685,40 @@ components:
       type: object
       properties:
         filter:
+          description: sjh
           allOf:
             - $ref: "#/components/schemas/UserFilterRequest"
     UserFilterRequest:
       type: object
       properties:
         username:
+          description: sjh
           type: "string"
         name:
+          description: sjh
           type: "string"
         email:
+          description: sjh
           type: "string"
     UserResponse:
       type: "object"
       properties:
         id:
+          description: sjh
           type: "integer"
           format: "int64"
         key:
+          description: sjh
           type: "integer"
           format: "int64"
         username:
+          description: sjh
           type: "string"
         name:
+          description: sjh
           type: "string"
         email:
+          description: sjh
           type: "string"
     UserSearchResponse:
       type: object
@@ -3742,6 +3726,7 @@ components:
         - $ref: "#/components/schemas/SearchQueryResponse"
       properties:
         items:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/UserResponse"
@@ -3937,14 +3922,14 @@ components:
           maximum: 100
           nullable: true
     ClockPinRequest:
-      type: object
-      properties:
-        timestamp:
-          description: The exact time in epoch milliseconds to which the clock should be pinned.
-          type: integer
-          format: int64
-      required:
-        - timestamp
+            type: object
+            properties:
+              timestamp:
+                description: The exact time in epoch milliseconds to which the clock should be pinned.
+                type: integer
+                format: int64
+            required:
+              - timestamp
     JobActivationRequest:
       type: object
       properties:
@@ -4000,6 +3985,7 @@ components:
       type: object
       properties:
         jobs:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/ActivatedJob"
@@ -4148,7 +4134,6 @@ components:
           format: int64
           description: The duration of the new timeout in ms, starting from the current moment.
           nullable: true
-
     ProblemDetail:
       description: >
         A Problem detail object as described in [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457).
@@ -4180,11 +4165,13 @@ components:
       type: object
       properties:
         sort:
+          description: sjh
           type: array
           items:
             allOf:
               - $ref: "#/components/schemas/SearchQuerySortRequest"
         page:
+          description: sjh
           allOf:
             - $ref: "#/components/schemas/SearchQueryPageRequest"
           type: object
@@ -4192,16 +4179,20 @@ components:
       type: object
       properties:
         from:
+          description: sjh
           type: integer
           format: int32
         limit:
+          description: sjh
           type: integer
           format: int32
         searchAfter:
+          description: sjh
           type: array
           items:
             type: object
         searchBefore:
+          description: sjh
           type: array
           items:
             type: object
@@ -4209,8 +4200,10 @@ components:
       type: object
       properties:
         field:
+          description: sjh
           type: string
         order:
+          description: sjh
           type: string
           default: asc
       required:
@@ -4219,6 +4212,7 @@ components:
       type: object
       properties:
         page:
+          description: sjh
           allOf:
             - $ref: "#/components/schemas/SearchQueryPageResponse"
           type: object
@@ -4226,39 +4220,26 @@ components:
       type: object
       properties:
         totalItems:
+          description: sjh
           type: integer
           format: int64
         firstSortValues:
+          description: sjh
           type: array
           items:
             type: object
         lastSortValues:
+          description: sjh
           type: array
           items:
             type: object
-    VariableValueFilterRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        eq:
-          type: object
-        neq:
-          type: object
-        gt:
-          type: object
-        gte:
-          type: object
-        lt:
-          type: object
-        lte:
-          type: object
     DecisionRequirementsSearchQueryRequest:
       allOf:
         - $ref: "#/components/schemas/SearchQueryRequest"
       type: object
       properties:
         filter:
+          description: sjh
           allOf:
             - $ref: "#/components/schemas/DecisionRequirementsFilterRequest"
     DecisionRequirementsFilterRequest:
@@ -4287,6 +4268,7 @@ components:
       type: object
       properties:
         items:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/DecisionRequirementsItem"
@@ -4313,6 +4295,7 @@ components:
         tenantId:
           type: string
           description: The tenant ID of the decision requirements.
+
     EvaluateDecisionRequest:
       type: object
       properties:
@@ -4377,6 +4360,7 @@ components:
           type: integer
           format: int64
         evaluatedDecisions:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/EvaluatedDecisionItem"
@@ -4409,10 +4393,12 @@ components:
           description: The tenant ID of the evaluated decision.
           type: string
         matchedRules:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/MatchedDecisionRuleItem"
         evaluatedInputs:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/EvaluatedDecisionInputItem"
@@ -4428,6 +4414,7 @@ components:
           type: integer
           format: int32
         evaluatedOutputs:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/EvaluatedDecisionOutputItem"
@@ -4463,6 +4450,7 @@ components:
       type: object
       properties:
         filter:
+          description: sjh
           allOf:
             - $ref: "#/components/schemas/DecisionInstanceFilterRequest"
     DecisionInstanceFilterRequest:
@@ -4514,10 +4502,10 @@ components:
       type: object
       properties:
         items:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/DecisionInstanceItem"
-
     DecisionInstanceItem:
       type: object
       properties:
@@ -4564,7 +4552,6 @@ components:
         tenantId:
           type: string
           description: The tenant ID of the decision instance.
-
     DecisionInstanceGetQueryResponse:
       allOf:
         - $ref: "#/components/schemas/DecisionInstanceItem"
@@ -4582,7 +4569,6 @@ components:
                 $ref: "#/components/schemas/MatchedDecisionRuleItem"
               description: |
                 The matched rules of the decision instance.
-
     DecisionDefinitionTypeEnum:
       description: The type of the decision.
       enum:
@@ -4597,7 +4583,6 @@ components:
         - FAILED
         - UNSPECIFIED
         - UNKNOWN
-
     MessageCorrelationRequest:
       type: object
       properties:
@@ -4679,7 +4664,7 @@ components:
         tenantId:
           description: The tenant ID of the message.
           type: string
-
+          description: sjh
     DocumentReference:
       type: object
       properties:
@@ -4695,7 +4680,14 @@ components:
           type: string
           description: The ID of the document.
         metadata:
-          $ref: "#/components/schemas/DocumentMetadata"
+          description: sjh
+          # sjhsjhsjh -- this is different from the source!
+          #   it needs to use allOf to consume DocumentMetadata.
+          #   I'm not sure why, because the oas spec seems to say applying the $ref without allOf is fine...
+          #   but we did allOf in every other schema for some reason, so this is the only one that failed.
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/DocumentMetadata"
     DocumentMetadata:
       type: object
       properties:
@@ -4736,7 +4728,6 @@ components:
           type: string
           format: date-time
           description: The date and time when the link expires.
-
     DeploymentResponse:
       type: object
       properties:
@@ -4745,22 +4736,32 @@ components:
           format: int64
           description: The unique key identifying the deployment.
         deployments:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/DeploymentMetadata"
         tenantId:
+          description: sjh
           type: string
     DeploymentMetadata:
       type: object
       properties:
         processDefinition:
-          $ref: "#/components/schemas/DeploymentProcess"
+          description: sjh
+          allOf:
+            - $ref: "#/components/schemas/DeploymentProcess"
         decisionDefinition:
-          $ref: "#/components/schemas/DeploymentDecision"
+          description: sjh
+          allOf:
+            - $ref: "#/components/schemas/DeploymentDecision"
         decisionRequirements:
-          $ref: "#/components/schemas/DeploymentDecisionRequirements"
+          description: sjh
+          allOf:
+            - $ref: "#/components/schemas/DeploymentDecisionRequirements"
         form:
-          $ref: "#/components/schemas/DeploymentForm"
+          description: sjh
+          allOf:
+            - $ref: "#/components/schemas/DeploymentForm"
     DeploymentProcess:
       type: object
       properties:
@@ -4862,7 +4863,6 @@ components:
         tenantId:
           type: string
           description: The tenant ID of the deployed form.
-
     CreateProcessInstanceRequest:
       type: object
       properties:
@@ -4977,6 +4977,7 @@ components:
           type: integer
           format: int64
         mappingInstructions:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/MigrateProcessInstanceMappingInstruction"
@@ -5008,10 +5009,12 @@ components:
       type: object
       properties:
         activateInstructions:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/ModifyProcessInstanceActivateInstruction"
         terminateInstructions:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/ModifyProcessInstanceTerminateInstruction"
@@ -5039,6 +5042,7 @@ components:
           format: int64
           default: -1
         variableInstructions:
+          description: sjh
           type: array
           items:
             $ref: "#/components/schemas/ModifyProcessInstanceVariableInstruction"
@@ -5072,7 +5076,6 @@ components:
           format: int64
       required:
         - elementInstanceKey
-
     SetVariableRequest:
       type: object
       properties:
@@ -5108,7 +5111,6 @@ components:
           minimum: 1
       required:
         - variables
-
     DeleteResourceRequest:
       type: object
       nullable: true
@@ -5120,7 +5122,6 @@ components:
           type: integer
           format: int64
           minimum: 1
-
     SignalBroadcastRequest:
       type: object
       properties:
