@@ -21,7 +21,7 @@ if not exist "elasticsearch-%ELASTICSEARCH_VERSION%.zip" (
 tar -xf elasticsearch-%ELASTICSEARCH_VERSION%.zip -C %BASEDIR%
 
 if not exist "camunda-zeebe-%CAMUNDA_VERSION%.zip" (
-    curl -L -o camunda-zeebe-%CAMUNDA_VERSION%.zip "https://github.com/camunda/camunda/releases/download/%CAMUNDA_VERSION%/camunda-zeebe-%CAMUNDA_VERSION%.zip"
+    gh release download -R "camunda/camunda" "%CAMUNDA_VERSION%" -p "camunda-zeebe-%CAMUNDA_VERSION%.tar.gz"
 )
 tar -xf camunda-zeebe-%CAMUNDA_VERSION%.zip -C %BASEDIR%
 
