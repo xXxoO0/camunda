@@ -27,7 +27,7 @@ tar -xf camunda-zeebe-%CAMUNDA_VERSION%.zip -C %BASEDIR%
 
 set connectorsFileName=connector-runtime-bundle-%CAMUNDA_CONNECTORS_VERSION%-with-dependencies.jar
 if not exist "%connectorsFileName%" (
-    curl -L -o "%connectorsFileName%" "https://repo1.maven.org/maven2/io/camunda/connector/connector-runtime-bundle/%CAMUNDA_CONNECTORS_VERSION%/%connectorsFileName%"
+    curl -L -o "%connectorsFileName%" "https://artifacts.camunda.com/artifactory/connectors/io/camunda/connector/connector-runtime-bundle/%CAMUNDA_CONNECTORS_VERSION%/%connectorsFileName%"
 )
 
 
