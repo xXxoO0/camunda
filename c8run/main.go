@@ -67,12 +67,12 @@ func queryCamundaHealth(c8 C8Run, name string, url string) error {
 		fmt.Println("Error: " + name + " did not start!")
 		os.Exit(1)
 	}
-        err := c8.OpenBrowser(name)
-        if err != nil {
-                return err
-        }
+	err := c8.OpenBrowser(name)
+	if err != nil {
+		return err
+	}
 	printStatus()
-        return nil
+	return nil
 }
 
 func stopProcess(c8 C8Run, pidfile string) {
@@ -299,10 +299,10 @@ func main() {
 			os.Exit(1)
 		}
 		camundaPidFile.Write([]byte(strconv.Itoa(camundaCmd.Process.Pid)))
-                err = queryCamundaHealth(c8, "Camunda", "http://localhost:8080/operate/login")
-                if err != nil {
-                        panic(err)
-                }
+		err = queryCamundaHealth(c8, "Camunda", "http://localhost:8080/operate/login")
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	if baseCommand == "stop" {
@@ -316,15 +316,15 @@ func main() {
 
 	if baseCommand == "package" {
 		if runtime.GOOS == "windows" {
-                        err := PackageWindows(camundaVersion, elasticsearchVersion)
-                        if err != nil {
-                                panic(err)
-                        }
+			err := PackageWindows(camundaVersion, elasticsearchVersion)
+			if err != nil {
+				panic(err)
+			}
 		} else if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-                        err := PackageUnix(camundaVersion, elasticsearchVersion)
-                        if err != nil {
-                                panic(err)
-                        }
+			err := PackageUnix(camundaVersion, elasticsearchVersion)
+			if err != nil {
+				panic(err)
+			}
 		} else {
 			panic("Unsupported system")
 		}

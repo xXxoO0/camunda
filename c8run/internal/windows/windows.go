@@ -19,7 +19,7 @@ func (w *WindowsC8Run) OpenBrowser(name string) error {
 	}
 	fmt.Println(name + " has successfully been started.")
 	openBrowserCmd.Run()
-        return nil
+	return nil
 }
 
 func (w *WindowsC8Run) GetProcessTree(commandPid int) []*os.Process {

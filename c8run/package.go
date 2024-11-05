@@ -28,7 +28,7 @@ func Clean(camundaVersion string, elasticsearchVersion string) {
 }
 
 func downloadAndExtract(filePath, url, extractDir string, extractFunc func(string, string) error) error {
-        err := archive.DownloadFile(filePath, url)
+	err := archive.DownloadFile(filePath, url)
 	if err != nil {
 		return err
 	}
@@ -65,29 +65,29 @@ func PackageWindows(camundaVersion string, elasticsearchVersion string) error {
 		return err
 	}
 
-        os.Chdir("..")
-        filesToArchive := []string{
-                filepath.Join("c8run", "README.md"),
-                filepath.Join("c8run", "connectors-application.properties"),
-                filepath.Join("c8run", connectorsFilePath),
-                filepath.Join("c8run", "elasticsearch-" + elasticsearchVersion),
-                filepath.Join("c8run", "custom_connectors"),
-                filepath.Join("c8run", "configuration"),
-                filepath.Join("c8run", "c8run.exe"),
-                filepath.Join("c8run", "endpoints.txt"),
-                filepath.Join("c8run", "log"),
-                filepath.Join("c8run", "camunda-zeebe-" + camundaVersion),
-        }
-	outputArchive, err := os.Create(filepath.Join("c8run", "camunda8-run-" + camundaVersion + "-windows-x86_64.zip"))
-        if err != nil {
-                return err
-        }
-        err = archive.CreateTarGzArchive(filesToArchive, outputArchive)
-        if err != nil {
-                return err
-        }
-        os.Chdir("c8run")
-        return nil
+	os.Chdir("..")
+	filesToArchive := []string{
+		filepath.Join("c8run", "README.md"),
+		filepath.Join("c8run", "connectors-application.properties"),
+		filepath.Join("c8run", connectorsFilePath),
+		filepath.Join("c8run", "elasticsearch-"+elasticsearchVersion),
+		filepath.Join("c8run", "custom_connectors"),
+		filepath.Join("c8run", "configuration"),
+		filepath.Join("c8run", "c8run.exe"),
+		filepath.Join("c8run", "endpoints.txt"),
+		filepath.Join("c8run", "log"),
+		filepath.Join("c8run", "camunda-zeebe-"+camundaVersion),
+	}
+	outputArchive, err := os.Create(filepath.Join("c8run", "camunda8-run-"+camundaVersion+"-windows-x86_64.zip"))
+	if err != nil {
+		return err
+	}
+	err = archive.CreateTarGzArchive(filesToArchive, outputArchive)
+	if err != nil {
+		return err
+	}
+	os.Chdir("c8run")
+	return nil
 }
 
 func PackageUnix(camundaVersion string, elasticsearchVersion string) error {
@@ -122,27 +122,27 @@ func PackageUnix(camundaVersion string, elasticsearchVersion string) error {
 		return err
 	}
 
-        os.Chdir("..")
-        filesToArchive := []string{
-                filepath.Join("c8run", "README.md"),
-                filepath.Join("c8run", "connectors-application.properties"),
-                filepath.Join("c8run", connectorsFilePath),
-                filepath.Join("c8run", "elasticsearch-" + elasticsearchVersion),
-                filepath.Join("c8run", "custom_connectors"),
-                filepath.Join("c8run", "configuration"),
-                filepath.Join("c8run", "c8run"),
-                filepath.Join("c8run", "endpoints.txt"),
-                filepath.Join("c8run", "log"),
-                filepath.Join("c8run", "camunda-zeebe-" + camundaVersion),
-        }
-	outputArchive, err := os.Create(filepath.Join("c8run", "camunda8-run-" + camundaVersion + "-" + runtime.GOOS + "-" + architecture + ".tar.gz"))
-        if err != nil {
-                return err
-        }
-        err = archive.CreateTarGzArchive(filesToArchive, outputArchive)
-        if err != nil {
-                return err
-        }
-        os.Chdir("c8run")
-        return nil
+	os.Chdir("..")
+	filesToArchive := []string{
+		filepath.Join("c8run", "README.md"),
+		filepath.Join("c8run", "connectors-application.properties"),
+		filepath.Join("c8run", connectorsFilePath),
+		filepath.Join("c8run", "elasticsearch-"+elasticsearchVersion),
+		filepath.Join("c8run", "custom_connectors"),
+		filepath.Join("c8run", "configuration"),
+		filepath.Join("c8run", "c8run"),
+		filepath.Join("c8run", "endpoints.txt"),
+		filepath.Join("c8run", "log"),
+		filepath.Join("c8run", "camunda-zeebe-"+camundaVersion),
+	}
+	outputArchive, err := os.Create(filepath.Join("c8run", "camunda8-run-"+camundaVersion+"-"+runtime.GOOS+"-"+architecture+".tar.gz"))
+	if err != nil {
+		return err
+	}
+	err = archive.CreateTarGzArchive(filesToArchive, outputArchive)
+	if err != nil {
+		return err
+	}
+	os.Chdir("c8run")
+	return nil
 }

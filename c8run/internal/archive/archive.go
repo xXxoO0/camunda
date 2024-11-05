@@ -14,11 +14,11 @@ import (
 )
 
 func DownloadFile(filepath string, url string) error {
-        // if the file already exists locally, don't download a new copy
+	// if the file already exists locally, don't download a new copy
 	_, err := os.Stat(filepath)
 	if !errors.Is(err, os.ErrNotExist) {
-                return nil
-        }
+		return nil
+	}
 
 	out, err := os.Create(filepath)
 	if err != nil {
@@ -81,10 +81,10 @@ func CreateTarGzArchive(files []string, buf io.Writer) error {
 }
 
 func ExtractTarGzArchive(filename string, xpath string) error {
-        _, err := os.Stat(xpath)
+	_, err := os.Stat(xpath)
 	if !errors.Is(err, os.ErrNotExist) {
-                return nil
-        }
+		return nil
+	}
 
 	tarFile, err := os.Open(filename)
 	if err != nil {

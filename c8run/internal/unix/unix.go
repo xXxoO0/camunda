@@ -24,7 +24,7 @@ func (w *UnixC8Run) OpenBrowser(name string) error {
 	openBrowserCmd := exec.Command(openBrowserCmdString, operateUrl)
 	fmt.Println(name + " has successfully been started.")
 	openBrowserCmd.Run()
-        return nil
+	return nil
 }
 
 func (w *UnixC8Run) GetProcessTree(commandPid int) []*os.Process {
