@@ -32,7 +32,7 @@ if [ ! -d "elasticsearch-$ELASTICSEARCH_VERSION" ]; then
 fi
 
 if [ ! -d "camunda-zeebe-$CAMUNDA_VERSION" ]; then
-  wget -q "https://github.com/camunda/camunda/releases/download/$CAMUNDA_VERSION/camunda-zeebe-$CAMUNDA_VERSION.tar.gz"
+  gh release download -R camunda/camunda "$CAMUNDA_VERSION" -p "camunda-zeebe-$CAMUNDA_VERSION.tar.gz"
   tar -xzf camunda-zeebe-$CAMUNDA_VERSION.tar.gz
 fi
 
