@@ -41,7 +41,7 @@ if [ ! -f "$connectorsFileName" ]; then
   wget -q "https://artifacts.camunda.com/artifactory/connectors/io/camunda/connector/connector-runtime-bundle/$CAMUNDA_CONNECTORS_VERSION/$connectorsFileName"
 fi
 
-tar -czf camunda8-run-$CAMUNDA_VERSION-$architecture.tar.gz \
+tar -czf camunda8-run-$CAMUNDA_VERSION-$PLATFORM-$architecture.tar.gz \
   -C ../ \
   c8run/start.sh \
   c8run/shutdown.sh \
