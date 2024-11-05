@@ -38,7 +38,7 @@ fi
 
 connectorsFileName="connector-runtime-bundle-$CAMUNDA_CONNECTORS_VERSION-with-dependencies.jar"
 if [ ! -f "$connectorsFileName" ]; then
-  wget -q "https://repo1.maven.org/maven2/io/camunda/connector/connector-runtime-bundle/$CAMUNDA_CONNECTORS_VERSION/$connectorsFileName"
+  wget -q "https://artifacts.camunda.com/artifactory/connectors/io/camunda/connector/connector-runtime-bundle/$CAMUNDA_CONNECTORS_VERSION/$connectorsFileName"
 fi
 
 tar -czf camunda8-run-$CAMUNDA_VERSION-$architecture.tar.gz \
