@@ -317,10 +317,14 @@ func main() {
 	if baseCommand == "package" {
 		if runtime.GOOS == "windows" {
                         err := PackageWindows(camundaVersion, elasticsearchVersion)
-                        panic(err)
+                        if err != nil {
+                                panic(err)
+                        }
 		} else if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
                         err := PackageUnix(camundaVersion, elasticsearchVersion)
-                        panic(err)
+                        if err != nil {
+                                panic(err)
+                        }
 		} else {
 			panic("Unsupported system")
 		}
