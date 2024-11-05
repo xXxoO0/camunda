@@ -3,7 +3,6 @@ package main
 import (
 	"c8run/internal/archive"
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
