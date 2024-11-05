@@ -28,21 +28,14 @@ func Clean(camundaVersion string, elasticsearchVersion string) {
 }
 
 func downloadAndExtract(filePath, url, extractDir string, extractFunc func(string, string) error) error {
-	_, err := os.Stat(filePath)
-	if errors.Is(err, os.ErrNotExist) {
-		err = archive.DownloadFile(filePath, url)
-		if err != nil {
-			return err
-		}
-		fmt.Println("File downloaded successfully to " + filePath)
+        err := archive.DownloadFile(filePath, url)
+	if err != nil {
+		return err
 	}
 
-	_, err = os.Stat(extractDir)
-	if errors.Is(err, os.ErrNotExist) {
-		err = extractFunc(filePath, ".")
-		if err != nil {
-			return err
-		}
+	err = extractFunc(filePath, ".")
+	if err != nil {
+		return err
 	}
 	return nil
 }
