@@ -6,7 +6,7 @@ import (
 )
 
 type C8Run interface {
-	OpenBrowser(name string)
+	OpenBrowser(name string) error
 	GetProcessTree(commandPid int) []*os.Process
 	GetVersionCmd(javaBinaryPath string) *exec.Cmd
 	GetElasticsearchCmd(elasticsearchVersion string, parentDir string) *exec.Cmd

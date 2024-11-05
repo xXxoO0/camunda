@@ -7,7 +7,7 @@ import (
 	"os/exec"
 )
 
-func (w *UnixC8Run) OpenBrowser(name string) {
+func (w *UnixC8Run) OpenBrowser(name string) error {
 	panic("Platform was not built for unix")
 }
 

@@ -49,7 +49,7 @@ func queryElasticsearchHealth(name string, url string) {
 	fmt.Println(name + " has successfully been started.")
 }
 
-func queryCamundaHealth(c8 C8Run, name string, url string) {
+func queryCamundaHealth(c8 C8Run, name string, url string) error {
 	healthy := false
 	for retries := 24; retries >= 0; retries-- {
 		fmt.Println("Waiting for " + name + " to start. " + strconv.Itoa(retries) + " retries left")
@@ -67,8 +67,12 @@ func queryCamundaHealth(c8 C8Run, name string, url string) {
 		fmt.Println("Error: " + name + " did not start!")
 		os.Exit(1)
 	}
-	c8.OpenBrowser(name)
+        err := c8.OpenBrowser(name)
+        if err != nil {
+                return err
+        }
 	printStatus()
+        return nil
 }
 
 func stopProcess(c8 C8Run, pidfile string) {
@@ -295,7 +299,10 @@ func main() {
 			os.Exit(1)
 		}
 		camundaPidFile.Write([]byte(strconv.Itoa(camundaCmd.Process.Pid)))
-		queryCamundaHealth(c8, "Camunda", "http://localhost:8080/operate/login")
+                err = queryCamundaHealth(c8, "Camunda", "http://localhost:8080/operate/login")
+                if err != nil {
+                        panic(err)
+                }
 	}
 
 	if baseCommand == "stop" {
@@ -309,9 +316,11 @@ func main() {
 
 	if baseCommand == "package" {
 		if runtime.GOOS == "windows" {
-			PackageWindows(camundaVersion, elasticsearchVersion)
+                        err := PackageWindows(camundaVersion, elasticsearchVersion)
+                        panic(err)
 		} else if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-			PackageUnix(camundaVersion, elasticsearchVersion)
+                        err := PackageUnix(camundaVersion, elasticsearchVersion)
+                        panic(err)
 		} else {
 			panic("Unsupported system")
 		}

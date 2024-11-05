@@ -10,7 +10,7 @@ import (
 	"syscall"
 )
 
-func (w *WindowsC8Run) OpenBrowser(name string) {
+func (w *WindowsC8Run) OpenBrowser(name string) error {
 	operateUrl := "http://localhost:8080/operate/login"
 	openBrowserCmdString := "start " + operateUrl
 	openBrowserCmd := exec.Command("cmd", "/C", openBrowserCmdString)
@@ -19,6 +19,7 @@ func (w *WindowsC8Run) OpenBrowser(name string) {
 	}
 	fmt.Println(name + " has successfully been started.")
 	openBrowserCmd.Run()
+        return nil
 }
 
 func (w *WindowsC8Run) GetProcessTree(commandPid int) []*os.Process {

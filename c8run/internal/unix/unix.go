@@ -11,7 +11,7 @@ import (
 	"syscall"
 )
 
-func (w *UnixC8Run) OpenBrowser(name string) {
+func (w *UnixC8Run) OpenBrowser(name string) error {
 	operateUrl := "http://localhost:8080/operate/login"
 	var openBrowserCmdString string
 	if runtime.GOOS == "darwin" {
@@ -19,11 +19,12 @@ func (w *UnixC8Run) OpenBrowser(name string) {
 	} else if runtime.GOOS == "linux" {
 		openBrowserCmdString = "xdg-open"
 	} else {
-		panic("platform " + runtime.GOOS + "is not supported")
+		return fmt.Errorf("platform %s is not supported", runtime.GOOS)
 	}
 	openBrowserCmd := exec.Command(openBrowserCmdString, operateUrl)
 	fmt.Println(name + " has successfully been started.")
 	openBrowserCmd.Run()
+        return nil
 }
 
 func (w *UnixC8Run) GetProcessTree(commandPid int) []*os.Process {

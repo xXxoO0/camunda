@@ -47,7 +47,7 @@ func downloadAndExtract(filePath, url, extractDir string, extractFunc func(strin
 	return nil
 }
 
-func PackageWindows(camundaVersion string, elasticsearchVersion string) {
+func PackageWindows(camundaVersion string, elasticsearchVersion string) error {
 	elasticsearchUrl := "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-" + elasticsearchVersion + "-windows-x86_64.zip"
 	elasticsearchFilePath := "elasticsearch-" + elasticsearchVersion + ".zip"
 	camundaFilePath := "camunda-zeebe-" + camundaVersion + ".zip"
@@ -59,17 +59,17 @@ func PackageWindows(camundaVersion string, elasticsearchVersion string) {
 
 	err := downloadAndExtract(elasticsearchFilePath, elasticsearchUrl, "elasticsearch-"+elasticsearchVersion, archive.UnzipSource)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	err = downloadAndExtract(camundaFilePath, camundaUrl, "camunda-zeebe-"+camundaVersion, archive.UnzipSource)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	err = downloadAndExtract(connectorsFilePath, connectorsUrl, connectorsFilePath, func(_, _ string) error { return nil })
 	if err != nil {
-		panic(err)
+		return err
 	}
 
         os.Chdir("..")
@@ -87,16 +87,17 @@ func PackageWindows(camundaVersion string, elasticsearchVersion string) {
         }
 	outputArchive, err := os.Create(filepath.Join("c8run", "camunda8-run-" + camundaVersion + "-windows-x86_64.zip"))
         if err != nil {
-                panic(err)
+                return err
         }
         err = archive.CreateTarGzArchive(filesToArchive, outputArchive)
         if err != nil {
-                panic(err)
+                return err
         }
         os.Chdir("c8run")
+        return nil
 }
 
-func PackageUnix(camundaVersion string, elasticsearchVersion string) {
+func PackageUnix(camundaVersion string, elasticsearchVersion string) error {
 	var architecture string
 	if runtime.GOARCH == "amd64" {
 		architecture = "x86_64"
@@ -115,17 +116,17 @@ func PackageUnix(camundaVersion string, elasticsearchVersion string) {
 
 	err := downloadAndExtract(elasticsearchFilePath, elasticsearchUrl, "elasticsearch-"+elasticsearchVersion, archive.ExtractTarGzArchive)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	err = downloadAndExtract(camundaFilePath, camundaUrl, "camunda-zeebe-"+camundaVersion, archive.ExtractTarGzArchive)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	err = downloadAndExtract(connectorsFilePath, connectorsUrl, connectorsFilePath, func(_, _ string) error { return nil })
 	if err != nil {
-		panic(err)
+		return err
 	}
 
         os.Chdir("..")
@@ -143,11 +144,12 @@ func PackageUnix(camundaVersion string, elasticsearchVersion string) {
         }
 	outputArchive, err := os.Create(filepath.Join("c8run", "camunda8-run-" + camundaVersion + "-" + runtime.GOOS + "-" + architecture + ".tar.gz"))
         if err != nil {
-                panic(err)
+                return err
         }
         err = archive.CreateTarGzArchive(filesToArchive, outputArchive)
         if err != nil {
-                panic(err)
+                return err
         }
         os.Chdir("c8run")
+        return nil
 }

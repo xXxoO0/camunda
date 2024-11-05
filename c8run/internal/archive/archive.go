@@ -76,13 +76,13 @@ func CreateTarGzArchive(files []string, buf io.Writer) error {
 func ExtractTarGzArchive(filename string, xpath string) error {
 	tarFile, err := os.Open(filename)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer tarFile.Close()
 
 	gz, err := gzip.NewReader(tarFile)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer gz.Close()
 
@@ -100,7 +100,7 @@ func ExtractTarGzArchive(filename string, xpath string) error {
 			break
 		}
 		if err != nil {
-			panic(err)
+			return err
 		}
 		finfo := hdr.FileInfo()
 		fileName := hdr.Name
@@ -108,7 +108,7 @@ func ExtractTarGzArchive(filename string, xpath string) error {
 
 		if finfo.Mode().IsDir() {
 			if err := os.MkdirAll(absFileName, 0755); err != nil {
-				panic(err)
+				return err
 			}
 			continue
 		} else {
@@ -116,7 +116,7 @@ func ExtractTarGzArchive(filename string, xpath string) error {
 			_, err = os.Stat(parent)
 			if errors.Is(err, os.ErrNotExist) {
 				if err := os.MkdirAll(parent, 0755); err != nil {
-					panic(err)
+					return err
 				}
 			}
 		}
@@ -126,15 +126,15 @@ func ExtractTarGzArchive(filename string, xpath string) error {
 			finfo.Mode().Perm(),
 		)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		fmt.Printf("x %s\n", absFileName)
-		n, cpErr := io.Copy(file, tr)
+		n, err := io.Copy(file, tr)
 		if closeErr := file.Close(); closeErr != nil {
-			panic(err)
+			return err
 		}
-		if cpErr != nil {
-			panic(cpErr)
+		if err != nil {
+			return err
 		}
 		if n != finfo.Size() {
 			return fmt.Errorf("wrote %d, want %d", n, finfo.Size())
