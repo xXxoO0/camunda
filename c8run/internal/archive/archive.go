@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+        pkgErrors "github.com/pkg/errors"
 )
 
 const OpenFlagsForWriting = os.O_RDWR|os.O_CREATE|os.O_TRUNC
@@ -25,13 +26,13 @@ func DownloadFile(filepath string, url string) error {
 
 	out, err := os.Create(filepath)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 	defer out.Close()
 
 	resp, err := http.Get(url)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 	defer resp.Body.Close()
 
@@ -41,7 +42,7 @@ func DownloadFile(filepath string, url string) error {
 
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 
 	fmt.Println("File downloaded successfully to " + filepath)
@@ -57,7 +58,7 @@ func CreateTarGzArchive(files []string, buf io.Writer) error {
 	for _, file := range files {
 		err := filepath.Walk(file, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
-				return err
+				return pkgErrors.WithStack(err)
 			}
 			if !info.IsDir() {
 				return addToArchive(tw, path)
@@ -65,18 +66,18 @@ func CreateTarGzArchive(files []string, buf io.Writer) error {
 				// Add directory to the archive
 				header, err := tar.FileInfoHeader(info, path)
 				if err != nil {
-					return err
+					return pkgErrors.WithStack(err)
 				}
 				header.Name = path + "/"
 				if err := tw.WriteHeader(header); err != nil {
-					return err
+					return pkgErrors.WithStack(err)
 				}
 				return nil
 
 			}
 		})
 		if err != nil {
-			return err
+			return pkgErrors.WithStack(err)
 		}
 	}
 
@@ -84,20 +85,15 @@ func CreateTarGzArchive(files []string, buf io.Writer) error {
 }
 
 func ExtractTarGzArchive(filename string, xpath string) error {
-	_, err := os.Stat(xpath)
-	if !errors.Is(err, os.ErrNotExist) {
-		return nil
-	}
-
 	tarFile, err := os.Open(filename)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 	defer tarFile.Close()
 
 	gz, err := gzip.NewReader(tarFile)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 	defer gz.Close()
 
@@ -115,7 +111,7 @@ func ExtractTarGzArchive(filename string, xpath string) error {
 			break
 		}
 		if err != nil {
-			return err
+			return pkgErrors.WithStack(err)
 		}
 		finfo := hdr.FileInfo()
 		fileName := hdr.Name
@@ -123,7 +119,7 @@ func ExtractTarGzArchive(filename string, xpath string) error {
 
 		if finfo.Mode().IsDir() {
 			if err := os.MkdirAll(absFileName, ReadWriteMode); err != nil {
-				return err
+				return pkgErrors.WithStack(err)
 			}
 			continue
 		} else {
@@ -131,7 +127,7 @@ func ExtractTarGzArchive(filename string, xpath string) error {
 			_, err = os.Stat(parent)
 			if errors.Is(err, os.ErrNotExist) {
 				if err := os.MkdirAll(parent, ReadWriteMode); err != nil {
-					return err
+					return pkgErrors.WithStack(err)
 				}
 			}
 		}
@@ -141,15 +137,15 @@ func ExtractTarGzArchive(filename string, xpath string) error {
 			finfo.Mode().Perm(),
 		)
 		if err != nil {
-			return err
+			return pkgErrors.WithStack(err)
 		}
 		fmt.Printf("x %s\n", absFileName)
 		n, err := io.Copy(file, tr)
 		if closeErr := file.Close(); closeErr != nil {
-			return err
+			return pkgErrors.WithStack(err)
 		}
 		if err != nil {
-			return err
+			return pkgErrors.WithStack(err)
 		}
 		if n != finfo.Size() {
 			return fmt.Errorf("wrote %d, want %d", n, finfo.Size())
@@ -161,30 +157,30 @@ func ExtractTarGzArchive(filename string, xpath string) error {
 func addToArchive(tw *tar.Writer, filename string) error {
 	file, err := os.Open(filename)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 	defer file.Close()
 
 	info, err := file.Stat()
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 
 	header, err := tar.FileInfoHeader(info, info.Name())
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 
 	header.Name = filename
 
 	err = tw.WriteHeader(header)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 
 	_, err = io.Copy(tw, file)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 
 	return nil
@@ -193,7 +189,7 @@ func addToArchive(tw *tar.Writer, filename string) error {
 func ZipSource(sources []string, target string) error {
 	f, err := os.Create(target)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 	defer f.Close()
 
@@ -203,19 +199,19 @@ func ZipSource(sources []string, target string) error {
 	for _, source := range sources {
 		err = filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
-				return err
+				return pkgErrors.WithStack(err)
 			}
 
 			header, err := zip.FileInfoHeader(info)
 			if err != nil {
-				return err
+				return pkgErrors.WithStack(err)
 			}
 
 			header.Method = zip.Deflate
 
 			header.Name, err = filepath.Rel(filepath.Dir(source), path)
 			if err != nil {
-				return err
+				return pkgErrors.WithStack(err)
 			}
 			if info.IsDir() {
 				header.Name += "/"
@@ -223,7 +219,7 @@ func ZipSource(sources []string, target string) error {
 
 			headerWriter, err := writer.CreateHeader(header)
 			if err != nil {
-				return err
+				return pkgErrors.WithStack(err)
 			}
 
 			if info.IsDir() {
@@ -232,15 +228,15 @@ func ZipSource(sources []string, target string) error {
 
 			f, err := os.Open(path)
 			if err != nil {
-				return err
+				return pkgErrors.WithStack(err)
 			}
 			defer f.Close()
 
 			_, err = io.Copy(headerWriter, f)
-			return err
+			return pkgErrors.WithStack(err)
 		})
 		if err != nil {
-			return err
+			return pkgErrors.WithStack(err)
 		}
 	}
 	return nil
@@ -249,19 +245,19 @@ func ZipSource(sources []string, target string) error {
 func UnzipSource(source, destination string) error {
 	reader, err := zip.OpenReader(source)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 	defer reader.Close()
 
 	destination, err = filepath.Abs(destination)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 
 	for _, f := range reader.File {
 		err := unzipFile(f, destination)
 		if err != nil {
-			return err
+			return pkgErrors.WithStack(err)
 		}
 	}
 
@@ -276,29 +272,29 @@ func unzipFile(f *zip.File, destination string) error {
 
 	if f.FileInfo().IsDir() {
 		if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
-			return err
+			return pkgErrors.WithStack(err)
 		}
 		return nil
 	}
 
 	if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 
 	destinationFile, err := os.OpenFile(filePath, OpenFlagsForWriting, f.Mode())
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 	defer destinationFile.Close()
 
 	zippedFile, err := f.Open()
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 	defer zippedFile.Close()
 
 	if _, err := io.Copy(destinationFile, zippedFile); err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 	return nil
 }

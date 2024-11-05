@@ -4,6 +4,7 @@ import (
 	"c8run/internal/unix"
 	"c8run/internal/windows"
 	"errors"
+        pkgErrors "github.com/pkg/errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -69,7 +70,7 @@ func queryCamundaHealth(c8 C8Run, name string, url string) error {
 	}
 	err := c8.OpenBrowser(name)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 	printStatus()
 	return nil
@@ -242,7 +243,8 @@ func main() {
 		elasticsearchCmd.Stderr = elasticsearchLogFile
 		err = elasticsearchCmd.Start()
 		if err != nil {
-			panic(err)
+			fmt.Printf("%+v", err)
+			os.Exit(1)
 		}
 		fmt.Print("Process id ", elasticsearchCmd.Process.Pid, "\n")
 
@@ -265,7 +267,8 @@ func main() {
 		connectorsCmd.Stderr = connectorsLogFile
 		err = connectorsCmd.Start()
 		if err != nil {
-			panic(err)
+			fmt.Printf("%+v", err)
+			os.Exit(1)
 		}
 
 		connectorsPidFile, err := os.OpenFile(connectorsPidPath, os.O_RDWR|os.O_CREATE, 0644)
@@ -291,7 +294,8 @@ func main() {
 		camundaCmd.Stderr = camundaLogFile
 		err = camundaCmd.Start()
 		if err != nil {
-			panic(err)
+			fmt.Printf("%+v", err)
+			os.Exit(1)
 		}
 		camundaPidFile, err := os.OpenFile(camundaPidPath, os.O_RDWR|os.O_CREATE, 0644)
 		if err != nil {
@@ -301,7 +305,8 @@ func main() {
 		camundaPidFile.Write([]byte(strconv.Itoa(camundaCmd.Process.Pid)))
 		err = queryCamundaHealth(c8, "Camunda", "http://localhost:8080/operate/login")
 		if err != nil {
-			panic(err)
+			fmt.Printf("%+v", err)
+			os.Exit(1)
 		}
 	}
 
@@ -318,12 +323,14 @@ func main() {
 		if runtime.GOOS == "windows" {
 			err := PackageWindows(camundaVersion, elasticsearchVersion)
 			if err != nil {
-				panic(err)
+				fmt.Printf("%+v", err)
+			        os.Exit(1)
 			}
 		} else if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
 			err := PackageUnix(camundaVersion, elasticsearchVersion)
 			if err != nil {
-				panic(err)
+				fmt.Printf("%+v", err)
+			        os.Exit(1)
 			}
 		} else {
 			panic("Unsupported system")

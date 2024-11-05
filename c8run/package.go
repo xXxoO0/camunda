@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+        pkgErrors "github.com/pkg/errors"
 )
 
 func Clean(camundaVersion string, elasticsearchVersion string) {
@@ -29,13 +30,16 @@ func Clean(camundaVersion string, elasticsearchVersion string) {
 func downloadAndExtract(filePath, url, extractDir string, extractFunc func(string, string) error) error {
 	err := archive.DownloadFile(filePath, url)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 
-	err = extractFunc(filePath, ".")
-	if err != nil {
-		return err
-	}
+        _, err = os.Stat(extractDir)
+	if errors.Is(err, os.ErrNotExist) {
+		err = extractFunc(filePath, ".")
+		if err != nil {
+		        return pkgErrors.WithStack(err)
+		}
+        }
 	return nil
 }
 
@@ -51,17 +55,17 @@ func PackageWindows(camundaVersion string, elasticsearchVersion string) error {
 
 	err := downloadAndExtract(elasticsearchFilePath, elasticsearchUrl, "elasticsearch-"+elasticsearchVersion, archive.UnzipSource)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 
 	err = downloadAndExtract(camundaFilePath, camundaUrl, "camunda-zeebe-"+camundaVersion, archive.UnzipSource)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 
 	err = downloadAndExtract(connectorsFilePath, connectorsUrl, connectorsFilePath, func(_, _ string) error { return nil })
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 
 	os.Chdir("..")
@@ -77,13 +81,9 @@ func PackageWindows(camundaVersion string, elasticsearchVersion string) error {
 		filepath.Join("c8run", "log"),
 		filepath.Join("c8run", "camunda-zeebe-"+camundaVersion),
 	}
-	outputArchive, err := os.Create(filepath.Join("c8run", "camunda8-run-"+camundaVersion+"-windows-x86_64.zip"))
+	err = archive.ZipSource(filesToArchive, filepath.Join("c8run", "camunda8-run-"+camundaVersion+"-windows-x86_64.zip"))
 	if err != nil {
-		return err
-	}
-	err = archive.CreateTarGzArchive(filesToArchive, outputArchive)
-	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 	os.Chdir("c8run")
 	return nil
@@ -108,17 +108,17 @@ func PackageUnix(camundaVersion string, elasticsearchVersion string) error {
 
 	err := downloadAndExtract(elasticsearchFilePath, elasticsearchUrl, "elasticsearch-"+elasticsearchVersion, archive.ExtractTarGzArchive)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 
 	err = downloadAndExtract(camundaFilePath, camundaUrl, "camunda-zeebe-"+camundaVersion, archive.ExtractTarGzArchive)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 
 	err = downloadAndExtract(connectorsFilePath, connectorsUrl, connectorsFilePath, func(_, _ string) error { return nil })
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 
 	os.Chdir("..")
@@ -136,11 +136,11 @@ func PackageUnix(camundaVersion string, elasticsearchVersion string) error {
 	}
 	outputArchive, err := os.Create(filepath.Join("c8run", "camunda8-run-"+camundaVersion+"-"+runtime.GOOS+"-"+architecture+".tar.gz"))
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 	err = archive.CreateTarGzArchive(filesToArchive, outputArchive)
 	if err != nil {
-		return err
+		return pkgErrors.WithStack(err)
 	}
 	os.Chdir("c8run")
 	return nil
