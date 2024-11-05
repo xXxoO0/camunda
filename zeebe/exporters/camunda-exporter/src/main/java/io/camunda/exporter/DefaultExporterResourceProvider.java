@@ -141,7 +141,7 @@ public class DefaultExporterResourceProvider implements ExporterResourceProvider
 
     final var processCache =
         new ProcessCacheImpl(
-            10000,
+            configuration.getProcessCache().getMaxCacheSize(),
             processCacheLoaderFactory.create(
                 indexDescriptorsMap.get(ProcessIndex.class).getFullQualifiedName()));
 
