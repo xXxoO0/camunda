@@ -13,6 +13,9 @@ import (
 	"strings"
 )
 
+const OpenFlagsForWriting = os.O_RDWR|os.O_CREATE|os.O_TRUNC
+const ReadWriteMode = 0755
+
 func DownloadFile(filepath string, url string) error {
 	// if the file already exists locally, don't download a new copy
 	_, err := os.Stat(filepath)
@@ -102,7 +105,7 @@ func ExtractTarGzArchive(filename string, xpath string) error {
 
 	_, err = os.Stat(absPath)
 	if errors.Is(err, os.ErrNotExist) {
-		os.Mkdir(absPath, 0755)
+		os.Mkdir(absPath, ReadWriteMode)
 	}
 
 	tr := tar.NewReader(gz)
@@ -119,7 +122,7 @@ func ExtractTarGzArchive(filename string, xpath string) error {
 		absFileName := filepath.Join(absPath, fileName)
 
 		if finfo.Mode().IsDir() {
-			if err := os.MkdirAll(absFileName, 0755); err != nil {
+			if err := os.MkdirAll(absFileName, ReadWriteMode); err != nil {
 				return err
 			}
 			continue
@@ -127,14 +130,14 @@ func ExtractTarGzArchive(filename string, xpath string) error {
 			parent := filepath.Dir(absFileName)
 			_, err = os.Stat(parent)
 			if errors.Is(err, os.ErrNotExist) {
-				if err := os.MkdirAll(parent, 0755); err != nil {
+				if err := os.MkdirAll(parent, ReadWriteMode); err != nil {
 					return err
 				}
 			}
 		}
 		file, err := os.OpenFile(
 			absFileName,
-			os.O_RDWR|os.O_CREATE|os.O_TRUNC,
+			OpenFlagsForWriting,
 			finfo.Mode().Perm(),
 		)
 		if err != nil {
@@ -282,7 +285,7 @@ func unzipFile(f *zip.File, destination string) error {
 		return err
 	}
 
-	destinationFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+	destinationFile, err := os.OpenFile(filePath, OpenFlagsForWriting, f.Mode())
 	if err != nil {
 		return err
 	}
