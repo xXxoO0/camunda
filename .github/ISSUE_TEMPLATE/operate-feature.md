@@ -6,38 +6,33 @@ labels: ["kind/feature", "component/operate"]
 assignees: ''
 
 ---
-<!-- Remember to link this feature issue in the parent Epic -->
 
-### Description
-<!-- [Optional] A clear description of the story -->
+### Description (required on creation)
 
-### User Story
-<!-- [Mandatory field] -->
+<!-- A clear description of the feature -->
+
+### User story (Required on creation)
+
 ```Gherkin
 Scenario: As an Operate user
     Given I am logged in
     When I select one item/tab in the toolbar
     Then this item should be shown in highlighted (in bold)
 ```
+
 ### Designs
+
 <!-- [Optional] <Figma Link> -->
 
-### Acceptance Criteria
-<!-- [Mandatory field] The assignee will fill the Acceptance Criteria. -->
-- [ ]
+### Functional Requirements (required before implementation)
 
-### Definition of Ready - Checklist
-<!-- the assignee will check the DOR. -->
+<!-- Requirements that directly implement the user story -->
+ 
+### Technical Requirements (required before implementation)
 
-- [ ] The issue has a meaningful title, description, and testable acceptance criteria
-- [ ] If documentation needs to be updated, an issue is created in the [camunda-docs](https://github.com/camunda/camunda-docs) repo, and the issue is added to our Operate project board.
-- [ ] If HELM charts need to be updated, an issue is created in the [camunda-platform-heml](https://github.com/camunda/camunda-platform-helm) repo, and the issue is added to our Operate project board.
-- [ ] Potential Security risks have been considered and added to the product-hub issue risk assessment
-- [ ] Cross-team dependencies have been considered
+<!-- Requirements that enable the user story to be implemented (e.g. technical foundations) -->
 
-Optional:
-- [ ] Design input has been collected by the assignee
-### :point_right: Handover Dev to QA 
+### Handover Dev to QA (required before manual testing)
 <!--As a team, we have settle in a checklist to remind the DRI what information to provide to help the QA Engineer perform a friction less and targeted QA test. The information requested by the checklist can be added before review/move the ticket to the QA test column as a comment on the ticket.-->
 
 - Handy resources: 
@@ -56,6 +51,22 @@ tasklist:alpha3-->
 - Release version ( in which version this fixed/feature will be released)
 <!-- Add here -->
 
-
-### :green_book: Link to the test case 
+### Link to the test case 
 <!-- please add test case link for this bug if there is any if not after testing QA will  create a test case for it and add it here. -->
+
+### Links
+
+<!--
+- https://jira.camunda.com/browse/SUPPORT-12398
+-->
+
+### Breakdown
+
+<!--
+- [ ] #123
+- [ ] Step X
+-->
+
+```[tasklist]
+### Pull Requests
+```
