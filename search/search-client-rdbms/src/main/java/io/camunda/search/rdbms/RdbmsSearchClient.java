@@ -59,19 +59,19 @@ import org.slf4j.LoggerFactory;
 
 public class RdbmsSearchClient
     implements AuthorizationSearchClient,
-        DecisionDefinitionSearchClient,
-        DecisionInstanceSearchClient,
-        DecisionRequirementSearchClient,
-        FlowNodeInstanceSearchClient,
-        FormSearchClient,
-        IncidentSearchClient,
-        ProcessInstanceSearchClient,
-        ProcessDefinitionSearchClient,
-        UserTaskSearchClient,
-        UserSearchClient,
-        VariableSearchClient,
-        RoleSearchClient,
-        TenantSearchClient {
+    DecisionDefinitionSearchClient,
+    DecisionInstanceSearchClient,
+    DecisionRequirementSearchClient,
+    FlowNodeInstanceSearchClient,
+    FormSearchClient,
+    IncidentSearchClient,
+    ProcessInstanceSearchClient,
+    ProcessDefinitionSearchClient,
+    UserTaskSearchClient,
+    UserSearchClient,
+    VariableSearchClient,
+    RoleSearchClient,
+    TenantSearchClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(RdbmsSearchClient.class);
 
@@ -107,8 +107,10 @@ public class RdbmsSearchClient
 
   @Override
   public SearchQueryResult<DecisionDefinitionEntity> searchDecisionDefinitions(
-      final DecisionDefinitionQuery filter) {
-    return null;
+      final DecisionDefinitionQuery query) {
+    LOG.debug("[RDBMS Search Client] Search for decisionDefinition: {}", query);
+
+    return rdbmsService.getDecisionDefinitionReader().search(query);
   }
 
   @Override
