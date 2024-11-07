@@ -17,8 +17,12 @@
 package io.atomix.utils.concurrent;
 
 import io.camunda.zeebe.util.CloseableSilently;
+import io.camunda.zeebe.util.RetryDelayStrategy;
 import java.time.Duration;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import org.checkerframework.checker.units.qual.A;
 
 /** Scheduler. */
 @FunctionalInterface
@@ -76,6 +80,38 @@ public interface Scheduler extends CloseableSilently {
    * @return the scheduled callback
    */
   Scheduled schedule(Duration initialDelay, Duration interval, Runnable callback);
+
+  default <A> CompletableFuture<A> retryUntilSuccessful(
+      final Callable<A> callable, final RetryDelayStrategy retryDelayStrategy) {
+    final var result = new CompletableFuture<A>();
+    // cannot be a lambda as it needs a reference to itself for scheduling
+    final Runnable runnable =
+        new Runnable() {
+          @Override
+          public void run() {
+            try {
+              final var a = callable.call();
+              result.complete(a);
+            } catch (final Exception e) {
+              final var next = retryDelayStrategy.nextDelay();
+              schedule(next.toMillis(), TimeUnit.MILLISECONDS, this);
+            }
+          }
+        };
+
+    runnable.run();
+    return result;
+  }
+
+  default CompletableFuture<Void> retryUntilSuccessful(
+      final Runnable runnable, final RetryDelayStrategy retryDelayStrategy) {
+    return retryUntilSuccessful(
+        () -> {
+          runnable.run();
+          return null;
+        },
+        retryDelayStrategy);
+  }
 
   @Override
   default void close() {}

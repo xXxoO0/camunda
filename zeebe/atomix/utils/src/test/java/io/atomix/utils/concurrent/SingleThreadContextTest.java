@@ -17,10 +17,15 @@ package io.atomix.utils.concurrent;
 
 import static io.atomix.utils.concurrent.Threads.namedThreads;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
+import io.camunda.zeebe.util.ExponentialBackoffRetryDelay;
+import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import org.awaitility.Awaitility;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,5 +53,27 @@ public class SingleThreadContextTest {
 
     // then
     assertEquals(0, latch.getCount());
+  }
+
+  @Test
+  public void shouldRetryCallableUntilSuccessful() throws InterruptedException {
+    final var success = new AtomicBoolean(false);
+    final var delayStrategy =
+        new ExponentialBackoffRetryDelay(Duration.ofMillis(10), Duration.ofMillis(1));
+    final var result =
+        threadContext.retryUntilSuccessful(
+            () -> {
+              if (!success.get()) {
+                throw new RuntimeException("Expected");
+              }
+            },
+            delayStrategy);
+
+    Thread.sleep(250);
+    assertFalse(result.isDone());
+
+    // when
+    success.set(true);
+    Awaitility.await("the futures succeeds").until(result::isDone);
   }
 }

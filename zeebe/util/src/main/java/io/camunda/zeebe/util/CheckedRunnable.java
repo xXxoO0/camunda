@@ -7,10 +7,22 @@
  */
 package io.camunda.zeebe.util;
 
+import org.agrona.LangUtil;
+
 /** A simple extension of runnable which allows for exceptions to be thrown. */
 @FunctionalInterface
 // ignore generic exception warning here as we want to allow for any exception to be thrown
 @SuppressWarnings("java:S112")
 public interface CheckedRunnable {
   void run() throws Exception;
+
+  static java.lang.Runnable toRunnable(final CheckedRunnable runnable) {
+    return () -> {
+      try {
+        runnable.run();
+      } catch (final Exception e) {
+        LangUtil.rethrowUnchecked(e);
+      }
+    };
+  }
 }
