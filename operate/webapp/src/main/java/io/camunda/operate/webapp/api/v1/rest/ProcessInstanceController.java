@@ -24,6 +24,7 @@ import io.camunda.operate.webapp.api.v1.exceptions.ClientException;
 import io.camunda.operate.webapp.api.v1.exceptions.ResourceNotFoundException;
 import io.camunda.operate.webapp.api.v1.exceptions.ServerException;
 import io.camunda.operate.webapp.api.v1.exceptions.ValidationException;
+import io.camunda.operate.webapp.security.permission.PermissionsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -61,6 +62,7 @@ public class ProcessInstanceController extends ErrorController
   @Autowired private ProcessInstanceDao processInstanceDao;
   @Autowired private SequenceFlowDao sequenceFlowDao;
   @Autowired private FlowNodeStatisticsDao flowNodeStatisticsDao;
+  @Autowired private PermissionsService permissionsService;
 
   @Operation(
       summary = "Search process instances",
