@@ -48,6 +48,24 @@
       <artifactId>camunda-zeebe</artifactId>
       <scope>test</scope>
     </dependency>
+	
+    <dependency>
+      <groupId>io.camunda</groupId>
+      <artifactId>camunda-security-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.camunda</groupId>
+      <artifactId>camunda-security-services</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.camunda</groupId>
+      <artifactId>zeebe-gateway-rest</artifactId>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>io.camunda</groupId>
