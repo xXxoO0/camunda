@@ -9,12 +9,10 @@ package io.camunda.operate.webapp.security.permission;
 
 import io.camunda.authentication.entity.CamundaUser;
 import io.camunda.operate.property.OperateProperties;
-import io.camunda.operate.webapp.security.SecurityContextWrapper;
 import io.camunda.operate.webapp.security.identity.IdentityPermission;
 import io.camunda.security.auth.Authorization;
 import io.camunda.security.auth.SecurityContext;
 import io.camunda.security.impl.AuthorizationChecker;
-import io.camunda.service.AuthorizationServices;
 import io.camunda.zeebe.gateway.rest.TenantAttributeHolder;
 import io.camunda.zeebe.protocol.record.value.AuthorizationResourceType;
 import io.camunda.zeebe.protocol.record.value.PermissionType;
@@ -29,18 +27,11 @@ public class PermissionsService {
   private static final Logger LOGGER = LoggerFactory.getLogger(PermissionsService.class);
 
   private final OperateProperties operateProperties;
-  private final SecurityContextWrapper securityContextWrapper;
-  private final AuthorizationServices authorizationServices;
   private final AuthorizationChecker authorizationChecker;
 
   public PermissionsService(
-      final OperateProperties operateProperties,
-      final SecurityContextWrapper securityContextWrapper,
-      final AuthorizationServices authorizationServices,
-      final AuthorizationChecker authorizationChecker) {
+      final OperateProperties operateProperties, final AuthorizationChecker authorizationChecker) {
     this.operateProperties = operateProperties;
-    this.securityContextWrapper = securityContextWrapper;
-    this.authorizationServices = authorizationServices;
     this.authorizationChecker = authorizationChecker;
   }
 

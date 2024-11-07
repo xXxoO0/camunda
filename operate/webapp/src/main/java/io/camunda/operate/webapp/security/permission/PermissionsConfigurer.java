@@ -10,7 +10,6 @@ package io.camunda.operate.webapp.security.permission;
 import io.camunda.operate.property.OperateProperties;
 import io.camunda.operate.webapp.security.SecurityContextWrapper;
 import io.camunda.security.impl.AuthorizationChecker;
-import io.camunda.service.AuthorizationServices;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,9 +20,7 @@ public class PermissionsConfigurer {
   public PermissionsService getPermissionsService(
       final OperateProperties operateProperties,
       final SecurityContextWrapper securityContextWrapper,
-      final AuthorizationServices authorizationServices,
       final AuthorizationChecker authorizationChecker) {
-    return new PermissionsService(
-        operateProperties, securityContextWrapper, authorizationServices, authorizationChecker);
+    return new PermissionsService(operateProperties, authorizationChecker);
   }
 }
