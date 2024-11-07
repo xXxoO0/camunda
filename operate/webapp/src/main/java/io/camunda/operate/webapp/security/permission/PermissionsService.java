@@ -20,6 +20,7 @@ import jakarta.annotation.PostConstruct;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class PermissionsService {
@@ -41,37 +42,42 @@ public class PermissionsService {
   }
 
   /**
-   * getProcessDefinitionPermission
+   * getProcessDefinitionPermissions
    *
    * @param bpmnProcessId bpmnProcessId
-   * @return permissions for the given bpmnProcessId
+   * @return permissions the user has for the given bpmnProcessId
    */
-  public Set<String> getProcessDefinitionPermission(final String bpmnProcessId) {
-    final Set<String> permissions = new HashSet<>();
-    for (PermissionType permissionType : PermissionType.values()) {
-      if (isAuthorized(
-          bpmnProcessId, AuthorizationResourceType.PROCESS_DEFINITION, permissionType)) {
-        permissions.add(permissionType.name());
-      }
-    }
-
-    return permissions;
+  public Set<String> getProcessDefinitionPermissions(final String bpmnProcessId) {
+    return getResourcePermissions(bpmnProcessId, AuthorizationResourceType.PROCESS_DEFINITION);
   }
 
   /**
-   * getDecisionDefinitionPermission
+   * getDecisionDefinitionPermissions
    *
    * @param decisionId decisionId
-   * @return permissions for the given decisionId
+   * @return permissions the user has for the given decisionId
    */
-  public Set<String> getDecisionDefinitionPermission(final String decisionId) {
+  public Set<String> getDecisionDefinitionPermissions(final String decisionId) {
+    return getResourcePermissions(decisionId, AuthorizationResourceType.DECISION_DEFINITION);
+  }
+
+  /**
+   * getResourcePermissions
+   *
+   * @param resourceId resourceId
+   * @param resourceType resourceType
+   * @return permissions the user has for the given resource
+   */
+  public Set<String> getResourcePermissions(
+      final String resourceId, final AuthorizationResourceType resourceType) {
     final Set<String> permissions = new HashSet<>();
-    for (PermissionType permissionType : PermissionType.values()) {
-      if (isAuthorized(decisionId, AuthorizationResourceType.DECISION_DEFINITION, permissionType)) {
-        permissions.add(permissionType.name());
+    if (permissionsEnabled() && isAuthenticated()) {
+      for (PermissionType permissionType : PermissionType.values()) {
+        if (isAuthorized(resourceId, resourceType, permissionType)) {
+          permissions.add(permissionType.name());
+        }
       }
     }
-
     return permissions;
   }
 
@@ -82,16 +88,8 @@ public class PermissionsService {
    */
   public boolean hasPermissionForProcess(
       final String bpmnProcessId, final IdentityPermission identityPermission) {
-    if (!permissionsEnabled()) {
-      return true;
-    }
-    if (identityPermission == null) {
-      throw new IllegalStateException("Identity permission cannot be null");
-    }
-    final PermissionType permissionType = getPermission(identityPermission);
-
-    return isAuthorized(
-        bpmnProcessId, AuthorizationResourceType.PROCESS_DEFINITION, permissionType);
+    return hasPermissionForResource(
+        bpmnProcessId, AuthorizationResourceType.PROCESS_DEFINITION, identityPermission);
   }
 
   /**
@@ -101,15 +99,31 @@ public class PermissionsService {
    */
   public boolean hasPermissionForDecision(
       final String decisionId, final IdentityPermission identityPermission) {
+    return hasPermissionForResource(
+        decisionId, AuthorizationResourceType.DECISION_DEFINITION, identityPermission);
+  }
+
+  /**
+   * hasPermissionForResource
+   *
+   * @return true if the user has the given permission for the resource
+   */
+  public boolean hasPermissionForResource(
+      final String resourceId,
+      final AuthorizationResourceType resourceType,
+      final IdentityPermission identityPermission) {
     if (!permissionsEnabled()) {
       return true;
+    }
+    if (!isAuthenticated()) {
+      return false;
     }
     if (identityPermission == null) {
       throw new IllegalStateException("Identity permission cannot be null");
     }
     final PermissionType permissionType = getPermission(identityPermission);
 
-    return isAuthorized(decisionId, AuthorizationResourceType.DECISION_DEFINITION, permissionType);
+    return isAuthorized(resourceId, resourceType, permissionType);
   }
 
   /**
@@ -119,16 +133,8 @@ public class PermissionsService {
    *     processes, or a list of bpmnProcessId
    */
   public ResourcesAllowed getProcessesWithPermission(final IdentityPermission identityPermission) {
-    if (identityPermission == null) {
-      throw new IllegalStateException("Identity permission cannot be null");
-    }
-    final PermissionType permissionType = getPermission(identityPermission);
-    final Authorization authorization =
-        new Authorization(AuthorizationResourceType.PROCESS_DEFINITION, permissionType);
-    final SecurityContext securityContext = getSecurityContext(authorization);
-    final List<String> ids = authorizationChecker.retrieveAuthorizedResourceKeys(securityContext);
-
-    return ResourcesAllowed.withIds(new LinkedHashSet<>(ids));
+    return getResourcesWithPermission(
+        AuthorizationResourceType.PROCESS_DEFINITION, identityPermission);
   }
 
   /**
@@ -138,12 +144,29 @@ public class PermissionsService {
    *     decisions, or a list of decisionId
    */
   public ResourcesAllowed getDecisionsWithPermission(final IdentityPermission identityPermission) {
+    return getResourcesWithPermission(
+        AuthorizationResourceType.DECISION_DEFINITION, identityPermission);
+  }
+
+  /**
+   * getResourcesWithPermission
+   *
+   * @return resources for which the user has the given permission; the result matches either all
+   *     resources, or a list of resourceIds
+   */
+  public ResourcesAllowed getResourcesWithPermission(
+      final AuthorizationResourceType resourceType, final IdentityPermission identityPermission) {
+    if (!permissionsEnabled()) {
+      return ResourcesAllowed.all();
+    }
+    if (!isAuthenticated()) {
+      return ResourcesAllowed.withIds(Set.of());
+    }
     if (identityPermission == null) {
       throw new IllegalStateException("Identity permission cannot be null");
     }
     final PermissionType permissionType = getPermission(identityPermission);
-    final Authorization authorization =
-        new Authorization(AuthorizationResourceType.DECISION_DEFINITION, permissionType);
+    final Authorization authorization = new Authorization(resourceType, permissionType);
     final SecurityContext securityContext = getSecurityContext(authorization);
     final List<String> ids = authorizationChecker.retrieveAuthorizedResourceKeys(securityContext);
 
@@ -161,31 +184,33 @@ public class PermissionsService {
     return new SecurityContext(getAuthentication(), authorization);
   }
 
-  // FIX
-  private boolean permissionsEnabled() {
-    return operateProperties.getIdentity().isResourcePermissionsEnabled();
-  }
-
-  // FIX
   private io.camunda.security.auth.Authentication getAuthentication() {
-    Long authenticatedUserKey = null;
+    final Long authenticatedUserKey = getAuthenticatedUserKey();
     final List<String> authorizedTenants = TenantAttributeHolder.tenantIds();
-
-    final var requestAuthentication = SecurityContextHolder.getContext().getAuthentication();
-
-    if (requestAuthentication != null) {
-
-      if (requestAuthentication.getPrincipal()
-          instanceof final CamundaUser authenticatedPrincipal) {
-        authenticatedUserKey = authenticatedPrincipal.getUserKey();
-        // groups and roles will come later
-      }
-    }
-
+    // groups and roles will come later
     return new io.camunda.security.auth.Authentication.Builder()
         .user(authenticatedUserKey)
         .tenants(authorizedTenants)
         .build();
+  }
+
+  private Long getAuthenticatedUserKey() {
+    final Authentication requestAuthentication =
+        SecurityContextHolder.getContext().getAuthentication();
+    if (requestAuthentication != null
+        && requestAuthentication.getPrincipal()
+            instanceof final CamundaUser authenticatedPrincipal) {
+      return authenticatedPrincipal.getUserKey();
+    }
+    return null;
+  }
+
+  private boolean isAuthenticated() {
+    return (getAuthenticatedUserKey() != null);
+  }
+
+  private boolean permissionsEnabled() {
+    return operateProperties.getIdentity().isResourcePermissionsEnabled();
   }
 
   // FIX
