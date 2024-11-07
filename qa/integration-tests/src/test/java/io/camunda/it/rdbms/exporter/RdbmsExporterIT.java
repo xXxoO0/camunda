@@ -51,8 +51,7 @@ class RdbmsExporterIT {
 
   private final ProtocolFactory factory = new ProtocolFactory(System.nanoTime());
 
-  @Autowired
-  private RdbmsService rdbmsService;
+  @Autowired private RdbmsService rdbmsService;
 
   private RdbmsExporter exporter;
 
