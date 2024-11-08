@@ -18,9 +18,9 @@ import java.io.IOException;
 
 public class ResponseHeadersFilter implements Filter {
 
-  private ConfigurationService configurationService;
+  private final ConfigurationService configurationService;
 
-  public ResponseHeadersFilter(ConfigurationService configurationService) {
+  public ResponseHeadersFilter(final ConfigurationService configurationService) {
     if (configurationService == null) {
       throw new IllegalArgumentException("configurationService cannot be null");
     }
@@ -29,14 +29,15 @@ public class ResponseHeadersFilter implements Filter {
   }
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+  public void doFilter(final ServletRequest request, final ServletResponse response,
+      final FilterChain chain)
       throws IOException, ServletException {
-    HttpServletResponse httpResponse = (HttpServletResponse) response;
+    final HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-    var headers =
+    final var headers =
         configurationService.getSecurityConfiguration().getResponseHeaders().getHeadersWithValues();
 
-    for (String key : headers.keySet()) {
+    for (final String key : headers.keySet()) {
       httpResponse.addHeader(key, headers.get(key));
     }
 

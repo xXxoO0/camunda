@@ -23,19 +23,21 @@ public class ExternalApiRewriteFilter implements Filter {
 
   private String clusterId;
 
-  public ExternalApiRewriteFilter(String clusterId) {
+  public ExternalApiRewriteFilter(final String clusterId) {
     this.clusterId = clusterId;
     if (this.clusterId != null) {
       this.clusterId = this.clusterId.trim();
     }
   }
 
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+  @Override
+  public void doFilter(final ServletRequest request, final ServletResponse response,
+      final FilterChain chain)
       throws IOException, ServletException {
     final HttpServletRequest httpRequest = (HttpServletRequest) request;
     String requestURI = httpRequest.getRequestURI();
 
-    if (this.clusterId != null && this.clusterId.length() > 0) {
+    if (clusterId != null && clusterId.length() > 0) {
       requestURI = requestURI.replaceFirst("/" + clusterId, "");
     }
 
@@ -45,7 +47,7 @@ public class ExternalApiRewriteFilter implements Filter {
       //   in it, as the dispatcher will include it on its own.
       final String rewrittenURI =
           requestURI.replaceFirst(contextPath + EXTERNAL_API_PREFIX, API_EXTERNAL_PREFIX);
-      RequestDispatcher dispatcher = request.getRequestDispatcher(rewrittenURI);
+      final RequestDispatcher dispatcher = request.getRequestDispatcher(rewrittenURI);
       dispatcher.forward(request, response);
     } else {
       chain.doFilter(request, response);

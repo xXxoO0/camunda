@@ -16,6 +16,8 @@ import java.util.Map;
 
 public class ResponseHeadersConfiguration {
 
+  private static final String HEADER_DELIMITER = "; ";
+
   @JsonProperty("HSTS.max-age")
   private Long httpStrictTransportSecurityMaxAge;
 
@@ -31,9 +33,8 @@ public class ResponseHeadersConfiguration {
   @JsonProperty("Content-Security-Policy")
   private String contentSecurityPolicy;
 
-  private static final String HEADER_DELIMITER = "; ";
-
-  public ResponseHeadersConfiguration() {}
+  public ResponseHeadersConfiguration() {
+  }
 
   @SuppressWarnings(SuppressionConstants.UNUSED)
   @JsonProperty("HSTS")
@@ -121,7 +122,7 @@ public class ResponseHeadersConfiguration {
   public Map<String, String> getHeadersWithValues() {
     final Map<String, String> headers = new HashMap<>();
 
-    List<String> strictTransportSecurityHeaderValues = new ArrayList<>();
+    final List<String> strictTransportSecurityHeaderValues = new ArrayList<>();
     if (getHttpStrictTransportSecurityMaxAge() > 0) {
       strictTransportSecurityHeaderValues.add("max-age=" + getHttpStrictTransportSecurityMaxAge());
     }

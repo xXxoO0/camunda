@@ -45,52 +45,58 @@ import org.springframework.core.env.Environment;
 
 @Configuration
 public class TomcatConfig {
+
+  public static final String EXTERNAL_SUB_PATH = "/external";
+
   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TomcatConfig.class);
 
   private static final String[] COMPRESSED_MIME_TYPES = {
-    "application/json", "text/html", "application/x-font-ttf", "image/svg+xml"
+      "application/json", "text/html", "application/x-font-ttf", "image/svg+xml"
   };
 
   private static final String LOGIN_ENDPOINT = "/login";
   private static final String METRICS_ENDPOINT = "/metrics";
   private static final String URL_BASE = "/#";
-  private static final String HTTP11_NIO_PROTOCOL = "org.apache.coyote.http11.Http11Nio2Protocol";
-  public static final String EXTERNAL_SUB_PATH = "/external";
 
   public static final String ALLOWED_URL_EXTENSION =
       String.join(
           "|",
-          new String[] {
-            URL_BASE,
-            LOGIN_ENDPOINT,
-            METRICS_ENDPOINT,
-            CCSaasAuth0WebSecurityConfig.OAUTH_AUTH_ENDPOINT,
-            CCSaasAuth0WebSecurityConfig.OAUTH_REDIRECT_ENDPOINT,
-            CCSaasAuth0WebSecurityConfig.AUTH0_JWKS_ENDPOINT,
-            CCSaasAuth0WebSecurityConfig.AUTH0_AUTH_ENDPOINT,
-            CCSaasAuth0WebSecurityConfig.AUTH0_TOKEN_ENDPOINT,
-            CCSaasAuth0WebSecurityConfig.AUTH0_USERINFO_ENDPOINT,
-            HealthRestService.READYZ_PATH,
-            LocalizationRestService.LOCALIZATION_PATH,
-            TomcatConfig.EXTERNAL_SUB_PATH,
-            OptimizeResourceConstants.REST_API_PATH,
-            OptimizeResourceConstants.STATIC_RESOURCE_PATH,
-            OptimizeResourceConstants.ACTUATOR_ENDPOINT,
-            PanelNotificationConstants.SEND_NOTIFICATION_TO_ALL_ORG_USERS_ENDPOINT,
-            RestConstants.BACKUP_ENDPOINT,
-            UIConfigurationRestService.UI_CONFIGURATION_PATH
+          new String[]{
+              URL_BASE,
+              LOGIN_ENDPOINT,
+              METRICS_ENDPOINT,
+              CCSaasAuth0WebSecurityConfig.OAUTH_AUTH_ENDPOINT,
+              CCSaasAuth0WebSecurityConfig.OAUTH_REDIRECT_ENDPOINT,
+              CCSaasAuth0WebSecurityConfig.AUTH0_JWKS_ENDPOINT,
+              CCSaasAuth0WebSecurityConfig.AUTH0_AUTH_ENDPOINT,
+              CCSaasAuth0WebSecurityConfig.AUTH0_TOKEN_ENDPOINT,
+              CCSaasAuth0WebSecurityConfig.AUTH0_USERINFO_ENDPOINT,
+              HealthRestService.READYZ_PATH,
+              LocalizationRestService.LOCALIZATION_PATH,
+              TomcatConfig.EXTERNAL_SUB_PATH,
+              OptimizeResourceConstants.REST_API_PATH,
+              OptimizeResourceConstants.STATIC_RESOURCE_PATH,
+              OptimizeResourceConstants.ACTUATOR_ENDPOINT,
+              PanelNotificationConstants.SEND_NOTIFICATION_TO_ALL_ORG_USERS_ENDPOINT,
+              RestConstants.BACKUP_ENDPOINT,
+              UIConfigurationRestService.UI_CONFIGURATION_PATH
           });
 
-  @Autowired private ConfigurationService configurationService;
-  @Autowired private Environment environment;
+  private static final String HTTP11_NIO_PROTOCOL = "org.apache.coyote.http11.Http11Nio2Protocol";
+
+  @Autowired
+  private ConfigurationService configurationService;
+
+  @Autowired
+  private Environment environment;
 
   @Bean
   WebServerFactoryCustomizer<TomcatServletWebServerFactory> tomcatFactoryCustomizer() {
     LOG.debug("Setting up connectors...");
     return new WebServerFactoryCustomizer<TomcatServletWebServerFactory>() {
       @Override
-      public void customize(TomcatServletWebServerFactory factory) {
-        Optional<String> contextPath = getContextPath();
+      public void customize(final TomcatServletWebServerFactory factory) {
+        final Optional<String> contextPath = getContextPath();
         if (contextPath.isPresent()) {
           factory.setContextPath(contextPath.get());
         }
@@ -119,16 +125,16 @@ public class TomcatConfig {
     LOG.debug("Registering servlet 'externalResourcesServlet'...");
     return new ServletContextInitializer() {
       @Override
-      public void onStartup(ServletContext servletContext) throws ServletException {
+      public void onStartup(final ServletContext servletContext) throws ServletException {
         LOG.debug("Registering bean externalResourcesHandler...");
-        URL webappURL = getClass().getClassLoader().getResource("webapp");
+        final URL webappURL = getClass().getClassLoader().getResource("webapp");
         if (webappURL == null) {
           LOG.debug("Static content directory 'webapp' not found. No bean will be registered.");
           return;
         }
 
-        String webappPath = webappURL.toExternalForm().replaceFirst("file:", "");
-        ServletRegistration.Dynamic webappServlet =
+        final String webappPath = webappURL.toExternalForm().replaceFirst("file:", "");
+        final ServletRegistration.Dynamic webappServlet =
             servletContext.addServlet("external-home", ExternalHomeServlet.class);
         webappServlet.setInitParameter("resourceBase", webappPath);
         webappServlet.addMapping("/external/*");
@@ -141,10 +147,10 @@ public class TomcatConfig {
   @Bean
   FilterRegistrationBean<ExternalApiRewriteFilter> externalApiRewriter() {
     LOG.debug("Registering filter 'externalApiRewriter'...");
-    FilterRegistrationBean<ExternalApiRewriteFilter> filterRegistrationBean =
+    final FilterRegistrationBean<ExternalApiRewriteFilter> filterRegistrationBean =
         new FilterRegistrationBean<>();
 
-    String clusterId =
+    final String clusterId =
         configurationService.getAuthConfiguration().getCloudAuthConfiguration().getClusterId();
 
     filterRegistrationBean.setFilter(new ExternalApiRewriteFilter(clusterId));
@@ -153,13 +159,15 @@ public class TomcatConfig {
   }
 
   @Bean
-  /* redirect to /# when the endpoint is not valid. do this rather than showing an error page */
+    /* redirect to /# when the endpoint is not valid. do this rather than showing an error page */
   FilterRegistrationBean<URLRedirectFilter> urlRedirector() {
     LOG.debug("Registering filter 'urlRedirector'...");
-    String regex = "^(?!" + getContextPath().orElse("") + "(" + ALLOWED_URL_EXTENSION + ")).+";
-    URLRedirectFilter filter = new URLRedirectFilter(regex, getContextPath().orElse("") + "/#");
+    final String regex =
+        "^(?!" + getContextPath().orElse("") + "(" + ALLOWED_URL_EXTENSION + ")).+";
+    final URLRedirectFilter filter = new URLRedirectFilter(regex,
+        getContextPath().orElse("") + "/#");
 
-    FilterRegistrationBean<URLRedirectFilter> registrationBean = new FilterRegistrationBean<>();
+    final FilterRegistrationBean<URLRedirectFilter> registrationBean = new FilterRegistrationBean<>();
     registrationBean.addUrlPatterns("/*");
     registrationBean.setFilter(filter);
     return registrationBean;
@@ -168,8 +176,9 @@ public class TomcatConfig {
   @Bean
   FilterRegistrationBean<ResponseHeadersFilter> responseHeadersInjector() {
     LOG.debug("Registering filter 'responseHeadersInjector'...");
-    ResponseHeadersFilter responseHeadersFilter = new ResponseHeadersFilter(configurationService);
-    FilterRegistrationBean<ResponseHeadersFilter> registrationBean = new FilterRegistrationBean<>();
+    final ResponseHeadersFilter responseHeadersFilter = new ResponseHeadersFilter(
+        configurationService);
+    final FilterRegistrationBean<ResponseHeadersFilter> registrationBean = new FilterRegistrationBean<>();
     registrationBean.addUrlPatterns("/*");
     registrationBean.setFilter(responseHeadersFilter);
     return registrationBean;
@@ -189,7 +198,7 @@ public class TomcatConfig {
       return configurationService.getContainerHttpsPort();
     }
 
-    Optional<Integer> httpPort = configurationService.getContainerHttpPort();
+    final Optional<Integer> httpPort = configurationService.getContainerHttpPort();
     if (httpPort.isEmpty()) {
       throw new OptimizeConfigurationException("HTTP port not configured");
     }
@@ -207,10 +216,11 @@ public class TomcatConfig {
   }
 
   private SSLHostConfig getSslHostConfig() {
-    SSLHostConfig sslHostConfig = new SSLHostConfig();
+    final SSLHostConfig sslHostConfig = new SSLHostConfig();
     sslHostConfig.setHostName(configurationService.getContainerHost());
 
-    SSLHostConfigCertificate cert = new SSLHostConfigCertificate(sslHostConfig, Type.UNDEFINED);
+    final SSLHostConfigCertificate cert = new SSLHostConfigCertificate(sslHostConfig,
+        Type.UNDEFINED);
     cert.setCertificateKeystoreFile(configurationService.getContainerKeystoreLocation());
     cert.setCertificateKeystorePassword(configurationService.getContainerKeystorePassword());
     sslHostConfig.addCertificate(cert);
@@ -218,7 +228,7 @@ public class TomcatConfig {
     return sslHostConfig;
   }
 
-  private void enableGzipSupport(Connector connector) {
+  private void enableGzipSupport(final Connector connector) {
     connector.setProperty("compression", "on");
     connector.setProperty("compressionMinSize", "23");
     connector.setProperty("compressionNoCompressionMethods", ""); // all methods
@@ -226,32 +236,32 @@ public class TomcatConfig {
     connector.setProperty("compressableMimeType", String.join(",", COMPRESSED_MIME_TYPES));
   }
 
-  private void setMaxHeaderSize(Connector connector) {
+  private void setMaxHeaderSize(final Connector connector) {
     // NOTE: In Tomcat, the request and response header size are both controlled
     // by a single property called maxHeaderSize.
-    int maxHeaderSize =
+    final int maxHeaderSize =
         Math.max(
             configurationService.getMaxResponseHeaderSizeInBytes(),
             configurationService.getMaxRequestHeaderSizeInBytes());
     connector.setProperty("maxHeaderSize", String.valueOf(maxHeaderSize));
   }
 
-  private void configureHttpConnector(Connector connector) {
+  private void configureHttpConnector(final Connector connector) {
     connector.setPort(getPort(EnvironmentPropertiesConstants.HTTP_PORT_KEY));
     connector.setScheme("http");
     connector.setSecure(false);
     connector.setXpoweredBy(false); // do not send server version header
-    TomcatConfig.this.enableGzipSupport(connector);
-    TomcatConfig.this.setMaxHeaderSize(connector);
+    enableGzipSupport(connector);
+    setMaxHeaderSize(connector);
   }
 
-  public void configureHttpsConnector(Connector connector) {
-    connector.setPort(TomcatConfig.this.getPort(EnvironmentPropertiesConstants.HTTPS_PORT_KEY));
+  public void configureHttpsConnector(final Connector connector) {
+    connector.setPort(getPort(EnvironmentPropertiesConstants.HTTPS_PORT_KEY));
     connector.setScheme("https");
     connector.setSecure(true);
     connector.setXpoweredBy(false); // do not send server version header
-    TomcatConfig.this.enableGzipSupport(connector);
-    TomcatConfig.this.setMaxHeaderSize(connector);
+    enableGzipSupport(connector);
+    setMaxHeaderSize(connector);
 
     connector.setProperty("protocol", HTTP11_NIO_PROTOCOL);
     if (configurationService.getContainerHttp2Enabled()) {

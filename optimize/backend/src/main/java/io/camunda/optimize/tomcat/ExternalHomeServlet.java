@@ -15,14 +15,15 @@ import java.io.File;
 import java.io.IOException;
 
 public class ExternalHomeServlet extends HttpServlet {
+
   private final String webappPath =
       getClass().getClassLoader().getResource("webapp").toExternalForm().replaceFirst("file:", "");
 
   @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+  protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
       throws ServletException, IOException {
     String filename = request.getPathInfo(); // e.g., /someFile.txt
-    if (filename == null || filename.equals("/")) {
+    if (filename == null || "/".equals(filename)) {
       filename = "/index.html";
     }
 
@@ -34,7 +35,8 @@ public class ExternalHomeServlet extends HttpServlet {
     serveStaticFile(file, response);
   }
 
-  private void serveStaticFile(File file, HttpServletResponse response) throws IOException {
+  private void serveStaticFile(final File file, final HttpServletResponse response)
+      throws IOException {
     response.setContentType(getServletContext().getMimeType(file.getName()));
     java.nio.file.Files.copy(file.toPath(), response.getOutputStream());
     response.flushBuffer();
