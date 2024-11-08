@@ -24,6 +24,7 @@ import io.camunda.service.TenantServices.TenantDTO;
 import io.camunda.service.security.SecurityContextProvider;
 import io.camunda.zeebe.gateway.api.util.StubbedBrokerClient;
 import io.camunda.zeebe.gateway.impl.broker.request.tenant.BrokerTenantCreateRequest;
+import io.camunda.zeebe.gateway.impl.broker.request.tenant.BrokerTenantDeleteRequest;
 import io.camunda.zeebe.gateway.impl.broker.request.tenant.BrokerTenantUpdateRequest;
 import io.camunda.zeebe.protocol.impl.record.value.tenant.TenantRecord;
 import io.camunda.zeebe.protocol.record.ValueType;
@@ -125,7 +126,7 @@ public class TenantServiceTest {
   }
 
   @Test
-  public void shouldUpdateTenantName() {
+  public void shouldUpdateTenant() {
     // given
     final var tenantDTO = new TenantDTO(100L, "UpdatedTenantName", "UpdatedTenantId");
 
@@ -140,5 +141,17 @@ public class TenantServiceTest {
     final TenantRecord brokerRequestValue = request.getRequestWriter();
     assertThat(brokerRequestValue.getName()).isEqualTo(tenantDTO.name());
     assertThat(brokerRequestValue.getTenantId()).isEqualTo(tenantDTO.tenantId());
+  }
+
+  @Test
+  public void shouldDeleteTenant() {
+    // when
+    services.deleteTenant(100L);
+
+    // then
+    final BrokerTenantDeleteRequest request = stubbedBrokerClient.getSingleBrokerRequest();
+    assertThat(request.getIntent()).isEqualTo(TenantIntent.DELETE);
+    assertThat(request.getValueType()).isEqualTo(ValueType.TENANT);
+    assertThat(request.getKey()).isEqualTo(100L);
   }
 }
