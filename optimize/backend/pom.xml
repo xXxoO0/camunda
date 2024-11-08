@@ -89,42 +89,6 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- Jetty-->
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-server</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty.http2</groupId>
-      <artifactId>jetty-http2-server</artifactId>
-    </dependency>
-
-    <!-- as per documentation, we keep these for http/2. Dependency:analyze error suppressed -->
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-alpn-java-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-alpn-java-server</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-alpn-server</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty.ee10</groupId>
-      <artifactId>jetty-ee10-servlet</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-rewrite</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-util</artifactId>
-    </dependency>
     <dependency>
       <groupId>jakarta.ws.rs</groupId>
       <artifactId>jakarta.ws.rs-api</artifactId>
@@ -161,18 +125,12 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
       <version>${spring.boot.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-tomcat</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <!-- this is necessary. Dependency:analyze error suppressed -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-jetty</artifactId>
+      <artifactId>spring-boot-starter-tomcat</artifactId>
       <version>${spring.boot.version}</version>
     </dependency>
 
@@ -187,12 +145,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jersey</artifactId>
       <version>${spring.boot.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-tomcat</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -492,13 +444,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-autoconfigure</artifactId>
       <version>${spring.boot.version}</version>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-http</artifactId>
-      <version>${jetty.version}</version>
       <scope>compile</scope>
     </dependency>
 
@@ -885,12 +830,9 @@
           <ignoredUnusedDeclaredDependencies>
             <dep>net.logstash.logback:logstash-logback-encoder</dep>
             <dep>org.codehaus.janino:janino</dep>
-            <dep>org.eclipse.jetty:jetty-alpn-java-client</dep>
-            <dep>org.eclipse.jetty:jetty-alpn-java-server</dep>
             <dep>io.camunda:identity-spring-boot-starter</dep>
             <dep>org.springframework:spring-tx</dep>
             <dep>org.springframework.boot:spring-boot-starter-web</dep>
-            <dep>org.springframework.boot:spring-boot-starter-jetty</dep>
             <dep>org.springframework.boot:spring-boot-starter-jersey</dep>
             <dep>io.micrometer:micrometer-registry-prometheus</dep>
             <dep>org.apache.httpcomponents.core5:httpcore5</dep>

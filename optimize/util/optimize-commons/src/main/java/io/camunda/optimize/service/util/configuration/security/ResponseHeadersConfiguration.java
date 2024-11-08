@@ -9,6 +9,9 @@ package io.camunda.optimize.service.util.configuration.security;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.camunda.optimize.util.SuppressionConstants;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ResponseHeadersConfiguration {
@@ -27,6 +30,8 @@ public class ResponseHeadersConfiguration {
 
   @JsonProperty("Content-Security-Policy")
   private String contentSecurityPolicy;
+
+  private static final String HEADER_DELIMITER = "; ";
 
   public ResponseHeadersConfiguration() {}
 
@@ -111,5 +116,36 @@ public class ResponseHeadersConfiguration {
         + ", contentSecurityPolicy="
         + getContentSecurityPolicy()
         + ")";
+  }
+
+  public Map<String, String> getHeadersWithValues() {
+    final Map<String, String> headers = new HashMap<>();
+
+    List<String> strictTransportSecurityHeaderValues = new ArrayList<>();
+    if (getHttpStrictTransportSecurityMaxAge() > 0) {
+      strictTransportSecurityHeaderValues.add("max-age=" + getHttpStrictTransportSecurityMaxAge());
+    }
+    if (getHttpStrictTransportSecurityIncludeSubdomains()) {
+      strictTransportSecurityHeaderValues.add("includeSubDomains");
+    }
+    if (!strictTransportSecurityHeaderValues.isEmpty()) {
+      headers.put(
+          "Strict-Transport-Security",
+          String.join(HEADER_DELIMITER, strictTransportSecurityHeaderValues));
+    }
+
+    if (getXsssProtection() != null && getXsssProtection().length() > 0) {
+      headers.put("X-XSS-Protection", getXsssProtection());
+    }
+
+    if (getXContentTypeOptions()) {
+      headers.put("X-Content-Type-Options", "nosniff");
+    }
+
+    if (getContentSecurityPolicy() != null && getContentSecurityPolicy().length() > 0) {
+      headers.put("Content-Security-Policy", getContentSecurityPolicy());
+    }
+
+    return headers;
   }
 }
