@@ -51,7 +51,7 @@ public class TomcatConfig {
   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TomcatConfig.class);
 
   private static final String[] COMPRESSED_MIME_TYPES = {
-      "application/json", "text/html", "application/x-font-ttf", "image/svg+xml"
+    "application/json", "text/html", "application/x-font-ttf", "image/svg+xml"
   };
 
   private static final String LOGIN_ENDPOINT = "/login";
@@ -61,34 +61,32 @@ public class TomcatConfig {
   public static final String ALLOWED_URL_EXTENSION =
       String.join(
           "|",
-          new String[]{
-              URL_BASE,
-              LOGIN_ENDPOINT,
-              METRICS_ENDPOINT,
-              CCSaasAuth0WebSecurityConfig.OAUTH_AUTH_ENDPOINT,
-              CCSaasAuth0WebSecurityConfig.OAUTH_REDIRECT_ENDPOINT,
-              CCSaasAuth0WebSecurityConfig.AUTH0_JWKS_ENDPOINT,
-              CCSaasAuth0WebSecurityConfig.AUTH0_AUTH_ENDPOINT,
-              CCSaasAuth0WebSecurityConfig.AUTH0_TOKEN_ENDPOINT,
-              CCSaasAuth0WebSecurityConfig.AUTH0_USERINFO_ENDPOINT,
-              HealthRestService.READYZ_PATH,
-              LocalizationRestService.LOCALIZATION_PATH,
-              TomcatConfig.EXTERNAL_SUB_PATH,
-              OptimizeResourceConstants.REST_API_PATH,
-              OptimizeResourceConstants.STATIC_RESOURCE_PATH,
-              OptimizeResourceConstants.ACTUATOR_ENDPOINT,
-              PanelNotificationConstants.SEND_NOTIFICATION_TO_ALL_ORG_USERS_ENDPOINT,
-              RestConstants.BACKUP_ENDPOINT,
-              UIConfigurationRestService.UI_CONFIGURATION_PATH
+          new String[] {
+            URL_BASE,
+            LOGIN_ENDPOINT,
+            METRICS_ENDPOINT,
+            CCSaasAuth0WebSecurityConfig.OAUTH_AUTH_ENDPOINT,
+            CCSaasAuth0WebSecurityConfig.OAUTH_REDIRECT_ENDPOINT,
+            CCSaasAuth0WebSecurityConfig.AUTH0_JWKS_ENDPOINT,
+            CCSaasAuth0WebSecurityConfig.AUTH0_AUTH_ENDPOINT,
+            CCSaasAuth0WebSecurityConfig.AUTH0_TOKEN_ENDPOINT,
+            CCSaasAuth0WebSecurityConfig.AUTH0_USERINFO_ENDPOINT,
+            HealthRestService.READYZ_PATH,
+            LocalizationRestService.LOCALIZATION_PATH,
+            TomcatConfig.EXTERNAL_SUB_PATH,
+            OptimizeResourceConstants.REST_API_PATH,
+            OptimizeResourceConstants.STATIC_RESOURCE_PATH,
+            OptimizeResourceConstants.ACTUATOR_ENDPOINT,
+            PanelNotificationConstants.SEND_NOTIFICATION_TO_ALL_ORG_USERS_ENDPOINT,
+            RestConstants.BACKUP_ENDPOINT,
+            UIConfigurationRestService.UI_CONFIGURATION_PATH
           });
 
   private static final String HTTP11_NIO_PROTOCOL = "org.apache.coyote.http11.Http11Nio2Protocol";
 
-  @Autowired
-  private ConfigurationService configurationService;
+  @Autowired private ConfigurationService configurationService;
 
-  @Autowired
-  private Environment environment;
+  @Autowired private Environment environment;
 
   @Bean
   WebServerFactoryCustomizer<TomcatServletWebServerFactory> tomcatFactoryCustomizer() {
@@ -159,15 +157,16 @@ public class TomcatConfig {
   }
 
   @Bean
-    /* redirect to /# when the endpoint is not valid. do this rather than showing an error page */
+  /* redirect to /# when the endpoint is not valid. do this rather than showing an error page */
   FilterRegistrationBean<URLRedirectFilter> urlRedirector() {
     LOG.debug("Registering filter 'urlRedirector'...");
     final String regex =
         "^(?!" + getContextPath().orElse("") + "(" + ALLOWED_URL_EXTENSION + ")).+";
-    final URLRedirectFilter filter = new URLRedirectFilter(regex,
-        getContextPath().orElse("") + "/#");
+    final URLRedirectFilter filter =
+        new URLRedirectFilter(regex, getContextPath().orElse("") + "/#");
 
-    final FilterRegistrationBean<URLRedirectFilter> registrationBean = new FilterRegistrationBean<>();
+    final FilterRegistrationBean<URLRedirectFilter> registrationBean =
+        new FilterRegistrationBean<>();
     registrationBean.addUrlPatterns("/*");
     registrationBean.setFilter(filter);
     return registrationBean;
@@ -176,9 +175,10 @@ public class TomcatConfig {
   @Bean
   FilterRegistrationBean<ResponseHeadersFilter> responseHeadersInjector() {
     LOG.debug("Registering filter 'responseHeadersInjector'...");
-    final ResponseHeadersFilter responseHeadersFilter = new ResponseHeadersFilter(
-        configurationService);
-    final FilterRegistrationBean<ResponseHeadersFilter> registrationBean = new FilterRegistrationBean<>();
+    final ResponseHeadersFilter responseHeadersFilter =
+        new ResponseHeadersFilter(configurationService);
+    final FilterRegistrationBean<ResponseHeadersFilter> registrationBean =
+        new FilterRegistrationBean<>();
     registrationBean.addUrlPatterns("/*");
     registrationBean.setFilter(responseHeadersFilter);
     return registrationBean;
@@ -219,8 +219,8 @@ public class TomcatConfig {
     final SSLHostConfig sslHostConfig = new SSLHostConfig();
     sslHostConfig.setHostName(configurationService.getContainerHost());
 
-    final SSLHostConfigCertificate cert = new SSLHostConfigCertificate(sslHostConfig,
-        Type.UNDEFINED);
+    final SSLHostConfigCertificate cert =
+        new SSLHostConfigCertificate(sslHostConfig, Type.UNDEFINED);
     cert.setCertificateKeystoreFile(configurationService.getContainerKeystoreLocation());
     cert.setCertificateKeystorePassword(configurationService.getContainerKeystorePassword());
     sslHostConfig.addCertificate(cert);
