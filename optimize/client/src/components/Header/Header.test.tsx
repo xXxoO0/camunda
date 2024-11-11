@@ -27,6 +27,8 @@ const defaultUiConfig = {
   notificationsUrl: 'notificationsUrl',
   validLicense: true,
   licenseType: 'production',
+  expiresAt: null,
+  commercial: true,
 };
 
 jest.mock('hooks', () => ({
@@ -56,7 +58,7 @@ jest.mock('react-router', () => ({
 jest.mock('tracking', () => ({track: jest.fn()}));
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  (useUiConfig as jest.Mock).mockReturnValue(defaultUiConfig);
 });
 
 it('should show license tag if not in saas', async () => {
@@ -85,6 +87,57 @@ it('should hide license tag in saas', async () => {
   ).toMatchObject({
     isProductionLicense: true,
     show: false,
+  });
+});
+
+it('should pass expiration date string to the C3 licenseTag prop', async () => {
+  const todayDate = new Date().toISOString();
+  (useUiConfig as jest.Mock).mockReturnValue({...defaultUiConfig, expiresAt: todayDate});
+  const node = shallow(<Header />);
+
+  await runLastEffect();
+  await node.update();
+
+  expect(
+    node.find(C3Navigation).prop<C3NavigationProps['navbar']>('navbar').licenseTag
+  ).toMatchObject({
+    isProductionLicense: true,
+    show: true,
+    expiresAt: todayDate,
+    isCommercial: true,
+  });
+});
+
+it('should pass the license expiration date as undefined if it is null', async () => {
+  const node = shallow(<Header />);
+
+  await runLastEffect();
+  await node.update();
+
+  expect(
+    node.find(C3Navigation).prop<C3NavigationProps['navbar']>('navbar').licenseTag
+  ).toMatchObject({
+    isProductionLicense: true,
+    show: true,
+    expiresAt: undefined,
+    isCommercial: true,
+  });
+});
+
+it('should pass the commercial boolean to the c3 licenseTag prop', async () => {
+  (useUiConfig as jest.Mock).mockReturnValue({...defaultUiConfig, commercial: false});
+  const node = shallow(<Header />);
+
+  await runLastEffect();
+  await node.update();
+
+  expect(
+    node.find(C3Navigation).prop<C3NavigationProps['navbar']>('navbar').licenseTag
+  ).toMatchObject({
+    isProductionLicense: true,
+    show: true,
+    expiresAt: undefined,
+    isCommercial: false,
   });
 });
 
