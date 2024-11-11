@@ -37,7 +37,6 @@ jobs:
       frontend-changes: ${{ steps.filter.outputs.frontend-changes }}
       zeebe-changes: ${{ steps.filter.outputs.zeebe-changes }}
       operate-backend-changes: ${{ steps.filter.outputs.operate-backend-changes }}
-      operate-frontend-changes: ${{ steps.filter.outputs.operate-frontend-changes }}
       optimize-frontend-changes: ${{ steps.filter.outputs.optimize-frontend-changes }}
       optimize-backend-changes: ${{ steps.filter.outputs.optimize-backend-changes }}
       protobuf-changes: ${{ steps.filter.outputs.protobuf-changes }}
@@ -412,7 +411,7 @@ jobs:
     if: needs.detect-changes.outputs.operate-backend-changes == 'true'
     needs: [detect-changes]
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
     steps:
