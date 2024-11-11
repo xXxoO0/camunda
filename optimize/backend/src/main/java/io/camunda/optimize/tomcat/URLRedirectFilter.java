@@ -38,6 +38,12 @@ public class URLRedirectFilter implements Filter {
     final String requestPath = httpRequest.getRequestURI();
     final String contextPath = httpRequest.getContextPath();
 
+    /* Handle missing trailing slash to home */
+    if(contextPath.equals(requestPath)) {
+      httpResponse.sendRedirect(redirectPath);
+      return;
+    }
+
     /* Validate requests to the home page */
     if ((contextPath + "/").equals(requestPath)) {
       chain.doFilter(request, response);
@@ -45,7 +51,11 @@ public class URLRedirectFilter implements Filter {
     }
 
     /* Validate requests to the static resources */
-    String staticFilePath = WEBAPP_PATH + requestPath;
+    String staticRequestPath = requestPath;
+    if(!"".equals(contextPath)) {
+      staticRequestPath = staticRequestPath.substring(contextPath.length());
+    }
+    String staticFilePath = WEBAPP_PATH + staticRequestPath;
     final InputStream fileStream = this.getClass().getResourceAsStream(staticFilePath);
     if (fileStream != null) {
       chain.doFilter(request, response);
