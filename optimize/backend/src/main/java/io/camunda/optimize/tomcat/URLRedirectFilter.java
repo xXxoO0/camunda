@@ -31,8 +31,8 @@ public class URLRedirectFilter implements Filter {
   }
 
   @Override
-  public void doFilter(final ServletRequest request, final ServletResponse response,
-      final FilterChain chain)
+  public void doFilter(
+      final ServletRequest request, final ServletResponse response, final FilterChain chain)
       throws IOException, ServletException {
     final HttpServletRequest httpRequest = (HttpServletRequest) request;
     final HttpServletResponse httpResponse = (HttpServletResponse) response;
