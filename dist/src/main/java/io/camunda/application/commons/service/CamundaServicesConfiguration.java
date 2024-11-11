@@ -35,6 +35,7 @@ import io.camunda.service.JobServices;
 import io.camunda.service.MessageServices;
 import io.camunda.service.ProcessDefinitionServices;
 import io.camunda.service.ProcessInstanceServices;
+import io.camunda.service.ProcessTestServices;
 import io.camunda.service.ResourceServices;
 import io.camunda.service.RoleServices;
 import io.camunda.service.SignalServices;
@@ -212,5 +213,11 @@ public class CamundaServicesConfiguration {
       final SecurityContextProvider securityContextProvider,
       final FormSearchClient formSearchClient) {
     return new FormServices(brokerClient, securityContextProvider, formSearchClient, null);
+  }
+
+  @Bean
+  public ProcessTestServices processTestServices(
+      final BrokerClient brokerClient, final SecurityContextProvider securityContextProvider) {
+    return new ProcessTestServices(brokerClient, securityContextProvider, null);
   }
 }
