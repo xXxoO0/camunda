@@ -15,9 +15,12 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.regex.Pattern;
 
 public class URLRedirectFilter implements Filter {
+
+  private static final String WEBAPP_PATH = "/webapp";
 
   private final Pattern redirectPattern;
   private final String redirectPath;
@@ -33,8 +36,18 @@ public class URLRedirectFilter implements Filter {
     final HttpServletRequest httpRequest = (HttpServletRequest) request;
     final HttpServletResponse httpResponse = (HttpServletResponse) response;
     final String requestPath = httpRequest.getRequestURI();
+    final String contextPath = httpRequest.getContextPath();
 
-    if ((httpRequest.getContextPath() + "/").equals(requestPath)) {
+    /* Validate requests to the home page */
+    if ((contextPath + "/").equals(requestPath)) {
+      chain.doFilter(request, response);
+      return;
+    }
+
+    /* Validate requests to the static resources */
+    String staticFilePath = WEBAPP_PATH + requestPath;
+    final InputStream fileStream = this.getClass().getResourceAsStream(staticFilePath);
+    if (fileStream != null) {
       chain.doFilter(request, response);
       return;
     }

@@ -134,7 +134,7 @@ public class TomcatConfig {
         final String webappPath = webappURL.toExternalForm().replaceFirst("file:", "");
         final ServletRegistration.Dynamic webappServlet =
             servletContext.addServlet("external-home", ExternalHomeServlet.class);
-        webappServlet.setInitParameter("resourceBase", webappPath);
+        webappServlet.setInitParameter("resourceBase", "/webapp");
         webappServlet.addMapping("/external/*");
         webappServlet.addMapping("/*");
         webappServlet.setLoadOnStartup(1);

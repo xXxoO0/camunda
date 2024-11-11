@@ -11,34 +11,30 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import org.springframework.util.StreamUtils;
 
 public class ExternalHomeServlet extends HttpServlet {
 
-  private final String webappPath =
-      getClass().getClassLoader().getResource("webapp").toExternalForm().replaceFirst("file:", "");
+  private static final String INDEX_FILE = "/index.html";
+  private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
+  private static final String WEBAPP_PATH = "/webapp";
 
   @Override
   protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
       throws ServletException, IOException {
     String filename = request.getPathInfo(); // e.g., /someFile.txt
     if (filename == null || "/".equals(filename)) {
-      filename = "/index.html";
+      filename = INDEX_FILE;
     }
 
-    File file = new File(webappPath, filename.substring(1));
-    if (!file.exists() || file.isDirectory()) {
-      file = new File(webappPath, "/index.html");
-    }
+    final String resourcePath = WEBAPP_PATH + filename;
+    final InputStream fileStream = this.getClass().getResourceAsStream(resourcePath);
 
-    serveStaticFile(file, response);
-  }
-
-  private void serveStaticFile(final File file, final HttpServletResponse response)
-      throws IOException {
-    response.setContentType(getServletContext().getMimeType(file.getName()));
-    java.nio.file.Files.copy(file.toPath(), response.getOutputStream());
+    final String mimeType = getServletContext().getMimeType(resourcePath);
+    response.setContentType(mimeType != null ? mimeType : DEFAULT_MIME_TYPE);
+    StreamUtils.copy(fileStream, response.getOutputStream());
     response.flushBuffer();
   }
 }
