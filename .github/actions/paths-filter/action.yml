@@ -175,7 +175,7 @@ runs:
       filters: |
         operate-backend-change:
           - operate/**
-          - !operate/client/**
+          - '!operate/client/**'
 
   - uses: dorny/paths-filter@v3
     id: filter-optimize
