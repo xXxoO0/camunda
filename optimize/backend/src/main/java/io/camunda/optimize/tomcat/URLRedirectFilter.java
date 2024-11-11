@@ -25,13 +25,14 @@ public class URLRedirectFilter implements Filter {
   private final Pattern redirectPattern;
   private final String redirectPath;
 
-  public URLRedirectFilter(String regex, String redirectPath) {
-    this.redirectPattern = Pattern.compile(regex);
+  public URLRedirectFilter(final String regex, final String redirectPath) {
+    redirectPattern = Pattern.compile(regex);
     this.redirectPath = redirectPath;
   }
 
   @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+  public void doFilter(final ServletRequest request, final ServletResponse response,
+      final FilterChain chain)
       throws IOException, ServletException {
     final HttpServletRequest httpRequest = (HttpServletRequest) request;
     final HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -39,7 +40,7 @@ public class URLRedirectFilter implements Filter {
     final String contextPath = httpRequest.getContextPath();
 
     /* Handle missing trailing slash to home */
-    if(contextPath.equals(requestPath)) {
+    if (contextPath.equals(requestPath)) {
       httpResponse.sendRedirect(redirectPath);
       return;
     }
@@ -52,11 +53,11 @@ public class URLRedirectFilter implements Filter {
 
     /* Validate requests to the static resources */
     String staticRequestPath = requestPath;
-    if(!"".equals(contextPath)) {
+    if (!"".equals(contextPath)) {
       staticRequestPath = staticRequestPath.substring(contextPath.length());
     }
-    String staticFilePath = WEBAPP_PATH + staticRequestPath;
-    final InputStream fileStream = this.getClass().getResourceAsStream(staticFilePath);
+    final String staticFilePath = WEBAPP_PATH + staticRequestPath;
+    final InputStream fileStream = getClass().getResourceAsStream(staticFilePath);
     if (fileStream != null) {
       chain.doFilter(request, response);
       return;
