@@ -102,7 +102,7 @@ public class VariableIT {
             .getVariableReader()
             .search(
                 new VariableQuery(
-                    new VariableFilter.Builder().variable(varName).build(),
+                    new VariableFilter.Builder().names(varName).build(),
                     VariableSort.of(b -> b),
                     SearchQueryPage.of(b -> b.from(0).size(5))));
 
@@ -124,7 +124,7 @@ public class VariableIT {
             .getVariableReader()
             .search(
                 new VariableQuery(
-                    new VariableFilter.Builder().variable(varName).build(),
+                    new VariableFilter.Builder().names(varName).build(),
                     VariableSort.of(b -> b),
                     SearchQueryPage.of(b -> b.from(null).size(null))));
 
@@ -150,7 +150,7 @@ public class VariableIT {
                 new VariableFilter.Builder()
                     .variableKeys(randomizedVariable.key())
                     .processInstanceKeys(randomizedVariable.processInstanceKey())
-                    .variable(varName)
+                    .names(varName)
                     .tenantIds(randomizedVariable.tenantId())
                     .build(),
                 VariableSort.of(b -> b),
