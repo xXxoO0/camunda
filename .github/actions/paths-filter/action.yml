@@ -172,9 +172,9 @@ runs:
     with:
       base: ${{ github.event.merge_group.base_ref || '' }}
       ref: ${{ github.event.merge_group.head_ref || github.ref }}
-      backend:
-        - 'operate/**'
-        - '!operate/client/**'
+      filters: |
+        operate-backend-change:
+          - 'operate/!(client/)**'
 
   - uses: dorny/paths-filter@v3
     id: filter-optimize
