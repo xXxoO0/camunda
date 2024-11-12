@@ -33,11 +33,7 @@ public class DecisionDefinitionReader extends AbstractEntityReader<DecisionDefin
         search(
             DecisionDefinitionQuery.of(
                 b -> b.filter(f -> f.decisionDefinitionKeys(decisionDefinitionKey))));
-    if (result.items() == null || result.items().isEmpty()) {
-      return Optional.empty();
-    } else {
-      return Optional.of(result.items().getFirst());
-    }
+    return Optional.ofNullable(result.items()).flatMap(it -> it.stream().findFirst());
   }
 
   public SearchQueryResult<DecisionDefinitionEntity> search(final DecisionDefinitionQuery query) {
