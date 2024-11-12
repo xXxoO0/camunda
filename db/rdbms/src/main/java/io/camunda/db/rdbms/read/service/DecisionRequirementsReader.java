@@ -35,11 +35,7 @@ public class DecisionRequirementsReader extends AbstractEntityReader<DecisionReq
                 b ->
                     b.filter(f -> f.decisionRequirementsKeys(decisionRequirementsKey))
                         .resultConfig(c -> c.includeXml(true))));
-    if (result.items() == null || result.items().isEmpty()) {
-      return Optional.empty();
-    } else {
-      return Optional.of(result.items().getFirst());
-    }
+    return Optional.ofNullable(result.items()).flatMap(it -> it.stream().findFirst());
   }
 
   public SearchQueryResult<DecisionRequirementsEntity> search(
