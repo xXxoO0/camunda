@@ -67,7 +67,9 @@ public class DecisionEvaluationEvaluteProcessor
       final var decision = decisionOrFailure.get();
       final var authRequest =
           new AuthorizationRequest(
-                  command, AuthorizationResourceType.DECISION_DEFINITION, PermissionType.CREATE)
+                  command,
+                  AuthorizationResourceType.DECISION_DEFINITION,
+                  PermissionType.CREATE_DECISION_INSTANCE)
               .addResourceId(bufferAsString(decision.getDecisionId()));
 
       if (!authCheckBehavior.isAuthorized(authRequest)) {

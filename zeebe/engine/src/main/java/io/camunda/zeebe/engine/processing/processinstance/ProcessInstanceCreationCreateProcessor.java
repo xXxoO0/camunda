@@ -141,7 +141,9 @@ public final class ProcessInstanceCreationCreateProcessor
       final DeployedProcess deployedProcess) {
     final var request =
         new AuthorizationRequest(
-                command, AuthorizationResourceType.PROCESS_DEFINITION, PermissionType.CREATE)
+                command,
+                AuthorizationResourceType.PROCESS_DEFINITION,
+                PermissionType.CREATE_PROCESS_INSTANCE)
             .addResourceId(bufferAsString(deployedProcess.getBpmnProcessId()));
 
     if (authCheckBehavior.isAuthorized(request)) {

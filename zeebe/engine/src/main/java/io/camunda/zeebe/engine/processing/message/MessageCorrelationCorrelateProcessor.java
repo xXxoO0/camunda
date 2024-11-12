@@ -171,8 +171,8 @@ public final class MessageCorrelationCorrelateProcessor
             subscription -> {
               final PermissionType permissionType =
                   subscription.isStartEventSubscription()
-                      ? PermissionType.CREATE
-                      : PermissionType.UPDATE;
+                      ? PermissionType.CREATE_PROCESS_INSTANCE
+                      : PermissionType.UPDATE_PROCESS_INSTANCE;
 
               request.set(
                   new AuthorizationRequest(
