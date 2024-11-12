@@ -160,8 +160,12 @@ public class TomcatConfig {
     LOG.debug("Registering filter 'urlRedirector'...");
     final String regex =
         "^(?!" + getContextPath().orElse("") + "(" + ALLOWED_URL_EXTENSION + ")).+";
+
+    String clusterId =
+        configurationService.getAuthConfiguration().getCloudAuthConfiguration().getClusterId();
+
     final URLRedirectFilter filter =
-        new URLRedirectFilter(regex, getContextPath().orElse("") + "/#");
+        new URLRedirectFilter(regex, getContextPath().orElse("") + "/#", clusterId);
 
     final FilterRegistrationBean<URLRedirectFilter> registrationBean =
         new FilterRegistrationBean<>();
