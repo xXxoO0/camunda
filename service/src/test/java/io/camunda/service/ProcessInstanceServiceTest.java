@@ -136,7 +136,7 @@ public final class ProcessInstanceServiceTest {
                     s.withAuthentication(authentication)
                         .withAuthorization(
                             a ->
-                                a.permissionType(PermissionType.READ_INSTANCE)
+                                a.permissionType(PermissionType.READ_PROCESS_INSTANCE)
                                     .resourceType(AuthorizationResourceType.PROCESS_DEFINITION))));
   }
 
