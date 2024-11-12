@@ -1,7 +1,10 @@
 ---
 name: Common paths filter for camunda/camunda
 
-description: Common filters to detect and group changes against a base branch
+description: |
+  Common filters to detect and group changes against a base branch
+  It leverages the `dorny/paths-filter` action to filter paths
+  Said third-party action uses picomatch patterns to filter paths
 
 outputs:
   actionlint:
