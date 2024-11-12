@@ -124,7 +124,9 @@ public class MessageCorrelationCorrelateAuthorizationIT {
         username,
         password,
         new Permissions(
-            ResourceTypeEnum.PROCESS_DEFINITION, PermissionTypeEnum.UPDATE, List.of(PROCESS_ID)));
+            ResourceTypeEnum.PROCESS_DEFINITION,
+            PermissionTypeEnum.UPDATE_PROCESS_INSTANCE,
+            List.of(PROCESS_ID)));
 
     try (final var client = authUtil.createClient(username, password)) {
       // when
@@ -167,7 +169,7 @@ public class MessageCorrelationCorrelateAuthorizationIT {
           .hasMessageContaining("title: UNAUTHORIZED")
           .hasMessageContaining("status: 401")
           .hasMessageContaining(
-              "Unauthorized to perform operation 'UPDATE' on resource 'PROCESS_DEFINITION'");
+              "Unauthorized to perform operation 'UPDATE_PROCESS_INSTANCE' on resource 'PROCESS_DEFINITION'");
     }
   }
 
@@ -195,7 +197,9 @@ public class MessageCorrelationCorrelateAuthorizationIT {
         username,
         password,
         new Permissions(
-            ResourceTypeEnum.PROCESS_DEFINITION, PermissionTypeEnum.CREATE, List.of(PROCESS_ID)));
+            ResourceTypeEnum.PROCESS_DEFINITION,
+            PermissionTypeEnum.CREATE_PROCESS_INSTANCE,
+            List.of(PROCESS_ID)));
 
     try (final var client = authUtil.createClient(username, password)) {
       // when
@@ -234,7 +238,7 @@ public class MessageCorrelationCorrelateAuthorizationIT {
           .hasMessageContaining("title: UNAUTHORIZED")
           .hasMessageContaining("status: 401")
           .hasMessageContaining(
-              "Unauthorized to perform operation 'CREATE' on resource 'PROCESS_DEFINITION'");
+              "Unauthorized to perform operation 'CREATE_PROCESS_INSTANCE' on resource 'PROCESS_DEFINITION'");
     }
   }
 
@@ -247,7 +251,9 @@ public class MessageCorrelationCorrelateAuthorizationIT {
         username,
         password,
         new Permissions(
-            ResourceTypeEnum.PROCESS_DEFINITION, PermissionTypeEnum.CREATE, List.of(PROCESS_ID)));
+            ResourceTypeEnum.PROCESS_DEFINITION,
+            PermissionTypeEnum.CREATE_PROCESS_INSTANCE,
+            List.of(PROCESS_ID)));
     final var unauthorizedProcessId = "unauthorizedProcessId";
     final var resourceName = "unauthorizedProcess.xml";
     final var deploymentKey =
@@ -279,7 +285,7 @@ public class MessageCorrelationCorrelateAuthorizationIT {
           .hasMessageContaining("title: UNAUTHORIZED")
           .hasMessageContaining("status: 401")
           .hasMessageContaining(
-              "Unauthorized to perform operation 'CREATE' on resource 'PROCESS_DEFINITION'");
+              "Unauthorized to perform operation 'CREATE_PROCESS_INSTANCE' on resource 'PROCESS_DEFINITION'");
 
       final var deploymentPosition =
           RecordingExporter.deploymentRecords(DeploymentIntent.CREATED)
