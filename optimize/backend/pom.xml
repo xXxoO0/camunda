@@ -14,12 +14,11 @@
   <name>Optimize Backend</name>
 
   <properties>
-    <jersey.version>3.1.3</jersey.version>
     <spring.security.version>6.3.4</spring.security.version>
-    <nimbus.jose.jwt.version>9.41.2</nimbus.jose.jwt.version>
     <it.test.excludedGroups/>
     <it.test.includedGroups/>
     <test.forkCount/>
+    <version.tomcat>10.1.30</version.tomcat>
   </properties>
 
   <dependencies>
@@ -139,13 +138,13 @@
     <dependency>
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-core</artifactId>
-      <version>10.1.30</version>
+      <version>${version.tomcat}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.tomcat</groupId>
       <artifactId>tomcat-annotations-api</artifactId>
-      <version>10.1.30</version>
+      <version>${version.tomcat}</version>
       <scope>compile</scope>
     </dependency>
 

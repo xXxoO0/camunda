@@ -53,7 +53,7 @@ public class URLRedirectFilter implements Filter {
 
     /* Validate requests to the static resources */
     String staticRequestPath = requestPath;
-    if (!"".equals(contextPath)) {
+    if (!contextPath.isEmpty()) {
       staticRequestPath = staticRequestPath.substring(contextPath.length());
     }
     final String staticFilePath = WEBAPP_PATH + staticRequestPath;
@@ -63,10 +63,12 @@ public class URLRedirectFilter implements Filter {
       return;
     }
 
+    /* Redirect URLs that do not pass our validity rule */
     if (redirectPattern.matcher(requestPath).matches()) {
       httpResponse.sendRedirect(redirectPath);
-    } else {
-      chain.doFilter(request, response);
+      return;
     }
+
+    chain.doFilter(request, response);
   }
 }

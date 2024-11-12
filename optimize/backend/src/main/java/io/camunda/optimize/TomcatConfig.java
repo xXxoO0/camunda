@@ -51,7 +51,7 @@ public class TomcatConfig {
   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TomcatConfig.class);
 
   private static final String[] COMPRESSED_MIME_TYPES = {
-    "application/json", "text/html", "application/x-font-ttf", "image/svg+xml"
+      "application/json", "text/html", "application/x-font-ttf", "image/svg+xml"
   };
 
   private static final String LOGIN_ENDPOINT = "/login";
@@ -61,36 +61,38 @@ public class TomcatConfig {
   public static final String ALLOWED_URL_EXTENSION =
       String.join(
           "|",
-          new String[] {
-            URL_BASE,
-            LOGIN_ENDPOINT,
-            METRICS_ENDPOINT,
-            CCSaasAuth0WebSecurityConfig.OAUTH_AUTH_ENDPOINT,
-            CCSaasAuth0WebSecurityConfig.OAUTH_REDIRECT_ENDPOINT,
-            CCSaasAuth0WebSecurityConfig.AUTH0_JWKS_ENDPOINT,
-            CCSaasAuth0WebSecurityConfig.AUTH0_AUTH_ENDPOINT,
-            CCSaasAuth0WebSecurityConfig.AUTH0_TOKEN_ENDPOINT,
-            CCSaasAuth0WebSecurityConfig.AUTH0_USERINFO_ENDPOINT,
-            HealthRestService.READYZ_PATH,
-            LocalizationRestService.LOCALIZATION_PATH,
-            TomcatConfig.EXTERNAL_SUB_PATH,
-            OptimizeResourceConstants.REST_API_PATH,
-            OptimizeResourceConstants.STATIC_RESOURCE_PATH,
-            OptimizeResourceConstants.ACTUATOR_ENDPOINT,
-            PanelNotificationConstants.SEND_NOTIFICATION_TO_ALL_ORG_USERS_ENDPOINT,
-            RestConstants.BACKUP_ENDPOINT,
-            UIConfigurationRestService.UI_CONFIGURATION_PATH
+          new String[]{
+              URL_BASE,
+              LOGIN_ENDPOINT,
+              METRICS_ENDPOINT,
+              CCSaasAuth0WebSecurityConfig.OAUTH_AUTH_ENDPOINT,
+              CCSaasAuth0WebSecurityConfig.OAUTH_REDIRECT_ENDPOINT,
+              CCSaasAuth0WebSecurityConfig.AUTH0_JWKS_ENDPOINT,
+              CCSaasAuth0WebSecurityConfig.AUTH0_AUTH_ENDPOINT,
+              CCSaasAuth0WebSecurityConfig.AUTH0_TOKEN_ENDPOINT,
+              CCSaasAuth0WebSecurityConfig.AUTH0_USERINFO_ENDPOINT,
+              HealthRestService.READYZ_PATH,
+              LocalizationRestService.LOCALIZATION_PATH,
+              TomcatConfig.EXTERNAL_SUB_PATH,
+              OptimizeResourceConstants.REST_API_PATH,
+              OptimizeResourceConstants.STATIC_RESOURCE_PATH,
+              OptimizeResourceConstants.ACTUATOR_ENDPOINT,
+              PanelNotificationConstants.SEND_NOTIFICATION_TO_ALL_ORG_USERS_ENDPOINT,
+              RestConstants.BACKUP_ENDPOINT,
+              UIConfigurationRestService.UI_CONFIGURATION_PATH
           });
 
   private static final String HTTP11_NIO_PROTOCOL = "org.apache.coyote.http11.Http11Nio2Protocol";
 
-  @Autowired private ConfigurationService configurationService;
+  @Autowired
+  private ConfigurationService configurationService;
 
-  @Autowired private Environment environment;
+  @Autowired
+  private Environment environment;
 
   @Bean
   WebServerFactoryCustomizer<TomcatServletWebServerFactory> tomcatFactoryCustomizer() {
-    LOG.debug("Setting up connectors...");
+    LOG.debug("Setting up server connectors...");
     return new WebServerFactoryCustomizer<TomcatServletWebServerFactory>() {
       @Override
       public void customize(final TomcatServletWebServerFactory factory) {
@@ -124,7 +126,6 @@ public class TomcatConfig {
     return new ServletContextInitializer() {
       @Override
       public void onStartup(final ServletContext servletContext) throws ServletException {
-        LOG.debug("Registering bean externalResourcesHandler...");
         final URL webappURL = getClass().getClassLoader().getResource("webapp");
         if (webappURL == null) {
           LOG.debug("Static content directory 'webapp' not found. No bean will be registered.");
@@ -157,7 +158,7 @@ public class TomcatConfig {
   }
 
   @Bean
-  /* redirect to /# when the endpoint is not valid. do this rather than showing an error page */
+    /* redirect to /# when the endpoint is not valid. do this rather than showing an error page */
   FilterRegistrationBean<URLRedirectFilter> urlRedirector() {
     LOG.debug("Registering filter 'urlRedirector'...");
     final String regex =
