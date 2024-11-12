@@ -17,21 +17,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.regex.Pattern;
-import org.slf4j.Logger;
 
 public class URLRedirectFilter implements Filter {
 
-  private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(URLRedirectFilter.class);
   private static final String WEBAPP_PATH = "/webapp";
 
   private final Pattern redirectPattern;
   private final String redirectPath;
-  private final String clusterId;
 
-  public URLRedirectFilter(final String regex, final String redirectPath, String clusterId) {
+  public URLRedirectFilter(final String regex, final String redirectPath) {
     redirectPattern = Pattern.compile(regex);
     this.redirectPath = redirectPath;
-    this.clusterId = clusterId;
   }
 
   @Override
@@ -41,40 +37,28 @@ public class URLRedirectFilter implements Filter {
     final HttpServletRequest httpRequest = (HttpServletRequest) request;
     final HttpServletResponse httpResponse = (HttpServletResponse) response;
     final String requestPath = httpRequest.getRequestURI();
-
-    LOG.info("requestPath={}", requestPath);
-
-    /* urlSuffix can be the empty string or (/contexPpath xor /clusterId) */
-    String urlSuffix = httpRequest.getContextPath();
-    if (!this.clusterId.isEmpty()) {
-      urlSuffix = "/" + this.clusterId;
-    }
-
-    LOG.info("urlSuffix=" + urlSuffix);
+    final String contextPath = httpRequest.getContextPath();
 
     /* Handle missing trailing slash to home */
-    if (urlSuffix.equals(requestPath)) {
-      LOG.info("missing trailing slash. Redirecting to " + redirectPath);
+    if (contextPath.equals(requestPath)) {
       httpResponse.sendRedirect(redirectPath);
       return;
     }
 
     /* Validate requests to the home page */
-    if ((urlSuffix + "/").equals(requestPath)) {
-      LOG.info("home page request. Passing through.");
+    if ((contextPath + "/").equals(requestPath)) {
       chain.doFilter(request, response);
       return;
     }
 
     /* Validate requests to the static resources */
     String staticRequestPath = requestPath;
-    if (!urlSuffix.isEmpty()) {
-      staticRequestPath = staticRequestPath.substring(urlSuffix.length());
+    if (!contextPath.isEmpty()) {
+      staticRequestPath = staticRequestPath.substring(contextPath.length());
     }
     final String staticFilePath = WEBAPP_PATH + staticRequestPath;
     final InputStream fileStream = getClass().getResourceAsStream(staticFilePath);
     if (fileStream != null) {
-      LOG.info("detected static resource: " + staticFilePath);
       chain.doFilter(request, response);
       return;
     }
