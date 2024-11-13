@@ -179,6 +179,7 @@ public final class SearchQueryRequestMapper {
 
     if (filter != null) {
       ofNullable(filter.getDecisionInstanceKey()).ifPresent(builder::decisionInstanceKeys);
+      ofNullable(filter.getDecisionInstanceId()).ifPresent(builder::decisionInstanceIds);
       ofNullable(filter.getState())
           .map(s -> convertEnum(s, DecisionInstanceState.class))
           .ifPresent(builder::states);
@@ -211,6 +212,7 @@ public final class SearchQueryRequestMapper {
     } else {
       switch (field) {
         case "decisionInstanceKey" -> builder.decisionInstanceKey();
+        case "decisionInstanceId" -> builder.decisionInstanceId();
         case "state" -> builder.state();
         case "evaluationDate" -> builder.evaluationDate();
         case "processDefinitionKey" -> builder.processDefinitionKey();

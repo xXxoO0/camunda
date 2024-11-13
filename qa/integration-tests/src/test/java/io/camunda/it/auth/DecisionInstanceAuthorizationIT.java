@@ -95,15 +95,15 @@ class DecisionInstanceAuthorizationIT {
   }
 
   @TestTemplate
-  void getByKeyShouldReturnForbiddenForUnauthorizedDecisionInstance(
+  void getByIdShouldReturnForbiddenForUnauthorizedDecisionInstance(
       @Authenticated(ADMIN) final ZeebeClient adminClient,
       @Authenticated(RESTRICTED) final ZeebeClient userClient) {
     // given
-    final var decisionInstanceKey = getDecisionInstanceKey(adminClient, DECISION_DEFINITION_ID_2);
+    final var decisionInstanceId = getDecisionInstanceId(adminClient, DECISION_DEFINITION_ID_2);
 
     // when
     final Executable executeGet =
-        () -> userClient.newDecisionInstanceGetRequest(decisionInstanceKey).send().join();
+        () -> userClient.newDecisionInstanceGetRequest(decisionInstanceId).send().join();
 
     // then
     final var problemException = assertThrows(ProblemException.class, executeGet);
@@ -114,22 +114,23 @@ class DecisionInstanceAuthorizationIT {
   }
 
   @TestTemplate
-  void getByKeyShouldReturnAuthorizedDecisionDefinition(
+  void getByIdShouldReturnAuthorizedDecisionDefinition(
       @Authenticated(ADMIN) final ZeebeClient adminClient,
       @Authenticated(RESTRICTED) final ZeebeClient userClient) {
     // given
-    final var decisionInstanceKey = getDecisionInstanceKey(adminClient, DECISION_DEFINITION_ID_1);
+    final var decisionInstanceId = getDecisionInstanceId(adminClient, DECISION_DEFINITION_ID_1);
 
     // when
     final var decisionInstance =
-        userClient.newDecisionInstanceGetRequest(decisionInstanceKey).send().join();
+        userClient.newDecisionInstanceGetRequest(decisionInstanceId).send().join();
 
     // then
     assertThat(decisionInstance).isNotNull();
     assertThat(decisionInstance.getDecisionDefinitionId()).isEqualTo(DECISION_DEFINITION_ID_1);
   }
 
-  private long getDecisionInstanceKey(final ZeebeClient client, final String decisionDefinitionId) {
+  private String getDecisionInstanceId(
+      final ZeebeClient client, final String decisionDefinitionId) {
     return client
         .newDecisionInstanceQuery()
         .filter(f -> f.decisionDefinitionId(decisionDefinitionId))
@@ -137,7 +138,7 @@ class DecisionInstanceAuthorizationIT {
         .join()
         .items()
         .getFirst()
-        .getDecisionInstanceKey();
+        .getDecisionInstanceId();
   }
 
   private DeploymentEvent deployResource(final ZeebeClient zeebeClient, final String resourceName) {
