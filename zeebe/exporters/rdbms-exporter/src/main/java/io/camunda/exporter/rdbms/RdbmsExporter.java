@@ -95,6 +95,7 @@ public class RdbmsExporter implements Exporter {
         record.getPosition(),
         record.getValueType(),
         record.getIntent());
+    LOG.trace("[RDBMS Exporter] Record value: {}", record.getValue());
 
     if (registeredHandlers.containsKey(record.getValueType())) {
       for (final var handler : registeredHandlers.get(record.getValueType())) {
@@ -133,6 +134,8 @@ public class RdbmsExporter implements Exporter {
         ValueType.VARIABLE, List.of(new VariableExportHandler(rdbmsWriter.getVariableWriter())));
     registeredHandlers.put(
         ValueType.USER_TASK, List.of(new UserTaskExportHandler(rdbmsWriter.getUserTaskWriter())));
+    registeredHandlers.put(
+        ValueType.JOB, List.of(new JobUserTaskExportHandler(rdbmsWriter.getUserTaskWriter())));
   }
 
   private void updatePositionInBroker() {

@@ -28,7 +28,8 @@ public class UserTaskExportHandler implements RdbmsExportHandler<UserTaskRecordV
           UserTaskIntent.CANCELED,
           UserTaskIntent.ASSIGNED,
           UserTaskIntent.COMPLETED,
-          UserTaskIntent.MIGRATED);
+          UserTaskIntent.MIGRATED
+      );
 
   private final UserTaskWriter userTaskWriter;
 
@@ -38,7 +39,7 @@ public class UserTaskExportHandler implements RdbmsExportHandler<UserTaskRecordV
 
   @Override
   public boolean canExport(final Record<UserTaskRecordValue> record) {
-    if (record.getIntent() != null && record.getIntent() instanceof UserTaskIntent intent) {
+    if (record.getIntent() != null && record.getIntent() instanceof final UserTaskIntent intent) {
       return EXPORTABLE_INTENTS.contains(intent);
     }
 
