@@ -31,6 +31,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.jupiter.api.extension.ExtensionContext.Store;
 import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource;
+import org.junit.jupiter.api.extension.LifecycleMethodExecutionExceptionHandler;
 import org.junit.jupiter.api.extension.TestWatcher;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.junit.platform.commons.support.HierarchyTraversalMode;
@@ -58,7 +59,10 @@ import org.slf4j.LoggerFactory;
  * <p>See {@link TestZeebe} for annotation parameters.
  */
 final class ZeebeIntegrationExtension
-    implements BeforeAllCallback, BeforeEachCallback, TestWatcher {
+    implements BeforeAllCallback,
+        BeforeEachCallback,
+        TestWatcher,
+        LifecycleMethodExecutionExceptionHandler {
 
   private static final Logger LOG = LoggerFactory.getLogger(ZeebeIntegrationExtension.class);
 
@@ -70,6 +74,7 @@ final class ZeebeIntegrationExtension
    */
   @Override
   public void beforeAll(final ExtensionContext extensionContext) {
+    RecordingExporter.reset();
     final var resources = lookupClusters(extensionContext, null, ModifierSupport::isStatic);
     final var nodes = lookupApplications(extensionContext, null, ModifierSupport::isStatic);
     manageClusters(extensionContext, resources);
@@ -98,6 +103,13 @@ final class ZeebeIntegrationExtension
   @Override
   public void testFailed(final ExtensionContext context, final Throwable cause) {
     RecordLogger.logRecords();
+  }
+
+  @Override
+  public void handleBeforeAllMethodExecutionException(
+      final ExtensionContext context, final Throwable ex) throws Throwable {
+    RecordLogger.logRecords();
+    throw ex;
   }
 
   private Iterable<ClusterResource> lookupClusters(
