@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.camunda.tasklist.entities.FormEntity;
 import io.camunda.tasklist.exceptions.PersistenceException;
-import io.camunda.tasklist.schema.v86.indices.FormIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistFormIndex;
 import io.camunda.tasklist.util.ConversionUtils;
 import io.camunda.tasklist.zeebeimport.v870.record.value.deployment.FormRecordImpl;
 import io.camunda.zeebe.protocol.record.Record;
@@ -40,7 +40,7 @@ public class FormZeebeRecordProcessorElasticSearch {
   @Qualifier("tasklistObjectMapper")
   private ObjectMapper objectMapper;
 
-  @Autowired private FormIndex formIndex;
+  @Autowired private TasklistFormIndex formIndex;
 
   public void processFormRecord(final Record record, final BulkRequest bulkRequest)
       throws PersistenceException {
@@ -90,7 +90,7 @@ public class FormZeebeRecordProcessorElasticSearch {
                 .index(formIndex.getFullQualifiedName())
                 .id(formEntity.getId())
                 .upsert(objectMapper.writeValueAsString(formEntity), XContentType.JSON)
-                .doc(Map.of(FormIndex.IS_DELETED, true))
+                .doc(Map.of(TasklistFormIndex.IS_DELETED, true))
                 .retryOnConflict(UPDATE_RETRY_COUNT));
       } else {
         // Create operation

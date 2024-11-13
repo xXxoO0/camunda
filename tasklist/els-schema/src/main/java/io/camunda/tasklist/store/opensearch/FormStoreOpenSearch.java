@@ -14,9 +14,9 @@ import io.camunda.tasklist.data.conditionals.OpenSearchCondition;
 import io.camunda.tasklist.entities.FormEntity;
 import io.camunda.tasklist.exceptions.NotFoundException;
 import io.camunda.tasklist.exceptions.TasklistRuntimeException;
-import io.camunda.tasklist.schema.v86.indices.FormIndex;
-import io.camunda.tasklist.schema.v86.indices.ProcessIndex;
-import io.camunda.tasklist.schema.v86.templates.TaskTemplate;
+import io.camunda.tasklist.schema.v86.indices.TasklistFormIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistProcessIndex;
+import io.camunda.tasklist.schema.v86.templates.TasklistTaskTemplate;
 import io.camunda.tasklist.store.FormStore;
 import io.camunda.tasklist.tenant.TenantAwareOpenSearchClient;
 import io.camunda.tasklist.util.OpenSearchUtil;
@@ -39,11 +39,11 @@ import org.springframework.stereotype.Component;
 @Conditional(OpenSearchCondition.class)
 public class FormStoreOpenSearch implements FormStore {
 
-  @Autowired private FormIndex formIndex;
+  @Autowired private TasklistFormIndex formIndex;
 
-  @Autowired private TaskTemplate taskTemplate;
+  @Autowired private TasklistTaskTemplate taskTemplate;
 
-  @Autowired private ProcessIndex processIndex;
+  @Autowired private TasklistProcessIndex processIndex;
 
   @Autowired private TenantAwareOpenSearchClient tenantAwareClient;
 
@@ -88,7 +88,9 @@ public class FormStoreOpenSearch implements FormStore {
                                                           q1 ->
                                                               q1.match(
                                                                   m ->
-                                                                      m.field(TaskTemplate.FORM_ID)
+                                                                      m.field(
+                                                                              TasklistTaskTemplate
+                                                                                  .FORM_ID)
                                                                           .query(
                                                                               FieldValue.of(
                                                                                   formId))))
@@ -96,7 +98,9 @@ public class FormStoreOpenSearch implements FormStore {
                                                           q2 ->
                                                               q2.match(
                                                                   m ->
-                                                                      m.field(TaskTemplate.FORM_KEY)
+                                                                      m.field(
+                                                                              TasklistTaskTemplate
+                                                                                  .FORM_KEY)
                                                                           .query(
                                                                               FieldValue.of(
                                                                                   formId))))
@@ -105,11 +109,14 @@ public class FormStoreOpenSearch implements FormStore {
                                       q ->
                                           q.match(
                                               m ->
-                                                  m.field(TaskTemplate.PROCESS_DEFINITION_ID)
+                                                  m.field(
+                                                          TasklistTaskTemplate
+                                                              .PROCESS_DEFINITION_ID)
                                                       .query(
                                                           FieldValue.of(processDefinitionId))))));
 
-      final var searchResponse = tenantAwareClient.search(searchRequest, TaskTemplate.class);
+      final var searchResponse =
+          tenantAwareClient.search(searchRequest, TasklistTaskTemplate.class);
 
       return searchResponse.hits().total().value() > 0;
     } catch (IOException e) {
@@ -134,17 +141,18 @@ public class FormStoreOpenSearch implements FormStore {
                                       q ->
                                           q.match(
                                               m ->
-                                                  m.field(ProcessIndex.FORM_ID)
+                                                  m.field(TasklistProcessIndex.FORM_ID)
                                                       .query(FieldValue.of(formId))))
                                   .must(
                                       q ->
                                           q.match(
                                               m ->
-                                                  m.field(ProcessIndex.ID)
+                                                  m.field(TasklistProcessIndex.ID)
                                                       .query(
                                                           FieldValue.of(processDefinitionId))))));
 
-      final var searchResponse = tenantAwareClient.search(searchRequest, ProcessIndex.class);
+      final var searchResponse =
+          tenantAwareClient.search(searchRequest, TasklistProcessIndex.class);
 
       return searchResponse.hits().total().value() > 0;
     } catch (IOException e) {
@@ -174,7 +182,7 @@ public class FormStoreOpenSearch implements FormStore {
                           q1.terms(
                               terms ->
                                   terms
-                                      .field(FormIndex.BPMN_ID)
+                                      .field(TasklistFormIndex.BPMN_ID)
                                       .terms(
                                           t ->
                                               t.value(
@@ -185,7 +193,7 @@ public class FormStoreOpenSearch implements FormStore {
                           q2.terms(
                               terms ->
                                   terms
-                                      .field(FormIndex.ID)
+                                      .field(TasklistFormIndex.ID)
                                       .terms(
                                           t ->
                                               t.value(
@@ -199,10 +207,11 @@ public class FormStoreOpenSearch implements FormStore {
         isDeleteQ.terms(
             terms ->
                 terms
-                    .field(FormIndex.IS_DELETED)
+                    .field(TasklistFormIndex.IS_DELETED)
                     .terms(t -> t.value(Collections.singletonList(FieldValue.of(false)))));
         boolQuery = OpenSearchUtil.joinWithAnd(bpmnIdProcessQ, isDeleteQ);
-        searchRequest.sort(s -> s.field(f -> f.field(FormIndex.VERSION).order(SortOrder.Desc)));
+        searchRequest.sort(
+            s -> s.field(f -> f.field(TasklistFormIndex.VERSION).order(SortOrder.Desc)));
       } else {
         // with the version set, you can return the form that was deleted, because of backward
         // compatibility
@@ -210,7 +219,7 @@ public class FormStoreOpenSearch implements FormStore {
         isVersionQ.terms(
             terms ->
                 terms
-                    .field(FormIndex.VERSION)
+                    .field(TasklistFormIndex.VERSION)
                     .terms(t -> t.value(Collections.singletonList(FieldValue.of(formVersion)))));
         boolQuery = OpenSearchUtil.joinWithAnd(bpmnIdProcessQ, isVersionQ);
       }
@@ -250,9 +259,9 @@ public class FormStoreOpenSearch implements FormStore {
                 q ->
                     q.term(
                         term ->
-                            term.field(FormIndex.PROCESS_DEFINITION_ID)
+                            term.field(TasklistFormIndex.PROCESS_DEFINITION_ID)
                                 .value(FieldValue.of(processDefinitionId))))
-            .fields(f -> f.field(TaskTemplate.ID));
+            .fields(f -> f.field(TasklistTaskTemplate.ID));
     try {
       return OpenSearchUtil.scrollIdsToList(searchRequest, osClient);
     } catch (IOException e) {
@@ -267,15 +276,23 @@ public class FormStoreOpenSearch implements FormStore {
           osClient.search(
               b ->
                   b.index(formIndex.getFullQualifiedName())
-                      .query(q -> q.term(t -> t.field(FormIndex.ID).value(FieldValue.of(formKey))))
-                      .sort(s -> s.field(f -> f.field(FormIndex.VERSION).order(SortOrder.Desc)))
+                      .query(
+                          q ->
+                              q.term(
+                                  t -> t.field(TasklistFormIndex.ID).value(FieldValue.of(formKey))))
+                      .sort(
+                          s ->
+                              s.field(
+                                  f -> f.field(TasklistFormIndex.VERSION).order(SortOrder.Desc)))
                       .source(
                           s ->
                               s.filter(
                                   f ->
                                       f.includes(
                                           List.of(
-                                              FormIndex.ID, FormIndex.BPMN_ID, FormIndex.VERSION))))
+                                              TasklistFormIndex.ID,
+                                              TasklistFormIndex.BPMN_ID,
+                                              TasklistFormIndex.VERSION))))
                       .size(1),
               FormEntity.class);
       if (formEntityResponse.hits().total().value() == 1L) {

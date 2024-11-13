@@ -7,7 +7,7 @@
  */
 package io.camunda.tasklist.util;
 
-import static io.camunda.tasklist.schema.v86.indices.AbstractIndexDescriptor.formatTasklistIndexPattern;
+import static io.camunda.tasklist.schema.v86.indices.TasklistAbstractIndexDescriptor.formatTasklistIndexPattern;
 
 import com.google.common.collect.Maps;
 import io.camunda.tasklist.exceptions.TasklistRuntimeException;

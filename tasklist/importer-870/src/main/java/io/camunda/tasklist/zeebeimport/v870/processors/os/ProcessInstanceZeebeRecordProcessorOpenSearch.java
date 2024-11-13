@@ -19,8 +19,8 @@ import io.camunda.tasklist.entities.ProcessInstanceState;
 import io.camunda.tasklist.entities.listview.ListViewJoinRelation;
 import io.camunda.tasklist.entities.listview.ProcessInstanceListViewEntity;
 import io.camunda.tasklist.exceptions.PersistenceException;
-import io.camunda.tasklist.schema.v86.indices.FlowNodeInstanceIndex;
-import io.camunda.tasklist.schema.v86.indices.ProcessInstanceIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistFlowNodeInstanceIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistProcessInstanceIndex;
 import io.camunda.tasklist.schema.v86.templates.TasklistListViewTemplate;
 import io.camunda.tasklist.util.ConversionUtils;
 import io.camunda.tasklist.util.DateUtil;
@@ -71,9 +71,9 @@ public class ProcessInstanceZeebeRecordProcessorOpenSearch {
   @Qualifier("tasklistObjectMapper")
   private ObjectMapper objectMapper;
 
-  @Autowired private FlowNodeInstanceIndex flowNodeInstanceIndex;
+  @Autowired private TasklistFlowNodeInstanceIndex flowNodeInstanceIndex;
 
-  @Autowired private ProcessInstanceIndex processInstanceIndex;
+  @Autowired private TasklistProcessInstanceIndex processInstanceIndex;
   @Autowired private TasklistListViewTemplate tasklistListViewTemplate;
 
   public void processProcessInstanceRecord(

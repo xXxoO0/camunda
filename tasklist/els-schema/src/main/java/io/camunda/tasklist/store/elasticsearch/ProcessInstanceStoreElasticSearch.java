@@ -7,7 +7,7 @@
  */
 package io.camunda.tasklist.store.elasticsearch;
 
-import static io.camunda.tasklist.schema.v86.indices.ProcessInstanceDependant.PROCESS_INSTANCE_ID;
+import static io.camunda.tasklist.schema.v86.indices.TasklistProcessInstanceDependant.PROCESS_INSTANCE_ID;
 import static io.camunda.tasklist.util.ElasticsearchUtil.QueryType.ALL;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
@@ -18,9 +18,9 @@ import io.camunda.tasklist.entities.ProcessInstanceEntity;
 import io.camunda.tasklist.enums.DeletionStatus;
 import io.camunda.tasklist.es.RetryElasticsearchClient;
 import io.camunda.tasklist.property.TasklistProperties;
-import io.camunda.tasklist.schema.v86.indices.ProcessInstanceDependant;
-import io.camunda.tasklist.schema.v86.indices.ProcessInstanceIndex;
-import io.camunda.tasklist.schema.v86.templates.TaskVariableTemplate;
+import io.camunda.tasklist.schema.v86.indices.TasklistProcessInstanceDependant;
+import io.camunda.tasklist.schema.v86.indices.TasklistProcessInstanceIndex;
+import io.camunda.tasklist.schema.v86.templates.TasklistTaskVariableTemplate;
 import io.camunda.tasklist.store.ProcessInstanceStore;
 import io.camunda.tasklist.store.TaskStore;
 import io.camunda.tasklist.tenant.TenantAwareElasticsearchClient;
@@ -48,13 +48,13 @@ public class ProcessInstanceStoreElasticSearch implements ProcessInstanceStore {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ProcessInstanceStoreElasticSearch.class);
 
-  @Autowired ProcessInstanceIndex processInstanceIndex;
+  @Autowired TasklistProcessInstanceIndex processInstanceIndex;
 
   @Autowired TaskStore taskStore;
 
-  @Autowired List<ProcessInstanceDependant> processInstanceDependants;
+  @Autowired List<TasklistProcessInstanceDependant> processInstanceDependants;
 
-  @Autowired TaskVariableTemplate taskVariableTemplate;
+  @Autowired TasklistTaskVariableTemplate taskVariableTemplate;
 
   @Autowired RetryElasticsearchClient retryElasticsearchClient;
 
@@ -85,10 +85,10 @@ public class ProcessInstanceStoreElasticSearch implements ProcessInstanceStore {
     }
   }
 
-  private DeletionStatus deleteProcessInstanceDependantsFor(String processInstanceId) {
+  private DeletionStatus deleteProcessInstanceDependantsFor(final String processInstanceId) {
     final List<String> dependantTaskIds = getDependantTasksIdsFor(processInstanceId);
     boolean deleted = false;
-    for (ProcessInstanceDependant dependant : processInstanceDependants) {
+    for (final TasklistProcessInstanceDependant dependant : processInstanceDependants) {
       deleted =
           retryElasticsearchClient.deleteDocumentsByQuery(
                   dependant.getAllIndicesPattern(),
@@ -106,12 +106,13 @@ public class ProcessInstanceStoreElasticSearch implements ProcessInstanceStore {
     return taskStore.getTaskIdsByProcessInstanceId(processInstanceId);
   }
 
-  private Optional<ProcessInstanceEntity> getById(String processInstanceId) {
+  private Optional<ProcessInstanceEntity> getById(final String processInstanceId) {
     try {
       final SearchRequest searchRequest =
           new SearchRequest(processInstanceIndex.getFullQualifiedName());
       final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-      sourceBuilder.query(QueryBuilders.termQuery(ProcessInstanceIndex.ID, processInstanceId));
+      sourceBuilder.query(
+          QueryBuilders.termQuery(TasklistProcessInstanceIndex.ID, processInstanceId));
       searchRequest.source(sourceBuilder);
 
       final SearchResponse searchResponse = tenantAwareClient.search(searchRequest);
@@ -125,7 +126,7 @@ public class ProcessInstanceStoreElasticSearch implements ProcessInstanceStore {
       final ProcessInstanceEntity entity =
           objectMapper.readValue(sourceAsString, ProcessInstanceEntity.class);
       return Optional.of(entity);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       LOGGER.error(
           String.format("Error retrieving processInstance with ID [%s]", processInstanceId), e);
       return Optional.empty();
@@ -135,6 +136,6 @@ public class ProcessInstanceStoreElasticSearch implements ProcessInstanceStore {
   private boolean deleteVariablesFor(final List<String> taskIds) {
     return retryElasticsearchClient.deleteDocumentsByQuery(
         ElasticsearchUtil.whereToSearch(taskVariableTemplate, ALL),
-        termsQuery(TaskVariableTemplate.TASK_ID, taskIds));
+        termsQuery(TasklistTaskVariableTemplate.TASK_ID, taskIds));
   }
 }

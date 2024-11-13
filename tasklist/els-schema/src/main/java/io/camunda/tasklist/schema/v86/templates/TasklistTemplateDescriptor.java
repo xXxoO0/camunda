@@ -9,7 +9,7 @@ package io.camunda.tasklist.schema.v86.templates;
 
 import io.camunda.webapps.schema.descriptors.IndexDescriptor;
 
-public interface TemplateDescriptor extends IndexDescriptor {
+public interface TasklistTemplateDescriptor extends IndexDescriptor {
 
   String PARTITION_ID = "partitionId";
 

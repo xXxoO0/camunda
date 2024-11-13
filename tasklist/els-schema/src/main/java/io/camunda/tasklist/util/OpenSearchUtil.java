@@ -16,7 +16,7 @@ import io.camunda.tasklist.entities.TasklistEntity;
 import io.camunda.tasklist.exceptions.NotFoundException;
 import io.camunda.tasklist.exceptions.PersistenceException;
 import io.camunda.tasklist.exceptions.TasklistRuntimeException;
-import io.camunda.tasklist.schema.v86.templates.TemplateDescriptor;
+import io.camunda.tasklist.schema.v86.templates.TasklistTemplateDescriptor;
 import io.camunda.tasklist.tenant.TenantAwareOpenSearchClient;
 import io.camunda.webapps.schema.descriptors.IndexDescriptor;
 import java.io.IOException;
@@ -390,7 +390,8 @@ public abstract class OpenSearchUtil {
     return result;
   }
 
-  public static SearchRequest.Builder createSearchRequest(final TemplateDescriptor template) {
+  public static SearchRequest.Builder createSearchRequest(
+      final TasklistTemplateDescriptor template) {
     return createSearchRequest(template, OpenSearchUtil.QueryType.ALL);
   }
 

@@ -17,9 +17,9 @@ import static org.mockito.Mockito.when;
 import io.camunda.tasklist.entities.FormEntity;
 import io.camunda.tasklist.exceptions.NotFoundException;
 import io.camunda.tasklist.exceptions.TasklistRuntimeException;
-import io.camunda.tasklist.schema.v86.indices.FormIndex;
-import io.camunda.tasklist.schema.v86.indices.ProcessIndex;
-import io.camunda.tasklist.schema.v86.templates.TaskTemplate;
+import io.camunda.tasklist.schema.v86.indices.TasklistFormIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistProcessIndex;
+import io.camunda.tasklist.schema.v86.templates.TasklistTaskTemplate;
 import io.camunda.tasklist.tenant.TenantAwareOpenSearchClient;
 import java.io.IOException;
 import java.util.List;
@@ -39,11 +39,11 @@ import org.opensearch.client.opensearch.core.search.TotalHits;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class FormStoreOpenSearchTest {
-  @Mock private FormIndex formIndex = new FormIndex();
+  @Mock private TasklistFormIndex formIndex = new TasklistFormIndex();
 
-  @Mock private TaskTemplate taskTemplate = new TaskTemplate();
+  @Mock private TasklistTaskTemplate taskTemplate = new TasklistTaskTemplate();
 
-  @Mock private ProcessIndex processIndex = new ProcessIndex();
+  @Mock private TasklistProcessIndex processIndex = new TasklistProcessIndex();
 
   @Mock private TenantAwareOpenSearchClient tenantAwareClient;
 
@@ -51,7 +51,7 @@ class FormStoreOpenSearchTest {
 
   @Test
   void getFormWhenFormNotFound() throws IOException {
-    when(formIndex.getIndexName()).thenReturn(FormIndex.INDEX_NAME);
+    when(formIndex.getIndexName()).thenReturn(TasklistFormIndex.INDEX_NAME);
 
     final var formSearchResponse = mock(SearchResponse.class);
     when(taskTemplate.getFullQualifiedName()).thenReturn("tasklist-task-x.0.0");

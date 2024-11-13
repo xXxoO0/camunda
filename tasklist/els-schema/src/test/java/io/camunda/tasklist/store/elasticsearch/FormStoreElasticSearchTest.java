@@ -18,9 +18,9 @@ import io.camunda.tasklist.CommonUtils;
 import io.camunda.tasklist.entities.FormEntity;
 import io.camunda.tasklist.exceptions.NotFoundException;
 import io.camunda.tasklist.exceptions.TasklistRuntimeException;
-import io.camunda.tasklist.schema.v86.indices.FormIndex;
-import io.camunda.tasklist.schema.v86.indices.ProcessIndex;
-import io.camunda.tasklist.schema.v86.templates.TaskTemplate;
+import io.camunda.tasklist.schema.v86.indices.TasklistFormIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistProcessIndex;
+import io.camunda.tasklist.schema.v86.templates.TasklistTaskTemplate;
 import io.camunda.tasklist.tenant.TenantAwareElasticsearchClient;
 import java.io.IOException;
 import org.apache.lucene.search.TotalHits;
@@ -44,9 +44,9 @@ import org.mockito.quality.Strictness;
 class FormStoreElasticSearchTest {
 
   private static final String FORM_INDEX_NAME = "tasklist-form-x.0.0";
-  @Mock private FormIndex formIndex = new FormIndex();
-  @Mock private TaskTemplate taskTemplate = new TaskTemplate();
-  @Mock private ProcessIndex processIndex = new ProcessIndex();
+  @Mock private TasklistFormIndex formIndex = new TasklistFormIndex();
+  @Mock private TasklistTaskTemplate taskTemplate = new TasklistTaskTemplate();
+  @Mock private TasklistProcessIndex processIndex = new TasklistProcessIndex();
   @Mock private TenantAwareElasticsearchClient tenantAwareClient;
   @Spy private ObjectMapper objectMapper = CommonUtils.OBJECT_MAPPER;
   @InjectMocks private FormStoreElasticSearch instance;
@@ -59,7 +59,7 @@ class FormStoreElasticSearchTest {
   @Test
   void getFormWhenFormNotFound() throws IOException {
     // given
-    when(formIndex.getIndexName()).thenReturn(FormIndex.INDEX_NAME);
+    when(formIndex.getIndexName()).thenReturn(TasklistFormIndex.INDEX_NAME);
     final var response = mock(SearchResponse.class);
     when(taskTemplate.getAlias()).thenReturn("tasklist-task-x.0.0");
     when(processIndex.getAlias()).thenReturn("tasklist-task-x.0.0");

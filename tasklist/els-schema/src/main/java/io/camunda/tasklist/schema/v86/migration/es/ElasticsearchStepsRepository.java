@@ -15,7 +15,7 @@ import io.camunda.tasklist.data.conditionals.ElasticSearchCondition;
 import io.camunda.tasklist.es.RetryElasticsearchClient;
 import io.camunda.tasklist.exceptions.MigrationException;
 import io.camunda.tasklist.property.TasklistProperties;
-import io.camunda.tasklist.schema.v86.indices.MigrationRepositoryIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistMigrationRepositoryIndex;
 import io.camunda.tasklist.schema.v86.migration.Step;
 import io.camunda.tasklist.schema.v86.migration.StepsRepository;
 import java.io.IOException;
@@ -61,7 +61,7 @@ public class ElasticsearchStepsRepository implements StepsRepository {
 
   @Autowired private TasklistProperties tasklistProperties;
 
-  @Autowired private MigrationRepositoryIndex migrationRepositoryIndex;
+  @Autowired private TasklistMigrationRepositoryIndex migrationRepositoryIndex;
 
   /**
    * Updates Steps in index by comparing steps in json format with documents from index. If there

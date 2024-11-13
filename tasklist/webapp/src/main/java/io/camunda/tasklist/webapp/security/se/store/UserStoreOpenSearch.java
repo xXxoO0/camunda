@@ -15,7 +15,7 @@ import static org.elasticsearch.index.query.QueryBuilders.idsQuery;
 import io.camunda.tasklist.data.conditionals.OpenSearchCondition;
 import io.camunda.tasklist.entities.UserEntity;
 import io.camunda.tasklist.exceptions.TasklistRuntimeException;
-import io.camunda.tasklist.schema.v86.indices.UserIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistUserIndex;
 import io.camunda.tasklist.util.OpenSearchUtil;
 import io.camunda.tasklist.webapp.rest.exception.NotFoundApiException;
 import java.io.IOException;
@@ -45,7 +45,7 @@ import org.springframework.stereotype.Component;
 public class UserStoreOpenSearch implements UserStore {
   private static final Logger LOGGER = LoggerFactory.getLogger(UserStoreOpenSearch.class);
 
-  @Autowired private UserIndex userIndex;
+  @Autowired private TasklistUserIndex userIndex;
 
   @Autowired
   @Qualifier("tasklistOsClient")
@@ -56,7 +56,10 @@ public class UserStoreOpenSearch implements UserStore {
     final SearchRequest searchRequest =
         new SearchRequest.Builder()
             .index(userIndex.getAlias())
-            .query(q -> q.term(t -> t.field(UserIndex.USER_ID).value(v -> v.stringValue(userId))))
+            .query(
+                q ->
+                    q.term(
+                        t -> t.field(TasklistUserIndex.USER_ID).value(v -> v.stringValue(userId))))
             .build();
 
     try {
@@ -103,7 +106,12 @@ public class UserStoreOpenSearch implements UserStore {
             .index(userIndex.getAlias())
             .query(q -> q.constantScore(qs -> qs.filter(qf -> qf.ids(iq -> iq.values(userIds)))))
             .sort(s -> s.script(getScriptSort(userIds)))
-            .source(s -> s.filter(sf -> sf.includes(UserIndex.USER_ID, UserIndex.DISPLAY_NAME)));
+            .source(
+                s ->
+                    s.filter(
+                        sf ->
+                            sf.includes(
+                                TasklistUserIndex.USER_ID, TasklistUserIndex.DISPLAY_NAME)));
 
     try {
       return OpenSearchUtil.scroll(searchRequest, UserEntity.class, openSearchClient);
@@ -121,7 +129,7 @@ public class UserStoreOpenSearch implements UserStore {
                 + "def userId = doc['%s'].value;"
                 + "def foundIdx = params.userIds.indexOf(userId);"
                 + "return foundIdx > -1 ? foundIdx: userIdsCount + 1;",
-            UserIndex.USER_ID);
+            TasklistUserIndex.USER_ID);
     return new ScriptSort.Builder()
         .type(ScriptSortType.Number)
         .script(

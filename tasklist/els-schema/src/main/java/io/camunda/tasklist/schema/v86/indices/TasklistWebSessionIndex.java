@@ -11,7 +11,8 @@ import io.camunda.tasklist.schema.v86.backup.Prio4Backup;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TasklistWebSessionIndex extends AbstractIndexDescriptor implements Prio4Backup {
+public class TasklistWebSessionIndex extends TasklistAbstractIndexDescriptor
+    implements Prio4Backup {
 
   public static final String ID = "id";
   public static final String CREATION_TIME = "creationTime";

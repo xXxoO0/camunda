@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.camunda.tasklist.entities.FormEntity;
 import io.camunda.tasklist.entities.ProcessEntity;
 import io.camunda.tasklist.exceptions.PersistenceException;
-import io.camunda.tasklist.schema.v86.indices.FormIndex;
-import io.camunda.tasklist.schema.v86.indices.ProcessIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistFormIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistProcessIndex;
 import io.camunda.tasklist.zeebeimport.common.ProcessDefinitionDeletionProcessor;
 import io.camunda.tasklist.zeebeimport.util.XMLUtil;
 import io.camunda.tasklist.zeebeimport.v870.record.value.deployment.DeployedProcessImpl;
@@ -52,9 +52,9 @@ public class ProcessZeebeRecordProcessorElasticSearch {
   @Qualifier("tasklistObjectMapper")
   private ObjectMapper objectMapper;
 
-  @Autowired private ProcessIndex processIndex;
+  @Autowired private TasklistProcessIndex processIndex;
 
-  @Autowired private FormIndex formIndex;
+  @Autowired private TasklistFormIndex formIndex;
 
   @Autowired private XMLUtil xmlUtil;
 

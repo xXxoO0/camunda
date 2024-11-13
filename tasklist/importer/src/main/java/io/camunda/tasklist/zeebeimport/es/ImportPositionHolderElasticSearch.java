@@ -12,7 +12,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 import io.camunda.tasklist.data.conditionals.ElasticSearchCondition;
 import io.camunda.tasklist.entities.meta.ImportPositionEntity;
-import io.camunda.tasklist.schema.v86.indices.ImportPositionIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistImportPositionIndex;
 import io.camunda.tasklist.util.Either;
 import io.camunda.tasklist.util.ElasticsearchUtil;
 import io.camunda.tasklist.zeebeimport.ImportPositionHolder;
@@ -58,8 +58,8 @@ public class ImportPositionHolderElasticSearch extends ImportPositionHolderAbstr
       throws IOException {
     final QueryBuilder queryBuilder =
         joinWithAnd(
-            termQuery(ImportPositionIndex.ALIAS_NAME, aliasTemplate),
-            termQuery(ImportPositionIndex.PARTITION_ID, partitionId));
+            termQuery(TasklistImportPositionIndex.ALIAS_NAME, aliasTemplate),
+            termQuery(TasklistImportPositionIndex.PARTITION_ID, partitionId));
 
     final SearchRequest searchRequest =
         new SearchRequest(importPositionType.getAlias())
@@ -118,9 +118,9 @@ public class ImportPositionHolderElasticSearch extends ImportPositionHolderAbstr
       final var source = objectMapper.writeValueAsString(position);
       final var updateFields = new HashMap<String, Object>();
 
-      updateFields.put(ImportPositionIndex.POSITION, position.getPosition());
-      updateFields.put(ImportPositionIndex.FIELD_INDEX_NAME, position.getIndexName());
-      updateFields.put(ImportPositionIndex.SEQUENCE, position.getSequence());
+      updateFields.put(TasklistImportPositionIndex.POSITION, position.getPosition());
+      updateFields.put(TasklistImportPositionIndex.FIELD_INDEX_NAME, position.getIndexName());
+      updateFields.put(TasklistImportPositionIndex.SEQUENCE, position.getSequence());
 
       final UpdateRequest updateRequest =
           new UpdateRequest()

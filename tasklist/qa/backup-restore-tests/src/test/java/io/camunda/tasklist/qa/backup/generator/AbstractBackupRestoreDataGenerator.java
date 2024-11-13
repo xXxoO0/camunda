@@ -16,8 +16,8 @@ import io.camunda.tasklist.entities.TaskState;
 import io.camunda.tasklist.qa.backup.BackupRestoreTestContext;
 import io.camunda.tasklist.qa.backup.TasklistAPICaller;
 import io.camunda.tasklist.qa.util.ZeebeTestUtil;
-import io.camunda.tasklist.schema.v86.templates.DraftTaskVariableTemplate;
-import io.camunda.tasklist.schema.v86.templates.TaskTemplate;
+import io.camunda.tasklist.schema.v86.templates.TasklistDraftTaskVariableTemplate;
+import io.camunda.tasklist.schema.v86.templates.TasklistTaskTemplate;
 import io.camunda.tasklist.util.ThreadUtil;
 import io.camunda.tasklist.webapp.api.rest.v1.entities.SaveVariablesRequest;
 import io.camunda.tasklist.webapp.graphql.entity.TaskDTO;
@@ -102,7 +102,7 @@ public abstract class AbstractBackupRestoreDataGenerator implements BackupRestor
       assertEquals(String.valueOf(PROCESS_INSTANCE_COUNT), response.get("$.data.tasks.length()"));
       assertEquals("task1", response.get("$.data.tasks[0].name"));
       assertEquals("CREATED", response.get("$.data.tasks[0].taskState"));
-      assertThat(countEntitiesFor(DraftTaskVariableTemplate.INDEX_NAME))
+      assertThat(countEntitiesFor(TasklistDraftTaskVariableTemplate.INDEX_NAME))
           .isEqualTo(ALL_DRAFT_TASK_VARIABLES_COUNT);
     } catch (final AssertionError er) {
       LOGGER.warn("Error when asserting data: " + er.getMessage());
@@ -127,7 +127,7 @@ public abstract class AbstractBackupRestoreDataGenerator implements BackupRestor
       assertThat(tasks).extracting("taskState").containsOnly(TaskState.CREATED);
 
       // after task completion all draft variables associated with a task will be deleted
-      assertThat(countEntitiesFor(DraftTaskVariableTemplate.INDEX_NAME))
+      assertThat(countEntitiesFor(TasklistDraftTaskVariableTemplate.INDEX_NAME))
           .isEqualTo(DRAFT_TASK_VARIABLES_COUNT_AFTER_TASKS_COMPLETION);
     } catch (final AssertionError er) {
       LOGGER.warn("Error when asserting data: " + er.getMessage());
@@ -191,7 +191,7 @@ public abstract class AbstractBackupRestoreDataGenerator implements BackupRestor
     final int maxWait = 101;
     while (PROCESS_INSTANCE_COUNT > loadedProcessInstances && count < maxWait) {
       count++;
-      loadedProcessInstances = countEntitiesFor(TaskTemplate.INDEX_NAME);
+      loadedProcessInstances = countEntitiesFor(TasklistTaskTemplate.INDEX_NAME);
       LOGGER.info(
           "Imported '{}' process instances of '{}'",
           loadedProcessInstances,

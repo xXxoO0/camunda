@@ -9,13 +9,13 @@ package io.camunda.tasklist.store;
 
 import io.camunda.tasklist.entities.TaskEntity;
 import io.camunda.tasklist.queries.TaskQuery;
-import io.camunda.tasklist.schema.v86.templates.TaskTemplate;
+import io.camunda.tasklist.schema.v86.templates.TasklistTaskTemplate;
 import io.camunda.tasklist.views.TaskSearchView;
 import java.util.List;
 import java.util.Map;
 
 public interface TaskStore {
-  String DEFAULT_SORT_FIELD = TaskTemplate.CREATION_TIME;
+  String DEFAULT_SORT_FIELD = TasklistTaskTemplate.CREATION_TIME;
 
   /**
    * Zeebe User Task priority is defined as a number between 0 and 100. The default assigned

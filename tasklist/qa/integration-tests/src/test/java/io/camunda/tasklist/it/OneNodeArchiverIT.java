@@ -15,8 +15,8 @@ import io.camunda.tasklist.archiver.TaskArchiverJob;
 import io.camunda.tasklist.entities.TaskEntity;
 import io.camunda.tasklist.exceptions.ArchiverException;
 import io.camunda.tasklist.property.TasklistProperties;
-import io.camunda.tasklist.schema.v86.templates.TaskTemplate;
-import io.camunda.tasklist.schema.v86.templates.TaskVariableTemplate;
+import io.camunda.tasklist.schema.v86.templates.TasklistTaskTemplate;
+import io.camunda.tasklist.schema.v86.templates.TasklistTaskVariableTemplate;
 import io.camunda.tasklist.util.NoSqlHelper;
 import io.camunda.tasklist.util.TasklistZeebeIntegrationTest;
 import io.camunda.tasklist.zeebe.PartitionHolder;
@@ -54,9 +54,9 @@ public class OneNodeArchiverIT extends TasklistZeebeIntegrationTest {
 
   @Autowired private NoSqlHelper noSqlHelper;
 
-  @Autowired private TaskTemplate taskTemplate;
+  @Autowired private TasklistTaskTemplate taskTemplate;
 
-  @Autowired private TaskVariableTemplate taskVariableTemplate;
+  @Autowired private TasklistTaskVariableTemplate taskVariableTemplate;
 
   @Autowired private ObjectMapper objectMapper;
 
@@ -143,7 +143,7 @@ public class OneNodeArchiverIT extends TasklistZeebeIntegrationTest {
 
     if (endDate != null) {
       assertThat(taskEntities)
-          .extracting(TaskTemplate.COMPLETION_TIME)
+          .extracting(TasklistTaskTemplate.COMPLETION_TIME)
           .allMatch(ed -> ((OffsetDateTime) ed).toInstant().equals(endDate));
     }
     return taskEntities.stream()

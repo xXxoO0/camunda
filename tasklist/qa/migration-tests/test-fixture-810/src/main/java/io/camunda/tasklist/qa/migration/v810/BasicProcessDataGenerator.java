@@ -9,7 +9,7 @@ package io.camunda.tasklist.qa.migration.v810;
 
 import io.camunda.tasklist.qa.util.TestContext;
 import io.camunda.tasklist.qa.util.ZeebeTestUtil;
-import io.camunda.tasklist.schema.v86.templates.TaskTemplate;
+import io.camunda.tasklist.schema.v86.templates.TasklistTaskTemplate;
 import io.camunda.tasklist.util.ThreadUtil;
 import io.camunda.zeebe.client.ZeebeClient;
 import io.camunda.zeebe.model.bpmn.Bpmn;
@@ -98,7 +98,7 @@ public class BasicProcessDataGenerator {
 
   private void claimAllTasks() {
     final UpdateByQueryRequest updateRequest =
-        new UpdateByQueryRequest(getMainIndexNameFor(TaskTemplate.INDEX_NAME))
+        new UpdateByQueryRequest(getMainIndexNameFor(TasklistTaskTemplate.INDEX_NAME))
             .setQuery(QueryBuilders.matchAllQuery())
             .setScript(
                 new Script(
@@ -123,7 +123,8 @@ public class BasicProcessDataGenerator {
 
   private void waitUntilAllDataAreImported() throws IOException {
     LOGGER.info("Wait till data is imported.");
-    final SearchRequest searchRequest = new SearchRequest(getAliasFor(TaskTemplate.INDEX_NAME));
+    final SearchRequest searchRequest =
+        new SearchRequest(getAliasFor(TasklistTaskTemplate.INDEX_NAME));
     long loadedProcessInstances = 0;
     int count = 0;
     final int maxWait = 101;

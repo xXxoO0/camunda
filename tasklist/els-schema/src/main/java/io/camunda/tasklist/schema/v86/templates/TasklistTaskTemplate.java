@@ -8,12 +8,12 @@
 package io.camunda.tasklist.schema.v86.templates;
 
 import io.camunda.tasklist.schema.v86.backup.Prio2Backup;
-import io.camunda.tasklist.schema.v86.indices.ProcessInstanceDependant;
+import io.camunda.tasklist.schema.v86.indices.TasklistProcessInstanceDependant;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskTemplate extends AbstractTemplateDescriptor
-    implements ProcessInstanceDependant, Prio2Backup {
+public class TasklistTaskTemplate extends TasklistAbstractTemplateDescriptor
+    implements TasklistProcessInstanceDependant, Prio2Backup {
 
   public static final String INDEX_NAME = "task";
   public static final String INDEX_VERSION = "8.5.0";

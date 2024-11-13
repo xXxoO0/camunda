@@ -15,7 +15,7 @@ import io.camunda.tasklist.entities.listview.ListViewJoinRelation;
 import io.camunda.tasklist.entities.listview.VariableListViewEntity;
 import io.camunda.tasklist.exceptions.PersistenceException;
 import io.camunda.tasklist.property.TasklistProperties;
-import io.camunda.tasklist.schema.v86.indices.VariableIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistVariableIndex;
 import io.camunda.tasklist.schema.v86.templates.TasklistListViewTemplate;
 import io.camunda.tasklist.zeebeimport.v860.record.Intent;
 import io.camunda.tasklist.zeebeimport.v860.record.value.VariableRecordValueImpl;
@@ -43,7 +43,7 @@ public class VariableZeebeRecordProcessorElasticSearch {
   @Qualifier("tasklistObjectMapper")
   private ObjectMapper objectMapper;
 
-  @Autowired private VariableIndex variableIndex;
+  @Autowired private TasklistVariableIndex variableIndex;
 
   @Autowired private TasklistProperties tasklistProperties;
   @Autowired private TasklistListViewTemplate tasklistListViewTemplate;
@@ -69,9 +69,9 @@ public class VariableZeebeRecordProcessorElasticSearch {
     try {
       LOGGER.debug("Variable instance for list view: id {}", entity.getId());
       final Map<String, Object> updateFields = new HashMap<>();
-      updateFields.put(VariableIndex.VALUE, entity.getValue());
-      updateFields.put(VariableIndex.FULL_VALUE, entity.getFullValue());
-      updateFields.put(VariableIndex.IS_PREVIEW, entity.getIsPreview());
+      updateFields.put(TasklistVariableIndex.VALUE, entity.getValue());
+      updateFields.put(TasklistVariableIndex.FULL_VALUE, entity.getFullValue());
+      updateFields.put(TasklistVariableIndex.IS_PREVIEW, entity.getIsPreview());
 
       return new UpdateRequest()
           .index(variableIndex.getFullQualifiedName())

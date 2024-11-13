@@ -7,7 +7,7 @@
  */
 package io.camunda.tasklist.schema.v86.indices;
 
-public interface ProcessInstanceDependant {
+public interface TasklistProcessInstanceDependant {
 
   String PROCESS_INSTANCE_ID = "processInstanceId";
 

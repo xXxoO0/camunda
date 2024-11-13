@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.camunda.tasklist.Metrics;
 import io.camunda.tasklist.entities.meta.ImportPositionEntity;
 import io.camunda.tasklist.property.TasklistProperties;
-import io.camunda.tasklist.schema.v86.indices.ImportPositionIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistImportPositionIndex;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -39,7 +39,7 @@ public abstract class ImportPositionHolderAbstract implements ImportPositionHold
   protected ScheduledFuture<?> scheduledTask;
   protected ReentrantLock inflightImportPositionLock = new ReentrantLock();
 
-  @Autowired protected ImportPositionIndex importPositionType;
+  @Autowired protected TasklistImportPositionIndex importPositionType;
 
   @Autowired
   @Qualifier("tasklistObjectMapper")

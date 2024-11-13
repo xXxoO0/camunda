@@ -7,8 +7,8 @@
  */
 package io.camunda.tasklist.es;
 
-import static io.camunda.tasklist.schema.v86.indices.AbstractIndexDescriptor.formatAllVersionsIndexNameRegexPattern;
-import static io.camunda.tasklist.schema.v86.indices.AbstractIndexDescriptor.formatTasklistIndexPattern;
+import static io.camunda.tasklist.schema.v86.indices.TasklistAbstractIndexDescriptor.formatAllVersionsIndexNameRegexPattern;
+import static io.camunda.tasklist.schema.v86.indices.TasklistAbstractIndexDescriptor.formatTasklistIndexPattern;
 import static io.camunda.tasklist.util.CollectionUtil.map;
 
 import io.camunda.tasklist.data.conditionals.ElasticSearchCondition;

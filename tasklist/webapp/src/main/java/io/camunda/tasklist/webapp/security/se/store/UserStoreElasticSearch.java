@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.camunda.tasklist.data.conditionals.ElasticSearchCondition;
 import io.camunda.tasklist.entities.UserEntity;
 import io.camunda.tasklist.exceptions.TasklistRuntimeException;
-import io.camunda.tasklist.schema.v86.indices.UserIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistUserIndex;
 import io.camunda.tasklist.util.ElasticsearchUtil;
 import io.camunda.tasklist.webapp.rest.exception.NotFoundApiException;
 import java.io.IOException;
@@ -55,7 +55,7 @@ public class UserStoreElasticSearch implements UserStore {
 
   private static final XContentType XCONTENT_TYPE = XContentType.JSON;
 
-  @Autowired private UserIndex userIndex;
+  @Autowired private TasklistUserIndex userIndex;
 
   @Autowired
   @Qualifier("tasklistEsClient")
@@ -71,7 +71,7 @@ public class UserStoreElasticSearch implements UserStore {
         new SearchRequest(userIndex.getAlias())
             .source(
                 new SearchSourceBuilder()
-                    .query(QueryBuilders.termQuery(UserIndex.USER_ID, userId)));
+                    .query(QueryBuilders.termQuery(TasklistUserIndex.USER_ID, userId)));
     try {
       final SearchResponse response = esClient.search(searchRequest, RequestOptions.DEFAULT);
       if (response.getHits().getTotalHits().value == 1) {
@@ -118,7 +118,9 @@ public class UserStoreElasticSearch implements UserStore {
                         SortBuilders.scriptSort(
                                 getScript(userIds), ScriptSortBuilder.ScriptSortType.NUMBER)
                             .order(SortOrder.ASC))
-                    .fetchSource(new String[] {UserIndex.USER_ID, UserIndex.DISPLAY_NAME}, null));
+                    .fetchSource(
+                        new String[] {TasklistUserIndex.USER_ID, TasklistUserIndex.DISPLAY_NAME},
+                        null));
 
     try {
       return ElasticsearchUtil.scroll(searchRequest, UserEntity.class, objectMapper, esClient);
@@ -136,7 +138,7 @@ public class UserStoreElasticSearch implements UserStore {
                 + "def userId = doc['%s'].value;"
                 + "def foundIdx = params.userIds.indexOf(userId);"
                 + "return foundIdx > -1 ? foundIdx: userIdsCount + 1;",
-            UserIndex.USER_ID);
+            TasklistUserIndex.USER_ID);
     return new Script(
         ScriptType.INLINE, Script.DEFAULT_SCRIPT_LANG, scriptCode, Map.of("userIds", userIds));
   }

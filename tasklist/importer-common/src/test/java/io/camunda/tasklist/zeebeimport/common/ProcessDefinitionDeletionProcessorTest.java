@@ -10,9 +10,9 @@ package io.camunda.tasklist.zeebeimport.common;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-import io.camunda.tasklist.schema.v86.indices.FormIndex;
-import io.camunda.tasklist.schema.v86.indices.ProcessIndex;
-import io.camunda.tasklist.schema.v86.templates.DraftTaskVariableTemplate;
+import io.camunda.tasklist.schema.v86.indices.TasklistFormIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistProcessIndex;
+import io.camunda.tasklist.schema.v86.templates.TasklistDraftTaskVariableTemplate;
 import io.camunda.tasklist.store.DraftVariableStore;
 import io.camunda.tasklist.store.FormStore;
 import io.camunda.tasklist.store.TaskStore;
@@ -32,9 +32,9 @@ class ProcessDefinitionDeletionProcessorTest {
 
   @InjectMocks private ProcessDefinitionDeletionProcessor processDefinitionDeletionProcessor;
 
-  @Mock private ProcessIndex processIndex;
+  @Mock private TasklistProcessIndex processIndex;
 
-  @Mock private FormIndex formIndex;
+  @Mock private TasklistFormIndex formIndex;
 
   @Mock private FormStore formStore;
 
@@ -42,7 +42,7 @@ class ProcessDefinitionDeletionProcessorTest {
 
   @Mock private VariableStore variableStore;
 
-  @Mock private DraftTaskVariableTemplate draftTaskVariableTemplate;
+  @Mock private TasklistDraftTaskVariableTemplate draftTaskVariableTemplate;
 
   @Mock private DraftVariableStore draftVariableStore;
 

@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public abstract class AbstractIndexDescriptor implements IndexDescriptor {
+public abstract class TasklistAbstractIndexDescriptor implements IndexDescriptor {
   public static final String PARTITION_ID = "partitionId";
 
   public static final String SCHEMA_FOLDER_OPENSEARCH = "/schema/os/create";

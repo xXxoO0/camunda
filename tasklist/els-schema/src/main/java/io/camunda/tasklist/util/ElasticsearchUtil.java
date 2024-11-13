@@ -19,7 +19,7 @@ import io.camunda.tasklist.entities.TasklistEntity;
 import io.camunda.tasklist.exceptions.NotFoundException;
 import io.camunda.tasklist.exceptions.PersistenceException;
 import io.camunda.tasklist.exceptions.TasklistRuntimeException;
-import io.camunda.tasklist.schema.v86.templates.TemplateDescriptor;
+import io.camunda.tasklist.schema.v86.templates.TasklistTemplateDescriptor;
 import io.camunda.tasklist.tenant.TenantAwareElasticsearchClient;
 import io.camunda.webapps.schema.descriptors.IndexDescriptor;
 import java.io.IOException;
@@ -78,7 +78,7 @@ public abstract class ElasticsearchUtil {
   public static final Function<SearchHit, String> SEARCH_HIT_ID_TO_STRING = SearchHit::getId;
   private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchUtil.class);
 
-  public static SearchRequest createSearchRequest(final TemplateDescriptor template) {
+  public static SearchRequest createSearchRequest(final TasklistTemplateDescriptor template) {
     return createSearchRequest(template, QueryType.ALL);
   }
 

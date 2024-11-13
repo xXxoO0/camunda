@@ -14,7 +14,7 @@ import io.camunda.tasklist.data.conditionals.OpenSearchCondition;
 import io.camunda.tasklist.entities.DraftTaskVariableEntity;
 import io.camunda.tasklist.exceptions.PersistenceException;
 import io.camunda.tasklist.exceptions.TasklistRuntimeException;
-import io.camunda.tasklist.schema.v86.templates.DraftTaskVariableTemplate;
+import io.camunda.tasklist.schema.v86.templates.TasklistDraftTaskVariableTemplate;
 import io.camunda.tasklist.store.DraftVariableStore;
 import io.camunda.tasklist.tenant.TenantAwareOpenSearchClient;
 import io.camunda.tasklist.util.OpenSearchUtil;
@@ -54,7 +54,7 @@ public class DraftVariablesStoreOpenSearch implements DraftVariableStore {
   private OpenSearchClient osClient;
 
   @Autowired private TenantAwareOpenSearchClient tenantAwareClient;
-  @Autowired private DraftTaskVariableTemplate draftTaskVariableTemplate;
+  @Autowired private TasklistDraftTaskVariableTemplate draftTaskVariableTemplate;
 
   public void createOrUpdate(Collection<DraftTaskVariableEntity> draftVariables) {
     final BulkRequest.Builder bulkRequest = new BulkRequest.Builder();
@@ -91,7 +91,7 @@ public class DraftVariablesStoreOpenSearch implements DraftVariableStore {
             q ->
                 q.term(
                     term ->
-                        term.field(DraftTaskVariableTemplate.TASK_ID)
+                        term.field(TasklistDraftTaskVariableTemplate.TASK_ID)
                             .value(FieldValue.of(taskId))));
 
     try {
@@ -115,7 +115,8 @@ public class DraftVariablesStoreOpenSearch implements DraftVariableStore {
           q ->
               q.term(
                   term ->
-                      term.field(DraftTaskVariableTemplate.TASK_ID).value(FieldValue.of(taskId))));
+                      term.field(TasklistDraftTaskVariableTemplate.TASK_ID)
+                          .value(FieldValue.of(taskId))));
 
       // Add variable names to query only if the list is not empty
       if (!CollectionUtils.isEmpty(variableNames)) {
@@ -124,7 +125,7 @@ public class DraftVariablesStoreOpenSearch implements DraftVariableStore {
                 q.terms(
                     terms ->
                         terms
-                            .field(DraftTaskVariableTemplate.NAME)
+                            .field(TasklistDraftTaskVariableTemplate.NAME)
                             .terms(
                                 v ->
                                     v.value(
@@ -158,7 +159,8 @@ public class DraftVariablesStoreOpenSearch implements DraftVariableStore {
           q ->
               q.term(
                   term ->
-                      term.field(DraftTaskVariableTemplate.ID).value(FieldValue.of(variableId))));
+                      term.field(TasklistDraftTaskVariableTemplate.ID)
+                          .value(FieldValue.of(variableId))));
 
       final SearchResponse<DraftTaskVariableEntity> searchResponse =
           tenantAwareClient.search(searchRequest, DraftTaskVariableEntity.class);
@@ -188,14 +190,14 @@ public class DraftVariablesStoreOpenSearch implements DraftVariableStore {
                 q.terms(
                     terms ->
                         terms
-                            .field(DraftTaskVariableTemplate.TASK_ID)
+                            .field(TasklistDraftTaskVariableTemplate.TASK_ID)
                             .terms(
                                 t ->
                                     t.value(
                                         taskIds.stream()
                                             .map(FieldValue::of)
                                             .collect(Collectors.toList())))))
-        .fields(f -> f.field(DraftTaskVariableTemplate.ID));
+        .fields(f -> f.field(TasklistDraftTaskVariableTemplate.ID));
 
     try {
       return OpenSearchUtil.scrollIdsToList(searchRequest, osClient);

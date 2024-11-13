@@ -7,9 +7,9 @@
  */
 package io.camunda.tasklist.zeebeimport.common;
 
-import io.camunda.tasklist.schema.v86.indices.FormIndex;
-import io.camunda.tasklist.schema.v86.indices.ProcessIndex;
-import io.camunda.tasklist.schema.v86.templates.DraftTaskVariableTemplate;
+import io.camunda.tasklist.schema.v86.indices.TasklistFormIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistProcessIndex;
+import io.camunda.tasklist.schema.v86.templates.TasklistDraftTaskVariableTemplate;
 import io.camunda.tasklist.store.DraftVariableStore;
 import io.camunda.tasklist.store.FormStore;
 import io.camunda.tasklist.store.TaskStore;
@@ -40,9 +40,9 @@ public class ProcessDefinitionDeletionProcessor {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ProcessDefinitionDeletionProcessor.class);
 
-  @Autowired private ProcessIndex processIndex;
+  @Autowired private TasklistProcessIndex processIndex;
 
-  @Autowired private FormIndex formIndex;
+  @Autowired private TasklistFormIndex formIndex;
 
   @Autowired private FormStore formStore;
 
@@ -50,7 +50,7 @@ public class ProcessDefinitionDeletionProcessor {
 
   @Autowired private VariableStore variableStore;
 
-  @Autowired private DraftTaskVariableTemplate draftTaskVariableTemplate;
+  @Autowired private TasklistDraftTaskVariableTemplate draftTaskVariableTemplate;
 
   @Autowired private DraftVariableStore draftVariableStore;
 

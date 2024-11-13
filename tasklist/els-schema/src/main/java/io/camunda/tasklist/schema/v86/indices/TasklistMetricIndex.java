@@ -11,24 +11,15 @@ import io.camunda.tasklist.schema.v86.backup.Prio4Backup;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProcessIndex extends AbstractIndexDescriptor implements Prio4Backup {
+public class TasklistMetricIndex extends TasklistAbstractIndexDescriptor implements Prio4Backup {
 
-  public static final String INDEX_NAME = "process";
-  public static final String INDEX_VERSION = "8.4.0";
+  public static final String INDEX_NAME = "metric";
+  public static final String INDEX_VERSION = "8.3.0";
 
   public static final String ID = "id";
-  public static final String KEY = "key";
-  public static final String NAME = "name";
-
-  public static final String PROCESS_DEFINITION_ID = "bpmnProcessId";
-
-  public static final String VERSION = "version";
-  public static final String FLOWNODES = "flowNodes";
-  public static final String FLOWNODE_ID = "id";
-  public static final String FLOWNODE_NAME = "name";
-  public static final String IS_STARTED_BY_FORM = "startedByForm";
-  public static final String FORM_KEY = "formKey";
-  public static final String FORM_ID = "formId";
+  public static final String EVENT = "event";
+  public static final String VALUE = "value";
+  public static final String EVENT_TIME = "eventTime";
   public static final String TENANT_ID = "tenantId";
 
   @Override

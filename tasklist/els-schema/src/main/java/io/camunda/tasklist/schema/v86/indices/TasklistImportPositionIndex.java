@@ -7,19 +7,21 @@
  */
 package io.camunda.tasklist.schema.v86.indices;
 
-import io.camunda.tasklist.schema.v86.backup.Prio2Backup;
+import io.camunda.tasklist.schema.v86.backup.Prio1Backup;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProcessInstanceIndex extends AbstractIndexDescriptor implements Prio2Backup {
+public class TasklistImportPositionIndex extends TasklistAbstractIndexDescriptor
+    implements Prio1Backup {
 
-  public static final String INDEX_NAME = "process-instance";
-  public static final String INDEX_VERSION = "8.3.0";
+  public static final String INDEX_NAME = "import-position";
+  public static final String INDEX_VERSION = "8.2.0";
 
+  public static final String ALIAS_NAME = "aliasName";
   public static final String ID = "id";
-  public static final String KEY = "key";
-  public static final String END_DATE = "endDate";
-  public static final String TENANT_ID = "tenantId";
+  public static final String POSITION = "position";
+  public static final String SEQUENCE = "sequence";
+  public static final String FIELD_INDEX_NAME = "indexName";
 
   @Override
   public String getIndexName() {

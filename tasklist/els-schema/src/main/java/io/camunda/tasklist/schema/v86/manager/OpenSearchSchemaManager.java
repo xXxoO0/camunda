@@ -17,8 +17,8 @@ import io.camunda.tasklist.property.TasklistOpenSearchProperties;
 import io.camunda.tasklist.property.TasklistProperties;
 import io.camunda.tasklist.schema.v86.IndexMapping;
 import io.camunda.tasklist.schema.v86.IndexMapping.IndexMappingProperty;
-import io.camunda.tasklist.schema.v86.indices.AbstractIndexDescriptor;
-import io.camunda.tasklist.schema.v86.templates.TemplateDescriptor;
+import io.camunda.tasklist.schema.v86.indices.TasklistAbstractIndexDescriptor;
+import io.camunda.tasklist.schema.v86.templates.TasklistTemplateDescriptor;
 import io.camunda.webapps.schema.descriptors.IndexDescriptor;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
@@ -80,9 +80,9 @@ public class OpenSearchSchemaManager implements SchemaManager {
   @Qualifier("tasklistOsRestClient")
   private RestClient opensearchRestClient;
 
-  @Autowired private List<TemplateDescriptor> templateDescriptors;
+  @Autowired private List<TasklistTemplateDescriptor> templateDescriptors;
 
-  @Autowired private List<AbstractIndexDescriptor> indexDescriptors;
+  @Autowired private List<TasklistAbstractIndexDescriptor> indexDescriptors;
 
   @Autowired
   @Qualifier("tasklistOsClient")
@@ -191,10 +191,12 @@ public class OpenSearchSchemaManager implements SchemaManager {
   public void updateSchema(final Map<IndexDescriptor, Set<IndexMappingProperty>> newFields) {
     for (final Map.Entry<IndexDescriptor, Set<IndexMappingProperty>> indexNewFields :
         newFields.entrySet()) {
-      if (indexNewFields.getKey() instanceof TemplateDescriptor) {
+      if (indexNewFields.getKey() instanceof TasklistTemplateDescriptor) {
         LOGGER.info(
-            "Update template: " + ((TemplateDescriptor) indexNewFields.getKey()).getTemplateName());
-        final TemplateDescriptor templateDescriptor = (TemplateDescriptor) indexNewFields.getKey();
+            "Update template: "
+                + ((TasklistTemplateDescriptor) indexNewFields.getKey()).getTemplateName());
+        final TasklistTemplateDescriptor templateDescriptor =
+            (TasklistTemplateDescriptor) indexNewFields.getKey();
         final String json = readTemplateJson(templateDescriptor.getSchemaClasspathFilename());
         final PutIndexTemplateRequest indexTemplateRequest =
             prepareIndexTemplateRequest(templateDescriptor, json);
@@ -247,7 +249,7 @@ public class OpenSearchSchemaManager implements SchemaManager {
   }
 
   private PutIndexTemplateRequest prepareIndexTemplateRequest(
-      final TemplateDescriptor templateDescriptor, final String json) {
+      final TasklistTemplateDescriptor templateDescriptor, final String json) {
     final var templateSettings = templateSettings(templateDescriptor);
     final var templateBuilder =
         new IndexTemplateMapping.Builder()
@@ -379,7 +381,7 @@ public class OpenSearchSchemaManager implements SchemaManager {
     templateDescriptors.forEach(this::createTemplate);
   }
 
-  private void createTemplate(final TemplateDescriptor templateDescriptor) {
+  private void createTemplate(final TasklistTemplateDescriptor templateDescriptor) {
     final IndexTemplateMapping template = getTemplateFrom(templateDescriptor);
 
     putIndexTemplate(
@@ -413,7 +415,8 @@ public class OpenSearchSchemaManager implements SchemaManager {
     }
   }
 
-  private IndexTemplateMapping getTemplateFrom(final TemplateDescriptor templateDescriptor) {
+  private IndexTemplateMapping getTemplateFrom(
+      final TasklistTemplateDescriptor templateDescriptor) {
     final String templateFilename =
         String.format(
             "/schema/os/create/template/tasklist-%s.json", templateDescriptor.getIndexName());
@@ -457,7 +460,7 @@ public class OpenSearchSchemaManager implements SchemaManager {
     indexDescriptors.forEach(this::createIndex);
   }
 
-  private IndexSettings templateSettings(final TemplateDescriptor indexDescriptor) {
+  private IndexSettings templateSettings(final TasklistTemplateDescriptor indexDescriptor) {
     final var shards =
         tasklistProperties
             .getOpenSearch()

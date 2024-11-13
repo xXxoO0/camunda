@@ -7,20 +7,20 @@
  */
 package io.camunda.tasklist.schema.v86.indices;
 
-import io.camunda.tasklist.schema.v86.backup.Prio1Backup;
+import io.camunda.tasklist.schema.v86.backup.Prio4Backup;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ImportPositionIndex extends AbstractIndexDescriptor implements Prio1Backup {
+public class TasklistUserIndex extends TasklistAbstractIndexDescriptor implements Prio4Backup {
 
-  public static final String INDEX_NAME = "import-position";
-  public static final String INDEX_VERSION = "8.2.0";
-
-  public static final String ALIAS_NAME = "aliasName";
   public static final String ID = "id";
-  public static final String POSITION = "position";
-  public static final String SEQUENCE = "sequence";
-  public static final String FIELD_INDEX_NAME = "indexName";
+  public static final String USER_ID = "userId";
+  public static final String DISPLAY_NAME = "displayName";
+  public static final String PASSWORD = "password";
+
+  public static final String ROLES = "roles";
+  private static final String INDEX_NAME = "user";
+  private static final String INDEX_VERSION = "1.4.0";
 
   @Override
   public String getIndexName() {

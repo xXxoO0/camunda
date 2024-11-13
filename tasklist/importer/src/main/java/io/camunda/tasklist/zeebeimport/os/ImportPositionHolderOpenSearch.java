@@ -10,7 +10,7 @@ package io.camunda.tasklist.zeebeimport.os;
 import io.camunda.tasklist.CommonUtils;
 import io.camunda.tasklist.data.conditionals.OpenSearchCondition;
 import io.camunda.tasklist.entities.meta.ImportPositionEntity;
-import io.camunda.tasklist.schema.v86.indices.ImportPositionIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistImportPositionIndex;
 import io.camunda.tasklist.util.Either;
 import io.camunda.tasklist.util.OpenSearchUtil;
 import io.camunda.tasklist.zeebeimport.ImportPositionHolder;
@@ -60,12 +60,12 @@ public class ImportPositionHolderOpenSearch extends ImportPositionHolderAbstract
             new Query.Builder()
                 .term(
                     t ->
-                        t.field(ImportPositionIndex.ALIAS_NAME)
+                        t.field(TasklistImportPositionIndex.ALIAS_NAME)
                             .value(FieldValue.of(aliasTemplate))),
             new Query.Builder()
                 .term(
                     t ->
-                        t.field(ImportPositionIndex.PARTITION_ID)
+                        t.field(TasklistImportPositionIndex.PARTITION_ID)
                             .value(FieldValue.of(partitionId))));
 
     final SearchRequest searchRequest =
@@ -163,9 +163,9 @@ public class ImportPositionHolderOpenSearch extends ImportPositionHolderAbstract
       final var source = objectMapper.writeValueAsString(position);
       final var updateFields = new HashMap<String, Object>();
 
-      updateFields.put(ImportPositionIndex.POSITION, position.getPosition());
-      updateFields.put(ImportPositionIndex.FIELD_INDEX_NAME, position.getIndexName());
-      updateFields.put(ImportPositionIndex.SEQUENCE, position.getSequence());
+      updateFields.put(TasklistImportPositionIndex.POSITION, position.getPosition());
+      updateFields.put(TasklistImportPositionIndex.FIELD_INDEX_NAME, position.getIndexName());
+      updateFields.put(TasklistImportPositionIndex.SEQUENCE, position.getSequence());
 
       final UpdateRequest updateRequest =
           new UpdateRequest.Builder()

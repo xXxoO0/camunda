@@ -15,7 +15,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TasklistListViewTemplate extends AbstractTemplateDescriptor implements Prio3Backup {
+public class TasklistListViewTemplate extends TasklistAbstractTemplateDescriptor
+    implements Prio3Backup {
 
   public static final String INDEX_NAME = "list-view";
   public static final String INDEX_VERSION = "8.6.0";

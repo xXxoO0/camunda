@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.camunda.tasklist.entities.FormEntity;
 import io.camunda.tasklist.entities.ProcessEntity;
 import io.camunda.tasklist.exceptions.PersistenceException;
-import io.camunda.tasklist.schema.v86.indices.FormIndex;
-import io.camunda.tasklist.schema.v86.indices.ProcessIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistFormIndex;
+import io.camunda.tasklist.schema.v86.indices.TasklistProcessIndex;
 import io.camunda.tasklist.util.ConversionUtils;
 import io.camunda.tasklist.util.ElasticsearchUtil;
 import io.camunda.tasklist.zeebeimport.util.XMLUtil;
@@ -53,9 +53,9 @@ public class CUSTOMCopyProcessesFromOptimize {
 
   @Autowired private XMLUtil xmlUtil;
 
-  @Autowired private ProcessIndex processIndex;
+  @Autowired private TasklistProcessIndex processIndex;
 
-  @Autowired private FormIndex formIndex;
+  @Autowired private TasklistFormIndex formIndex;
 
   @Autowired
   @Qualifier("tasklistObjectMapper")

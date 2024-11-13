@@ -23,7 +23,7 @@ import io.camunda.tasklist.entities.TaskImplementation;
 import io.camunda.tasklist.entities.TaskState;
 import io.camunda.tasklist.property.TasklistProperties;
 import io.camunda.tasklist.queries.TaskQuery;
-import io.camunda.tasklist.schema.v86.templates.TaskTemplate;
+import io.camunda.tasklist.schema.v86.templates.TasklistTaskTemplate;
 import io.camunda.tasklist.tenant.TenantAwareElasticsearchClient;
 import io.camunda.tasklist.views.TaskSearchView;
 import java.io.IOException;
@@ -53,7 +53,7 @@ class TaskStoreElasticSearchTest {
 
   @Mock private TenantAwareElasticsearchClient tenantAwareClient;
 
-  @Spy private TaskTemplate taskTemplate = new TaskTemplate();
+  @Spy private TasklistTaskTemplate taskTemplate = new TasklistTaskTemplate();
 
   @Spy private ObjectMapper objectMapper = CommonUtils.OBJECT_MAPPER;
 

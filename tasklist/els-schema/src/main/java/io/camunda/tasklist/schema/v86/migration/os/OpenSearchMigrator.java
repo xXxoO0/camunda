@@ -10,7 +10,7 @@ package io.camunda.tasklist.schema.v86.migration.os;
 import static io.camunda.tasklist.es.RetryElasticsearchClient.NO_REPLICA;
 import static io.camunda.tasklist.es.RetryElasticsearchClient.NUMBERS_OF_REPLICA;
 import static io.camunda.tasklist.es.RetryElasticsearchClient.REFRESH_INTERVAL;
-import static io.camunda.tasklist.schema.v86.indices.AbstractIndexDescriptor.formatFullQualifiedIndexName;
+import static io.camunda.tasklist.schema.v86.indices.TasklistAbstractIndexDescriptor.formatFullQualifiedIndexName;
 import static io.camunda.tasklist.util.CollectionUtil.filter;
 
 import io.camunda.tasklist.data.conditionals.OpenSearchCondition;
@@ -24,7 +24,7 @@ import io.camunda.tasklist.schema.v86.SemanticVersion;
 import io.camunda.tasklist.schema.v86.migration.Migrator;
 import io.camunda.tasklist.schema.v86.migration.Step;
 import io.camunda.tasklist.schema.v86.migration.StepsRepository;
-import io.camunda.tasklist.schema.v86.templates.TemplateDescriptor;
+import io.camunda.tasklist.schema.v86.templates.TasklistTemplateDescriptor;
 import io.camunda.webapps.schema.descriptors.IndexDescriptor;
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -146,7 +146,7 @@ public class OpenSearchMigrator implements Migrator {
         final String deleteIndexPattern = String.format("%s*", olderBaseIndexName);
         LOGGER.info("Deleted previous indices for pattern {}", deleteIndexPattern);
         retryOpenSearchClient.deleteIndicesFor(deleteIndexPattern);
-        if (indexDescriptor instanceof TemplateDescriptor) {
+        if (indexDescriptor instanceof TasklistTemplateDescriptor) {
           final String deleteTemplatePattern = String.format("%stemplate", olderBaseIndexName);
           LOGGER.info("Deleted previous templates for {}", deleteTemplatePattern);
           retryOpenSearchClient.deleteTemplatesFor(deleteTemplatePattern);

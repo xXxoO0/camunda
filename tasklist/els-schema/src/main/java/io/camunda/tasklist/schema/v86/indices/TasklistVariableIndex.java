@@ -5,7 +5,7 @@
  * Licensed under the Camunda License 1.0. You may not use this file
  * except in compliance with the Camunda License 1.0.
  */
-package io.camunda.tasklist.schema.v86.templates;
+package io.camunda.tasklist.schema.v86.indices;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -17,14 +17,15 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskVariableTemplate extends AbstractTemplateDescriptor implements Prio3Backup {
+public class TasklistVariableIndex extends TasklistAbstractIndexDescriptor
+    implements TasklistProcessInstanceDependant, Prio3Backup {
 
-  public static final String INDEX_NAME = "task-variable";
+  public static final String INDEX_NAME = "variable";
   public static final String INDEX_VERSION = "8.3.0";
 
   public static final String ID = "id";
   public static final String KEY = "key";
-  public static final String TASK_ID = "taskId";
+  public static final String SCOPE_FLOW_NODE_ID = "scopeFlowNodeId";
   public static final String NAME = "name";
   public static final String VALUE = "value";
   public static final String FULL_VALUE = "fullValue";
@@ -34,6 +35,11 @@ public class TaskVariableTemplate extends AbstractTemplateDescriptor implements 
   @Override
   public String getIndexName() {
     return INDEX_NAME;
+  }
+
+  @Override
+  public String getAllIndicesPattern() {
+    return getFullQualifiedName();
   }
 
   private static Optional<String> getElsFieldByGraphqlField(String fieldName) {

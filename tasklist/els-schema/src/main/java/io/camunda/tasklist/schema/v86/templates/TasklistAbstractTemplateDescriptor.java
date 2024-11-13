@@ -8,17 +8,17 @@
 package io.camunda.tasklist.schema.v86.templates;
 
 import static io.camunda.tasklist.property.TasklistProperties.ELASTIC_SEARCH;
-import static io.camunda.tasklist.schema.v86.indices.AbstractIndexDescriptor.SCHEMA_FOLDER_ELASTICSEARCH;
-import static io.camunda.tasklist.schema.v86.indices.AbstractIndexDescriptor.SCHEMA_FOLDER_OPENSEARCH;
-import static io.camunda.tasklist.schema.v86.indices.AbstractIndexDescriptor.formatAllVersionsIndexNameRegexPattern;
-import static io.camunda.tasklist.schema.v86.indices.AbstractIndexDescriptor.formatFullQualifiedIndexName;
+import static io.camunda.tasklist.schema.v86.indices.TasklistAbstractIndexDescriptor.SCHEMA_FOLDER_ELASTICSEARCH;
+import static io.camunda.tasklist.schema.v86.indices.TasklistAbstractIndexDescriptor.SCHEMA_FOLDER_OPENSEARCH;
+import static io.camunda.tasklist.schema.v86.indices.TasklistAbstractIndexDescriptor.formatAllVersionsIndexNameRegexPattern;
+import static io.camunda.tasklist.schema.v86.indices.TasklistAbstractIndexDescriptor.formatFullQualifiedIndexName;
 
 import io.camunda.tasklist.property.TasklistProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public abstract class AbstractTemplateDescriptor implements TemplateDescriptor {
+public abstract class TasklistAbstractTemplateDescriptor implements TasklistTemplateDescriptor {
 
   private static final String SCHEMA_CREATE_TEMPLATE_JSON_ELASTICSEARCH =
       SCHEMA_FOLDER_ELASTICSEARCH + "/template/tasklist-%s.json";

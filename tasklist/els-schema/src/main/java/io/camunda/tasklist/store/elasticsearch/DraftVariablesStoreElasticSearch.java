@@ -15,7 +15,7 @@ import io.camunda.tasklist.data.conditionals.ElasticSearchCondition;
 import io.camunda.tasklist.entities.DraftTaskVariableEntity;
 import io.camunda.tasklist.exceptions.PersistenceException;
 import io.camunda.tasklist.exceptions.TasklistRuntimeException;
-import io.camunda.tasklist.schema.v86.templates.DraftTaskVariableTemplate;
+import io.camunda.tasklist.schema.v86.templates.TasklistDraftTaskVariableTemplate;
 import io.camunda.tasklist.store.DraftVariableStore;
 import io.camunda.tasklist.tenant.TenantAwareElasticsearchClient;
 import io.camunda.tasklist.util.ElasticsearchUtil;
@@ -61,7 +61,7 @@ public class DraftVariablesStoreElasticSearch implements DraftVariableStore {
   @Qualifier("tasklistEsClient")
   private RestHighLevelClient esClient;
 
-  @Autowired private DraftTaskVariableTemplate draftTaskVariableTemplate;
+  @Autowired private TasklistDraftTaskVariableTemplate draftTaskVariableTemplate;
 
   @Autowired
   @Qualifier("tasklistObjectMapper")
@@ -83,11 +83,13 @@ public class DraftVariablesStoreElasticSearch implements DraftVariableStore {
   private UpdateRequest createUpsertRequest(DraftTaskVariableEntity draftVariableEntity) {
     try {
       final Map<String, Object> updateFields = new HashMap<>();
-      updateFields.put(DraftTaskVariableTemplate.TASK_ID, draftVariableEntity.getTaskId());
-      updateFields.put(DraftTaskVariableTemplate.NAME, draftVariableEntity.getName());
-      updateFields.put(DraftTaskVariableTemplate.VALUE, draftVariableEntity.getValue());
-      updateFields.put(DraftTaskVariableTemplate.FULL_VALUE, draftVariableEntity.getFullValue());
-      updateFields.put(DraftTaskVariableTemplate.IS_PREVIEW, draftVariableEntity.getIsPreview());
+      updateFields.put(TasklistDraftTaskVariableTemplate.TASK_ID, draftVariableEntity.getTaskId());
+      updateFields.put(TasklistDraftTaskVariableTemplate.NAME, draftVariableEntity.getName());
+      updateFields.put(TasklistDraftTaskVariableTemplate.VALUE, draftVariableEntity.getValue());
+      updateFields.put(
+          TasklistDraftTaskVariableTemplate.FULL_VALUE, draftVariableEntity.getFullValue());
+      updateFields.put(
+          TasklistDraftTaskVariableTemplate.IS_PREVIEW, draftVariableEntity.getIsPreview());
 
       // format date fields properly
       final Map<String, Object> jsonMap =
@@ -112,7 +114,7 @@ public class DraftVariablesStoreElasticSearch implements DraftVariableStore {
   public long deleteAllByTaskId(String taskId) {
     final DeleteByQueryRequest request =
         new DeleteByQueryRequest(draftTaskVariableTemplate.getFullQualifiedName());
-    request.setQuery(QueryBuilders.termQuery(DraftTaskVariableTemplate.TASK_ID, taskId));
+    request.setQuery(QueryBuilders.termQuery(TasklistDraftTaskVariableTemplate.TASK_ID, taskId));
 
     try {
       final BulkByScrollResponse response = esClient.deleteByQuery(request, RequestOptions.DEFAULT);
@@ -131,11 +133,12 @@ public class DraftVariablesStoreElasticSearch implements DraftVariableStore {
     try {
       final BoolQueryBuilder queryBuilder =
           QueryBuilders.boolQuery()
-              .must(QueryBuilders.termQuery(DraftTaskVariableTemplate.TASK_ID, taskId));
+              .must(QueryBuilders.termQuery(TasklistDraftTaskVariableTemplate.TASK_ID, taskId));
 
       // Add variable names to query only if the list is not empty
       if (!CollectionUtils.isEmpty(variableNames)) {
-        queryBuilder.must(QueryBuilders.termsQuery(DraftTaskVariableTemplate.NAME, variableNames));
+        queryBuilder.must(
+            QueryBuilders.termsQuery(TasklistDraftTaskVariableTemplate.NAME, variableNames));
       }
 
       final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().query(queryBuilder);
@@ -160,7 +163,8 @@ public class DraftVariablesStoreElasticSearch implements DraftVariableStore {
       final SearchRequest searchRequest =
           new SearchRequest(draftTaskVariableTemplate.getFullQualifiedName());
       final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-      sourceBuilder.query(QueryBuilders.termQuery(DraftTaskVariableTemplate.ID, variableId));
+      sourceBuilder.query(
+          QueryBuilders.termQuery(TasklistDraftTaskVariableTemplate.ID, variableId));
       searchRequest.source(sourceBuilder);
 
       final SearchResponse searchResponse = tenantAwareClient.search(searchRequest);
@@ -189,8 +193,8 @@ public class DraftVariablesStoreElasticSearch implements DraftVariableStore {
         new SearchRequest(draftTaskVariableTemplate.getFullQualifiedName())
             .source(
                 SearchSourceBuilder.searchSource()
-                    .query(termsQuery(DraftTaskVariableTemplate.TASK_ID, taskIds))
-                    .fetchField(DraftTaskVariableTemplate.ID));
+                    .query(termsQuery(TasklistDraftTaskVariableTemplate.TASK_ID, taskIds))
+                    .fetchField(TasklistDraftTaskVariableTemplate.ID));
     try {
       return ElasticsearchUtil.scrollIdsToList(searchRequest, esClient);
     } catch (IOException e) {

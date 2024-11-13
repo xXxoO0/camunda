@@ -7,7 +7,7 @@
  */
 package io.camunda.tasklist.es;
 
-import static io.camunda.tasklist.schema.v86.indices.AbstractIndexDescriptor.formatPrefixAndComponent;
+import static io.camunda.tasklist.schema.v86.indices.TasklistAbstractIndexDescriptor.formatPrefixAndComponent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 

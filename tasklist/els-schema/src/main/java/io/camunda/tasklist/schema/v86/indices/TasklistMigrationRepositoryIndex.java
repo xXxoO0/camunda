@@ -11,16 +11,11 @@ import io.camunda.tasklist.schema.v86.backup.Prio4Backup;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserIndex extends AbstractIndexDescriptor implements Prio4Backup {
+public class TasklistMigrationRepositoryIndex extends TasklistAbstractIndexDescriptor
+    implements Prio4Backup {
 
-  public static final String ID = "id";
-  public static final String USER_ID = "userId";
-  public static final String DISPLAY_NAME = "displayName";
-  public static final String PASSWORD = "password";
-
-  public static final String ROLES = "roles";
-  private static final String INDEX_NAME = "user";
-  private static final String INDEX_VERSION = "1.4.0";
+  public static final String INDEX_NAME = "migration-steps-repository";
+  public static final String INDEX_VERSION = "1.1.0";
 
   @Override
   public String getIndexName() {
