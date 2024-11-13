@@ -14,6 +14,7 @@ import io.camunda.exporter.config.ConnectionTypes;
 import io.camunda.exporter.config.ExporterConfiguration;
 import io.camunda.exporter.config.ExporterConfiguration.ArchiverConfiguration;
 import io.camunda.exporter.metrics.CamundaExporterMetrics;
+import io.camunda.exporter.tasks.archiver.ApplyRolloverPeriodJob;
 import io.camunda.exporter.tasks.archiver.ArchiverRepository;
 import io.camunda.exporter.tasks.archiver.BatchOperationArchiverJob;
 import io.camunda.exporter.tasks.archiver.ElasticsearchRepository;
@@ -97,11 +98,22 @@ public final class BackgroundTaskManager implements CloseableSilently {
         unsubmittedTasks,
         submittedTasks,
         tasks.size());
+
     for (; submittedTasks < tasks.size(); submittedTasks++) {
       final var task = tasks.get(submittedTasks);
-      executor.submit(
-          new ReschedulingTask(
-              task, config.getRolloverBatchSize(), config.getDelayBetweenRuns(), executor, logger));
+      if (task.getClass() == ApplyRolloverPeriodJob.class) {
+        executor.submit(
+            new RescheduledOnErrorTask(
+                tasks.removeFirst(), config.getDelayBetweenRuns(), executor, logger));
+      } else {
+        executor.submit(
+            new ReschedulingTask(
+                task,
+                config.getRolloverBatchSize(),
+                config.getDelayBetweenRuns(),
+                executor,
+                logger));
+      }
     }
   }
 
@@ -122,6 +134,7 @@ public final class BackgroundTaskManager implements CloseableSilently {
         createRepository(config, resourceProvider, partitionId, executor, metrics, logger);
     final List<BackgroundTask> tasks = new ArrayList<>();
 
+    tasks.add(createApplyRolloverPeriodJob(metrics, logger, repository, executor));
     tasks.add(createProcessInstanceJob(metrics, logger, resourceProvider, repository, executor));
     if (partitionId == START_PARTITION_ID) {
       tasks.add(createBatchOperationJob(metrics, logger, resourceProvider, repository, executor));
