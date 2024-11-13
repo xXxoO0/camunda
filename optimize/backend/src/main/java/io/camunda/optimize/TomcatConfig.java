@@ -129,7 +129,6 @@ public class TomcatConfig {
           return;
         }
 
-        final String webappPath = webappURL.toExternalForm().replaceFirst("file:", "");
         final ServletRegistration.Dynamic webappServlet =
             servletContext.addServlet("external-home", ExternalHomeServlet.class);
         webappServlet.setInitParameter("resourceBase", "/webapp");
@@ -158,8 +157,13 @@ public class TomcatConfig {
   /* redirect to /# when the endpoint is not valid. do this rather than showing an error page */
   FilterRegistrationBean<URLRedirectFilter> urlRedirector() {
     LOG.debug("Registering filter 'urlRedirector'...");
+
+    // This regex includes all the URL suffixes that we allow.
+    // The list of suffixes is stored in ALLOWED_URL_EXTENSION, and the regex does not
+    // handle the home page URL: that is handled explicitly from within the URLRedirectFilter.
     final String regex =
         "^(?!" + getContextPath().orElse("") + "(" + ALLOWED_URL_EXTENSION + ")).+";
+
     final URLRedirectFilter filter =
         new URLRedirectFilter(regex, getContextPath().orElse("") + "/#");
 
@@ -234,23 +238,18 @@ public class TomcatConfig {
     connector.setProperty("compressableMimeType", String.join(",", COMPRESSED_MIME_TYPES));
   }
 
-  private void setMaxHeaderSize(final Connector connector) {
-    // NOTE: In Tomcat, the request and response header size are both controlled
-    // by a single property called maxHeaderSize.
-    final int maxHeaderSize =
-        Math.max(
-            configurationService.getMaxResponseHeaderSizeInBytes(),
-            configurationService.getMaxRequestHeaderSizeInBytes());
-    connector.setProperty("maxHeaderSize", String.valueOf(maxHeaderSize));
-  }
-
   private void configureHttpConnector(final Connector connector) {
     connector.setPort(getPort(EnvironmentPropertiesConstants.HTTP_PORT_KEY));
     connector.setScheme("http");
     connector.setSecure(false);
     connector.setXpoweredBy(false); // do not send server version header
     enableGzipSupport(connector);
-    setMaxHeaderSize(connector);
+    connector.setProperty(
+        "maxHttpRequestHeaderSize",
+        String.valueOf(configurationService.getMaxRequestHeaderSizeInBytes()));
+    connector.setProperty(
+        "maxHttpResponseHeaderSize",
+        String.valueOf(configurationService.getMaxResponseHeaderSizeInBytes()));
   }
 
   public void configureHttpsConnector(final Connector connector) {
@@ -259,7 +258,12 @@ public class TomcatConfig {
     connector.setSecure(true);
     connector.setXpoweredBy(false); // do not send server version header
     enableGzipSupport(connector);
-    setMaxHeaderSize(connector);
+    connector.setProperty(
+        "maxHttpRequestHeaderSize",
+        String.valueOf(configurationService.getMaxRequestHeaderSizeInBytes()));
+    connector.setProperty(
+        "maxHttpResponseHeaderSize",
+        String.valueOf(configurationService.getMaxResponseHeaderSizeInBytes()));
 
     connector.setProperty("protocol", HTTP11_NIO_PROTOCOL);
     if (configurationService.getContainerHttp2Enabled()) {

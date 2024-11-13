@@ -141,7 +141,8 @@ public class CCSaaSSecurityConfigurerAdapter extends AbstractSecurityConfigurerA
                       // public share related resources (API)
                       .requestMatchers(
                           new AntPathRequestMatcher(
-                              createApiPath(EXTERNAL_SUB_PATH + DEEP_SUB_PATH_ANY)))
+                              createApiPath(EXTERNAL_SUB_PATH + DEEP_SUB_PATH_ANY)),
+                          new AntPathRequestMatcher(EXTERNAL_SUB_PATH + "/api/**"))
                       .permitAll()
                       // common public api resources
                       .requestMatchers(
