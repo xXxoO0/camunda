@@ -159,6 +159,15 @@ public final class BackgroundTaskManager implements CloseableSilently {
         executor);
   }
 
+  private static ApplyRolloverPeriodJob createApplyRolloverPeriodJob(
+      final CamundaExporterMetrics metrics,
+      final Logger logger,
+      final ArchiverRepository repository,
+      final ScheduledThreadPoolExecutor executor) {
+
+    return new ApplyRolloverPeriodJob(repository, metrics, logger, executor);
+  }
+
   private static BatchOperationArchiverJob createBatchOperationJob(
       final CamundaExporterMetrics metrics,
       final Logger logger,
