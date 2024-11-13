@@ -49,9 +49,9 @@ final class BackgroundTaskManagerTest {
       // when
       archiver.start();
 
-      // then - we can't use `getTaskCount()` because that's an approximation of the number of tasks
-      // and it may be wrong at times, as per the docs
-      Mockito.verify(executor, Mockito.times(2)).submit(Mockito.any(Runnable.class));
+      // then
+      // we can't use ScheduledThreadPoolExecutor#getTaskCount because the tasks are
+      assertThat(executor.getTaskCount()).isEqualTo(2);
     }
 
     @Test
@@ -73,16 +73,13 @@ final class BackgroundTaskManagerTest {
       assertThatCode(archiver::start)
           .as("throws on the second task submission")
           .isInstanceOf(RuntimeException.class);
-      Mockito.verify(executor, Mockito.times(2)).submit(Mockito.any(Runnable.class));
+      assertThat(executor.getTaskCount()).isOne();
 
       // when
       archiver.start();
 
-      // we can't use `getTaskCount()` because that's an approximation of the number of tasks
-      // and it may be wrong at times, as per the docs
-      // then - we actually expect 3 submit calls, since the second one initially failed, and we're
-      // now re-submitting it again
-      Mockito.verify(executor, Mockito.times(3)).submit(Mockito.any(Runnable.class));
+      // then
+      assertThat(executor.getTaskCount()).isEqualTo(2);
     }
   }
 
