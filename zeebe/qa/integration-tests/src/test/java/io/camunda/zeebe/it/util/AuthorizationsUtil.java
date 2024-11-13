@@ -123,15 +123,30 @@ public class AuthorizationsUtil {
       throw new RuntimeException(e);
     }
 
+    final var startTime = System.currentTimeMillis();
     Awaitility.await()
         .atMost(Duration.ofSeconds(10))
         .until(
             () -> {
               final var response = HTTP_CLIENT.send(request, BodyHandlers.ofString());
+
+              final var statusCode = response.statusCode();
+              if (statusCode < 200 || statusCode >= 300) {
+                System.out.printf(
+                    """
+                    Failed to query user in Elasticsearch:
+                     Status code: %d
+                     Body: %s
+                    """,
+                    statusCode, response.body());
+              }
+
               final var userExistsResponse =
                   OBJECT_MAPPER.readValue(response.body(), UserExistsResponse.class);
               return userExistsResponse.count > 0;
             });
+    System.out.printf(
+        "User creation took: %s%n", Duration.ofMillis(System.currentTimeMillis() - startTime));
   }
 
   public record Permissions(
