@@ -11,10 +11,10 @@ import io.camunda.exporter.tasks.BackgroundTask;
 import java.util.concurrent.CompletableFuture;
 
 public interface ArchiverJob extends BackgroundTask {
-  CompletableFuture<Integer> archiveNextBatch();
+  CompletableFuture<Integer> getNextJob();
 
   @Override
   default CompletableFuture<Integer> execute() {
-    return archiveNextBatch();
+    return getNextJob();
   }
 }

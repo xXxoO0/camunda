@@ -37,7 +37,7 @@ public class BatchOperationArchiverJob implements ArchiverJob {
   }
 
   @Override
-  public CompletableFuture<Integer> archiveNextBatch() {
+  public CompletableFuture<Integer> getNextJob() {
     return repository.getBatchOperationsNextBatch().thenComposeAsync(this::archiveBatch, executor);
   }
 

@@ -35,7 +35,7 @@ final class BatchOperationArchiverJobTest {
   @Test
   void shouldReturnZeroIfNoBatchGiven() {
     // given - when
-    final var result = job.archiveNextBatch();
+    final var result = job.getNextJob();
 
     // then
     assertThat(result).succeedsWithin(Duration.ZERO).isEqualTo(0);
@@ -47,7 +47,7 @@ final class BatchOperationArchiverJobTest {
     repository.batch = new ArchiveBatch("2024-01-01", List.of());
 
     // when
-    final var result = job.archiveNextBatch();
+    final var result = job.getNextJob();
 
     // then
     assertThat(result).succeedsWithin(Duration.ZERO).isEqualTo(0);
@@ -59,7 +59,7 @@ final class BatchOperationArchiverJobTest {
     repository.batch = new ArchiveBatch("2024-01-01", List.of("1", "2", "3"));
 
     // when
-    final var result = job.archiveNextBatch();
+    final var result = job.getNextJob();
 
     // then
     assertThat(result).succeedsWithin(Duration.ZERO).isEqualTo(3);
@@ -79,7 +79,7 @@ final class BatchOperationArchiverJobTest {
     repository.batch = new ArchiveBatch("2024-01-01", List.of("1", "2", "3"));
 
     // when
-    final var count = job.archiveNextBatch().join() + job.archiveNextBatch().join();
+    final var count = job.getNextJob().join() + job.getNextJob().join();
 
     // then
     assertThat(meterRegistry.counter("zeebe.camunda.exporter.archived.batch.operations").count())

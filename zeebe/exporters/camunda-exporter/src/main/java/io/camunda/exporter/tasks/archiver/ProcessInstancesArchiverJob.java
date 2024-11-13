@@ -41,7 +41,7 @@ public class ProcessInstancesArchiverJob implements ArchiverJob {
   }
 
   @Override
-  public CompletableFuture<Integer> archiveNextBatch() {
+  public CompletableFuture<Integer> getNextJob() {
     return repository.getProcessInstancesNextBatch().thenComposeAsync(this::archiveBatch, executor);
   }
 

@@ -68,7 +68,7 @@ final class ReschedulingTaskTest {
           private final AtomicInteger count = new AtomicInteger();
 
           @Override
-          public CompletableFuture<Integer> archiveNextBatch() {
+          public CompletableFuture<Integer> getNextJob() {
             final var runCount = count.getAndIncrement();
             if (runCount == 0) {
               return CompletableFuture.failedFuture(new RuntimeException("error"));
@@ -106,7 +106,7 @@ final class ReschedulingTaskTest {
     final var job =
         new ArchiverJob() {
           @Override
-          public CompletableFuture<Integer> archiveNextBatch() {
+          public CompletableFuture<Integer> getNextJob() {
             return null;
           }
         };
@@ -128,7 +128,7 @@ final class ReschedulingTaskTest {
     final var job =
         new ArchiverJob() {
           @Override
-          public CompletableFuture<Integer> archiveNextBatch() {
+          public CompletableFuture<Integer> getNextJob() {
             return CompletableFuture.completedFuture(1);
           }
         };
@@ -154,7 +154,7 @@ final class ReschedulingTaskTest {
 
   private static final class FailingJob implements ArchiverJob {
     @Override
-    public CompletableFuture<Integer> archiveNextBatch() {
+    public CompletableFuture<Integer> getNextJob() {
       return CompletableFuture.failedFuture(new RuntimeException("failure"));
     }
   }
