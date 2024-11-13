@@ -13,6 +13,7 @@ import io.camunda.zeebe.auth.impl.TenantAuthorizationCheckerImpl;
 import io.camunda.zeebe.engine.processing.bpmn.behavior.BpmnBehaviors;
 import io.camunda.zeebe.engine.processing.bpmn.behavior.BpmnIncidentBehavior;
 import io.camunda.zeebe.engine.processing.bpmn.behavior.BpmnJobBehavior;
+import io.camunda.zeebe.engine.processing.bpmn.behavior.BpmnUserTaskBehavior;
 import io.camunda.zeebe.engine.processing.common.CatchEventBehavior;
 import io.camunda.zeebe.engine.processing.common.ElementActivationBehavior;
 import io.camunda.zeebe.engine.processing.common.ElementActivationBehavior.ActivatedElementKeys;
@@ -143,6 +144,11 @@ public final class ProcessInstanceModificationModifyProcessor
   private final CatchEventBehavior catchEventBehavior;
   private final ElementActivationBehavior elementActivationBehavior;
   private final VariableBehavior variableBehavior;
+<<<<<<< HEAD
+=======
+  private final BpmnUserTaskBehavior userTaskBehavior;
+  private final AuthorizationCheckBehavior authCheckBehavior;
+>>>>>>> 945890e8 (fix: cancel user tasks on instance modification)
 
   public ProcessInstanceModificationModifyProcessor(
       final Writers writers,
@@ -159,6 +165,11 @@ public final class ProcessInstanceModificationModifyProcessor
     catchEventBehavior = bpmnBehaviors.catchEventBehavior();
     elementActivationBehavior = bpmnBehaviors.elementActivationBehavior();
     variableBehavior = bpmnBehaviors.variableBehavior();
+<<<<<<< HEAD
+=======
+    userTaskBehavior = bpmnBehaviors.userTaskBehavior();
+    this.authCheckBehavior = authCheckBehavior;
+>>>>>>> 945890e8 (fix: cancel user tasks on instance modification)
   }
 
   @Override
@@ -699,6 +710,7 @@ public final class ProcessInstanceModificationModifyProcessor
       elementInstancesToTerminate.push(currentElement);
 
       jobBehavior.cancelJob(currentElement);
+      userTaskBehavior.cancelUserTask(currentElement);
       incidentBehavior.resolveIncidents(elementInstanceKey);
       catchEventBehavior.unsubscribeFromEvents(elementInstanceKey);
 
