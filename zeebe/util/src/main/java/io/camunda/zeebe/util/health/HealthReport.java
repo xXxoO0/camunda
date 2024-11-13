@@ -45,7 +45,7 @@ public record HealthReport(
       final HealthStatus status,
       final HealthIssue issue,
       final Map<String, HealthReport> children) {
-    this(component.getName(), status, issue, children);
+    this(component.componentName(), status, issue, children);
   }
 
   public static Optional<HealthReport> fromChildrenStatus(

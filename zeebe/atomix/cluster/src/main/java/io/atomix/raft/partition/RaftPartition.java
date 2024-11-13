@@ -145,7 +145,7 @@ public final class RaftPartition implements Partition, HealthMonitorable {
   }
 
   @Override
-  public String getName() {
+  public String componentName() {
     return name();
   }
 
