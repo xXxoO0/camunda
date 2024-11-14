@@ -130,40 +130,6 @@ final class ElasticsearchRepositoryIT {
   }
 
   @Test
-  void shouldNotSetIndexLifecycleIfRetentionIsDisabled() throws IOException {
-    // given
-    final var indexName = UUID.randomUUID().toString();
-    final var repository = createRepository();
-    testClient.indices().create(r -> r.index(indexName));
-    final var initialLifecycle =
-        testClient
-            .indices()
-            .getSettings(r -> r.index(indexName))
-            .get(indexName)
-            .settings()
-            .lifecycle();
-    assertThat(initialLifecycle).isNull();
-    retention.setEnabled(false);
-    retention.setPolicyName("operate_delete_archived_indices");
-    putLifecyclePolicy();
-
-    // when
-    final var result = repository.setIndexLifeCycle(indexName);
-
-    // then
-    assertThat(result).succeedsWithin(Duration.ZERO);
-    final var actualLifecycle =
-        testClient
-            .indices()
-            .getSettings(r -> r.index(indexName))
-            .get(indexName)
-            .settings()
-            .index()
-            .lifecycle();
-    assertThat(actualLifecycle).isNull();
-  }
-
-  @Test
   void shouldReindexDocuments() throws IOException {
     // given
     final var sourceIndexName = UUID.randomUUID().toString();
@@ -175,7 +141,7 @@ final class ElasticsearchRepositoryIT {
     testClient.indices().refresh(r -> r.index(sourceIndexName));
     testClient.indices().create(r -> r.index(destIndexName));
 
-    // when - delete the first two documents
+    // when - reindex the first two documents
     final var result =
         repository.reindexDocuments(
             sourceIndexName,
@@ -200,6 +166,46 @@ final class ElasticsearchRepositoryIT {
         .hasSize(3)
         .extracting(Hit::id)
         .containsExactlyInAnyOrder("1", "2", "3");
+  }
+
+  @Test
+  void shouldMoveDocuments() throws IOException {
+    // given
+    final var sourceIndexName = UUID.randomUUID().toString();
+    final var destIndexName = UUID.randomUUID().toString();
+    final var repository = createRepository();
+    final var documents =
+        List.of(new TestDocument("1"), new TestDocument("2"), new TestDocument("3"));
+    documents.forEach(doc -> index(sourceIndexName, doc));
+    testClient.indices().refresh(r -> r.index(sourceIndexName));
+    testClient.indices().create(r -> r.index(destIndexName));
+
+    // when - move the first two documents
+    final var result =
+        repository.moveDocuments(
+            sourceIndexName,
+            destIndexName,
+            "id",
+            documents.stream().limit(2).map(TestDocument::id).toList(),
+            Runnable::run);
+
+    // then
+    assertThat(result).succeedsWithin(Duration.ofSeconds(30));
+    testClient.indices().refresh(r -> r.index(sourceIndexName, destIndexName));
+    final var remaining =
+        testClient.search(r -> r.index(sourceIndexName).requestCache(false), TestDocument.class);
+    final var reindexed =
+        testClient.search(r -> r.index(destIndexName).requestCache(false), TestDocument.class);
+    assertThat(reindexed.hits().hits())
+        .as("only first two documents were reindexed")
+        .hasSize(2)
+        .map(Hit::id)
+        .containsExactlyInAnyOrder("1", "2");
+    assertThat(remaining.hits().hits())
+        .as("only the last document is remaining")
+        .hasSize(1)
+        .extracting(Hit::id)
+        .containsExactlyInAnyOrder("3");
   }
 
   @Test

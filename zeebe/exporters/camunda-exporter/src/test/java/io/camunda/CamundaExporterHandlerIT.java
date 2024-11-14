@@ -27,18 +27,22 @@ import io.camunda.exporter.handlers.EventFromJobHandler;
 import io.camunda.exporter.handlers.EventFromProcessInstanceHandler;
 import io.camunda.exporter.handlers.EventFromProcessMessageSubscriptionHandler;
 import io.camunda.exporter.handlers.ExportHandler;
-import io.camunda.exporter.handlers.FlowNodeInstanceIncidentHandler;
-import io.camunda.exporter.handlers.FlowNodeInstanceProcessInstanceHandler;
+import io.camunda.exporter.handlers.FlowNodeInstanceFromIncidentHandler;
+import io.camunda.exporter.handlers.FlowNodeInstanceFromProcessInstanceHandler;
 import io.camunda.exporter.handlers.FormHandler;
+import io.camunda.exporter.handlers.GroupCreatedUpdatedHandler;
 import io.camunda.exporter.handlers.IncidentHandler;
 import io.camunda.exporter.handlers.ListViewFlowNodeFromIncidentHandler;
 import io.camunda.exporter.handlers.ListViewFlowNodeFromJobHandler;
 import io.camunda.exporter.handlers.ListViewFlowNodeFromProcessInstanceHandler;
 import io.camunda.exporter.handlers.ListViewProcessInstanceFromProcessInstanceHandler;
 import io.camunda.exporter.handlers.ListViewVariableFromVariableHandler;
+import io.camunda.exporter.handlers.MappingCreatedHandler;
+import io.camunda.exporter.handlers.MappingDeletedHandler;
 import io.camunda.exporter.handlers.MetricFromProcessInstanceHandler;
 import io.camunda.exporter.handlers.PostImporterQueueFromIncidentHandler;
 import io.camunda.exporter.handlers.ProcessHandler;
+import io.camunda.exporter.handlers.RoleCreateUpdateHandler;
 import io.camunda.exporter.handlers.SequenceFlowHandler;
 import io.camunda.exporter.handlers.TaskCompletedMetricHandler;
 import io.camunda.exporter.handlers.UserTaskCompletionVariableHandler;
@@ -61,16 +65,25 @@ import io.camunda.zeebe.exporter.test.ExporterTestController;
 import io.camunda.zeebe.protocol.record.Record;
 import io.camunda.zeebe.protocol.record.RecordValue;
 import io.camunda.zeebe.protocol.record.ValueType;
+import io.camunda.zeebe.protocol.record.intent.GroupIntent;
 import io.camunda.zeebe.protocol.record.intent.JobIntent;
+import io.camunda.zeebe.protocol.record.intent.MappingIntent;
+import io.camunda.zeebe.protocol.record.intent.RoleIntent;
 import io.camunda.zeebe.protocol.record.value.BpmnElementType;
 import io.camunda.zeebe.protocol.record.value.DecisionEvaluationRecordValue;
 import io.camunda.zeebe.protocol.record.value.EvaluatedDecisionValue;
+import io.camunda.zeebe.protocol.record.value.GroupRecordValue;
 import io.camunda.zeebe.protocol.record.value.ImmutableDecisionEvaluationRecordValue;
 import io.camunda.zeebe.protocol.record.value.ImmutableEvaluatedDecisionValue;
+import io.camunda.zeebe.protocol.record.value.ImmutableGroupRecordValue;
 import io.camunda.zeebe.protocol.record.value.ImmutableJobRecordValue;
+import io.camunda.zeebe.protocol.record.value.ImmutableMappingRecordValue;
 import io.camunda.zeebe.protocol.record.value.ImmutableProcessInstanceRecordValue;
+import io.camunda.zeebe.protocol.record.value.ImmutableRoleRecordValue;
 import io.camunda.zeebe.protocol.record.value.JobRecordValue;
+import io.camunda.zeebe.protocol.record.value.MappingRecordValue;
 import io.camunda.zeebe.protocol.record.value.ProcessInstanceRecordValue;
+import io.camunda.zeebe.protocol.record.value.RoleRecordValue;
 import io.camunda.zeebe.test.broker.protocol.ProtocolFactory;
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -180,7 +193,7 @@ public class CamundaExporterHandlerIT {
   void shouldExportUsingFlowNodeInstanceIncidentHandler(
       final ExporterConfiguration config, final SearchClientAdapter clientAdapter)
       throws IOException {
-    final var handler = getHandler(config, FlowNodeInstanceIncidentHandler.class);
+    final var handler = getHandler(config, FlowNodeInstanceFromIncidentHandler.class);
     basicAssertWhereHandlerCreatesDefaultEntity(
         handler, config, clientAdapter, defaultRecordGenerator(handler));
   }
@@ -189,7 +202,7 @@ public class CamundaExporterHandlerIT {
   void shouldExportUsingFlowNodeInstanceProcessInstanceHandler(
       final ExporterConfiguration config, final SearchClientAdapter clientAdapter)
       throws IOException {
-    final var handler = getHandler(config, FlowNodeInstanceProcessInstanceHandler.class);
+    final var handler = getHandler(config, FlowNodeInstanceFromProcessInstanceHandler.class);
     basicAssertWhereHandlerCreatesDefaultEntity(
         handler, config, clientAdapter, defaultRecordGenerator(handler));
   }
@@ -309,6 +322,15 @@ public class CamundaExporterHandlerIT {
   }
 
   @TestTemplate
+  void shouldExportUsingRoleCreateUpdateHandler(
+      final ExporterConfiguration config, final SearchClientAdapter clientAdapter)
+      throws IOException {
+    final var handler = getHandler(config, RoleCreateUpdateHandler.class);
+    basicAssertWhereHandlerCreatesDefaultEntity(
+        handler, config, clientAdapter, roleRecordGenerator(handler, RoleIntent.CREATED));
+  }
+
+  @TestTemplate
   void shouldExportUsingUserTaskCompletionVariableHandler(
       final ExporterConfiguration config, final SearchClientAdapter clientAdapter)
       throws IOException {
@@ -377,15 +399,52 @@ public class CamundaExporterHandlerIT {
     testForOperationHandlers(handler, config, clientAdapter);
   }
 
+  @TestTemplate
+  void shouldExportUsingMappingCreatedHandler(
+      final ExporterConfiguration config, final SearchClientAdapter clientAdapter)
+      throws IOException {
+    final var handler = getHandler(config, MappingCreatedHandler.class);
+    basicAssertWhereHandlerCreatesDefaultEntity(
+        handler, config, clientAdapter, mappingRecordGenerator(handler, MappingIntent.CREATED));
+  }
+
+  @TestTemplate
+  void shouldExportUsingMappingDeletedHandler(
+      final ExporterConfiguration config, final SearchClientAdapter clientAdapter)
+      throws IOException {
+    final var handler = getHandler(config, MappingDeletedHandler.class);
+    basicAssertWhereHandlerDeletesDefaultEntity(
+        handler, config, clientAdapter, mappingRecordGenerator(handler, MappingIntent.DELETED));
+  }
+
+  @TestTemplate
+  void shouldExportGroupCreatedUsingGroupCreateUpdateHandler(
+      final ExporterConfiguration config, final SearchClientAdapter clientAdapter)
+      throws IOException {
+    final var handler = getHandler(config, GroupCreatedUpdatedHandler.class);
+    basicAssertWhereHandlerCreatesDefaultEntity(
+        handler, config, clientAdapter, groupRecordGenerator(handler, GroupIntent.CREATED));
+  }
+
+  @TestTemplate
+  void shouldExportGroupUpdatedUsingGroupCreateUpdateHandler(
+      final ExporterConfiguration config, final SearchClientAdapter clientAdapter)
+      throws IOException {
+    final var handler = getHandler(config, GroupCreatedUpdatedHandler.class);
+    basicAssertWhereHandlerCreatesDefaultEntity(
+        handler, config, clientAdapter, groupRecordGenerator(handler, GroupIntent.UPDATED));
+  }
+
   @SuppressWarnings("unchecked")
   private <S extends ExporterEntity<S>, T extends RecordValue> ExportHandler<S, T> getHandler(
       final ExporterConfiguration config, final Class<?> handlerClass) {
     final var provider = new DefaultExporterResourceProvider();
-    provider.init(config, ClientAdapter.of(config)::getProcessCacheLoader);
+    provider.init(config, ClientAdapter.of(config).getExporterEntityCacheProvider());
 
     return provider.getExportHandlers().stream()
         .filter(handler -> handler.getClass().equals(handlerClass))
         .findFirst()
+        .map(handler -> (ExportHandler<S, T>) handler)
         .orElseThrow();
   }
 
@@ -397,7 +456,7 @@ public class CamundaExporterHandlerIT {
   private CamundaExporter getExporter(
       final ExporterConfiguration config, final ExportHandler<?, ?> handler) {
     final var provider = spy(new DefaultExporterResourceProvider());
-    provider.init(config, ClientAdapter.of(config)::getProcessCacheLoader);
+    provider.init(config, ClientAdapter.of(config).getExporterEntityCacheProvider());
 
     doReturn(Set.of(handler)).when(provider).getExportHandlers();
 
@@ -442,6 +501,33 @@ public class CamundaExporterHandlerIT {
             "Handler [%s] correctly handles a [%s] record",
             handler.getClass().getSimpleName(), handler.getHandledValueType())
         .isEqualTo(expectedEntity);
+  }
+
+  private <S extends ExporterEntity<S>, T extends RecordValue>
+      void basicAssertWhereHandlerDeletesDefaultEntity(
+          final ExportHandler<S, T> handler,
+          final ExporterConfiguration config,
+          final SearchClientAdapter clientAdapter,
+          final Record<T> record)
+          throws IOException {
+
+    // given
+    final var exporter = getExporter(config, handler);
+
+    final var expectedEntity = getExpectedEntity(record, handler);
+
+    // when
+    exporter.export(record);
+
+    // then
+    final var responseEntity =
+        clientAdapter.get(expectedEntity.getId(), handler.getIndexName(), handler.getEntityType());
+
+    assertThat(responseEntity)
+        .describedAs(
+            "Handler [%s] correctly deletes a [%s] record",
+            handler.getClass().getSimpleName(), handler.getHandledValueType())
+        .isNull();
   }
 
   private <S extends ExporterEntity<S>, T extends RecordValue> void testForOperationHandlers(
@@ -522,6 +608,60 @@ public class CamundaExporterHandlerIT {
           return factory.generateRecord(
               ValueType.DECISION_EVALUATION,
               r -> r.withValue((T) decisionRecordValue).withTimestamp(System.currentTimeMillis()));
+        });
+  }
+
+  private <S extends ExporterEntity<S>, T extends RecordValue> Record<T> mappingRecordGenerator(
+      final ExportHandler<S, T> handler, final MappingIntent intent) {
+    return recordGenerator(
+        handler,
+        () -> {
+          final var mappingRecordValue =
+              ImmutableMappingRecordValue.builder()
+                  .from(factory.generateObject(MappingRecordValue.class))
+                  .build();
+          return factory.generateRecord(
+              ValueType.MAPPING,
+              r ->
+                  r.withValue((T) mappingRecordValue)
+                      .withIntent(intent)
+                      .withTimestamp(System.currentTimeMillis()));
+        });
+  }
+
+  private <S extends ExporterEntity<S>, T extends RecordValue> Record<T> groupRecordGenerator(
+      final ExportHandler<S, T> handler, final GroupIntent intent) {
+    return recordGenerator(
+        handler,
+        () -> {
+          final var groupRecordValue =
+              ImmutableGroupRecordValue.builder()
+                  .from(factory.generateObject(GroupRecordValue.class))
+                  .build();
+          return factory.generateRecord(
+              ValueType.GROUP,
+              r ->
+                  r.withValue((T) groupRecordValue)
+                      .withIntent(intent)
+                      .withTimestamp(System.currentTimeMillis()));
+        });
+  }
+
+  private <S extends ExporterEntity<S>, T extends RecordValue> Record<T> roleRecordGenerator(
+      final ExportHandler<S, T> handler, final RoleIntent intent) {
+    return recordGenerator(
+        handler,
+        () -> {
+          final var roleRecordValue =
+              ImmutableRoleRecordValue.builder()
+                  .from(factory.generateObject(RoleRecordValue.class))
+                  .build();
+          return factory.generateRecord(
+              ValueType.ROLE,
+              r ->
+                  r.withValue((T) roleRecordValue)
+                      .withIntent(intent)
+                      .withTimestamp(System.currentTimeMillis()));
         });
   }
 

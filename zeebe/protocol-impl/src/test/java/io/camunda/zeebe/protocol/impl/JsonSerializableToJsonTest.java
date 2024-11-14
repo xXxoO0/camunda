@@ -57,6 +57,8 @@ import io.camunda.zeebe.protocol.impl.record.value.processinstance.ProcessInstan
 import io.camunda.zeebe.protocol.impl.record.value.processinstance.ProcessInstanceModificationVariableInstruction;
 import io.camunda.zeebe.protocol.impl.record.value.processinstance.ProcessInstanceRecord;
 import io.camunda.zeebe.protocol.impl.record.value.resource.ResourceDeletionRecord;
+import io.camunda.zeebe.protocol.impl.record.value.scaling.RedistributionProgress;
+import io.camunda.zeebe.protocol.impl.record.value.scaling.RedistributionRecord;
 import io.camunda.zeebe.protocol.impl.record.value.scaling.ScaleRecord;
 import io.camunda.zeebe.protocol.impl.record.value.signal.SignalRecord;
 import io.camunda.zeebe.protocol.impl.record.value.signal.SignalSubscriptionRecord;
@@ -77,7 +79,6 @@ import io.camunda.zeebe.protocol.record.value.BpmnElementType;
 import io.camunda.zeebe.protocol.record.value.BpmnEventType;
 import io.camunda.zeebe.protocol.record.value.EntityType;
 import io.camunda.zeebe.protocol.record.value.ErrorType;
-import io.camunda.zeebe.protocol.record.value.PermissionAction;
 import io.camunda.zeebe.protocol.record.value.PermissionType;
 import io.camunda.zeebe.protocol.record.value.TenantOwned;
 import io.camunda.zeebe.protocol.record.value.UserType;
@@ -2612,7 +2613,6 @@ final class JsonSerializableToJsonTest {
         (Supplier<AuthorizationRecord>)
             () ->
                 new AuthorizationRecord()
-                    .setAction(PermissionAction.ADD)
                     .setOwnerKey(1L)
                     .setOwnerType(AuthorizationOwnerType.USER)
                     .setResourceType(AuthorizationResourceType.DEPLOYMENT)
@@ -2625,7 +2625,6 @@ final class JsonSerializableToJsonTest {
                         new Permission().setPermissionType(PermissionType.READ).addResourceId("*")),
         """
         {
-          "action": "ADD",
           "ownerKey": 1,
           "ownerType": "USER",
           "resourceType": "DEPLOYMENT",
@@ -2650,12 +2649,10 @@ final class JsonSerializableToJsonTest {
         (Supplier<AuthorizationRecord>)
             () ->
                 new AuthorizationRecord()
-                    .setAction(PermissionAction.ADD)
                     .setOwnerKey(1L)
                     .setResourceType(AuthorizationResourceType.DEPLOYMENT),
         """
         {
-          "action": "ADD",
           "ownerKey": 1,
           "ownerType": "UNSPECIFIED",
           "resourceType": "DEPLOYMENT",
@@ -2785,6 +2782,38 @@ final class JsonSerializableToJsonTest {
         """
         {
          "desiredPartitionCount": 5
+        }
+        """
+      },
+
+      /////////////////////////////////////////////////////////////////////////////////////////////
+      ///////////////////////////////////// RedistributionRecord //////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////////////////////
+      {
+        "RedistributionRecord (empty)",
+        (Supplier<RedistributionRecord>) RedistributionRecord::new,
+        """
+        {
+          "stage": -1,
+          "progress": {
+            "deploymentKey": -1
+          }
+        }
+        """
+      },
+      {
+        "RedistributionRecord",
+        (Supplier<RedistributionRecord>)
+            () ->
+                new RedistributionRecord()
+                    .setStage(2)
+                    .setProgress(new RedistributionProgress().claimDeploymentKey(123)),
+        """
+        {
+          "stage": 2,
+          "progress": {
+            "deploymentKey": 123
+          }
         }
         """
       },
